@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+  <defs>
+    <linearGradient id="apBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1926" />
+      <stop offset="50%" stop-color="#0e283d" />
+      <stop offset="100%" stop-color="#050e17" />
+    </linearGradient>
+    <linearGradient id="goldLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5e0a6" />
+      <stop offset="50%" stop-color="#d4af37" />
+      <stop offset="100%" stop-color="#8f6b21" />
+    </linearGradient>
+  </defs>
+  <!-- Fundo Azul Profundo Marinho -->
+  <rect width="480" height="300" fill="url(#apBg)" />
+
+  <!-- Obra: Azul Profundo por Rafael Almeida (Texturas densas de espátula em azul cobalto, ciano, turquesa e folha de ouro) -->
+  <g opacity="0.95">
+    <!-- Pinceladas e Escamas Espatuladas em Camadas -->
+    <!-- Camada 1: Azul Petróleo / Marinho -->
+    <path d="M 30 40 L 95 15 L 140 75 L 75 100 Z" fill="#143e5e" />
+    <path d="M 120 25 L 205 10 L 235 85 L 150 95 Z" fill="#1b537d" />
+    <path d="M 215 20 L 310 15 L 340 90 L 245 95 Z" fill="#104369" />
+    <path d="M 320 25 L 420 20 L 450 100 L 350 105 Z" fill="#184e75" />
+
+    <!-- Camada 2: Turquesa Vibrante e Azul Cobalto -->
+    <path d="M 15 90 L 85 75 L 130 160 L 60 175 Z" fill="#1d6b99" />
+    <path d="M 95 85 L 195 70 L 235 170 L 135 185 Z" fill="#258abf" />
+    <path d="M 205 80 L 310 75 L 350 175 L 245 180 Z" fill="#1a73a6" />
+    <path d="M 320 85 L 435 80 L 465 180 L 350 185 Z" fill="#2185b8" />
+
+    <!-- Camada 3: Texturas de Primeiro Plano -->
+    <path d="M 35 160 L 125 145 L 165 245 L 75 260 Z" fill="#185c85" />
+    <path d="M 135 155 L 240 140 L 285 250 L 180 265 Z" fill="#2478a8" />
+    <path d="M 255 150 L 360 145 L 400 255 L 295 260 Z" fill="#196594" />
+    <path d="M 370 155 L 460 150 L 475 260 L 385 265 Z" fill="#2a8cc4" />
+
+    <!-- Filetes e Folhas de Ouro em Destaque (Estilo do Mockup) -->
+    <polygon points="120,45 145,35 170,95 145,105" fill="url(#goldLeaf)" />
+    <polygon points="230,65 265,55 285,135 250,145" fill="url(#goldLeaf)" />
+    <polygon points="175,130 215,120 235,190 195,200" fill="url(#goldLeaf)" />
+    <polygon points="305,120 340,110 365,185 330,195" fill="url(#goldLeaf)" />
+    <polygon points="235,210 270,195 290,265 255,280" fill="url(#goldLeaf)" />
+
+    <!-- Gotas e Cristais de Luz -->
+    <circle cx="160" cy="80" r="5" fill="#fce5a4" />
+    <circle cx="270" cy="110" r="6" fill="#fce5a4" />
+    <circle cx="210" cy="170" r="7" fill="#fce5a4" />
+    <circle cx="340" cy="160" r="5" fill="#fce5a4" />
+    <circle cx="275" cy="240" r="6" fill="#fce5a4" />
+  </g>
+</svg>
+

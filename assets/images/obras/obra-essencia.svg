@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+  <defs>
+    <radialGradient id="esGlow" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#4d3527" />
+      <stop offset="60%" stop-color="#241810" />
+      <stop offset="100%" stop-color="#0d0805" />
+    </radialGradient>
+    <linearGradient id="esSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fae5d7" />
+      <stop offset="50%" stop-color="#e8bfa5" />
+      <stop offset="100%" stop-color="#ad7453" />
+    </linearGradient>
+  </defs>
+  <!-- Fundo de Ateliê com Luz Editorial Chiaroscuro -->
+  <rect width="480" height="300" fill="url(#esGlow)" />
+
+  <!-- Obra: Essência por Juliana Costa -->
+  <g transform="translate(240, 50)">
+    <!-- Cabelos cacheados exuberantes castanho-dourados -->
+    <ellipse cx="0" cy="65" rx="95" ry="98" fill="#382113" />
+    <circle cx="-65" cy="65" r="38" fill="#4d2f1d" />
+    <circle cx="65" cy="65" r="38" fill="#4d2f1d" />
+    <circle cx="-50" cy="115" r="35" fill="#301a0d" />
+    <circle cx="50" cy="115" r="35" fill="#301a0d" />
+    <circle cx="-75" cy="95" r="28" fill="#472a18" />
+    <circle cx="75" cy="95" r="28" fill="#472a18" />
+
+    <!-- Rosto Iluminado -->
+    <ellipse cx="0" cy="75" rx="55" ry="70" fill="url(#esSkin)" />
+
+    <!-- Olhos expressivos e penetrantes -->
+    <ellipse cx="-22" cy="62" rx="10" ry="7" fill="#ffffff" />
+    <circle cx="-22" cy="62" r="5" fill="#2d160c" />
+    <circle cx="-23.5" cy="60.5" r="1.5" fill="#ffffff" />
+
+    <ellipse cx="22" cy="62" rx="10" ry="7" fill="#ffffff" />
+    <circle cx="22" cy="62" r="5" fill="#2d160c" />
+    <circle cx="20.5" cy="60.5" r="1.5" fill="#ffffff" />
+
+    <!-- Sobrancelhas bem arqueadas -->
+    <path d="M -35 50 Q -22 43 -10 50" stroke="#3b2111" stroke-width="2.5" fill="none" />
+    <path d="M 10 50 Q 22 43 35 50" stroke="#3b2111" stroke-width="2.5" fill="none" />
+
+    <!-- Nariz clássico e sombra suave -->
+    <path d="M -2 58 L 0 88 L 8 90" stroke="#8c502d" stroke-width="2.2" fill="none" />
+
+    <!-- Lábios expressivos -->
+    <path d="M -16 110 Q 0 105 16 110 Q 0 124 -16 110" fill="#a64438" />
+
+    <!-- Vestuário elegante e decote sutil -->
+    <path d="M -85 155 Q 0 130 85 155 L 105 250 L -105 250 Z" fill="#1b2e29" />
+    <path d="M -35 145 Q 0 175 35 145 L 45 250 L -45 250 Z" fill="#b3844f" opacity="0.8" />
+  </g>
+</svg>
+

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 240" width="300" height="240">
+  <defs>
+    <linearGradient id="modBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b2a47" />
+      <stop offset="50%" stop-color="#141c2e" />
+      <stop offset="100%" stop-color="#0c101a" />
+    </linearGradient>
+  </defs>
+  <rect width="300" height="240" fill="url(#modBg)" />
+  <!-- Pinceladas e Formas Geométricas Coloridas do Cubismo / Arte Moderna do Mockup -->
+  <g opacity="0.95">
+    <polygon points="40,30 110,20 90,95 20,80" fill="#e07a38" />
+    <polygon points="95,25 180,45 150,110 80,90" fill="#3a6b8c" />
+    <polygon points="175,30 250,50 220,130 145,105" fill="#d9a84e" />
+    <polygon points="215,60 280,75 270,160 205,140" fill="#8c3327" />
+    <!-- Camada intermediária -->
+    <polygon points="30,85 120,95 95,180 15,160" fill="#2b506e" />
+    <polygon points="110,95 200,105 180,185 85,175" fill="#f09b46" />
+    <polygon points="190,115 270,135 240,210 165,190" fill="#4d7c8a" />
+    <!-- Camada inferior -->
+    <polygon points="40,165 130,175 110,235 30,225" fill="#b8532a" />
+    <polygon points="120,180 220,185 190,238 95,235" fill="#caa055" />
+    <polygon points="210,190 285,195 270,238 180,238" fill="#1e3d54" />
+  </g>
+</svg>
+

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+  <defs>
+    <linearGradient id="hdSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#34495e" />
+      <stop offset="35%" stop-color="#a0522d" />
+      <stop offset="60%" stop-color="#e67e22" />
+      <stop offset="72%" stop-color="#f39c12" />
+      <stop offset="80%" stop-color="#f1c40f" />
+      <stop offset="88%" stop-color="#d35400" />
+      <stop offset="100%" stop-color="#1a1c23" />
+    </linearGradient>
+    <radialGradient id="hdSun" cx="50%" cy="66%" r="35%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="30%" stop-color="#fff0aa" />
+      <stop offset="60%" stop-color="#e67e22" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#a0522d" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <!-- Céu de Pôr do Sol Dourado -->
+  <rect width="480" height="300" fill="url(#hdSky)" />
+  <circle cx="240" cy="170" r="105" fill="url(#hdSun)" />
+  <ellipse cx="240" cy="170" rx="36" ry="24" fill="#ffffff" opacity="0.95" />
+
+  <!-- Margem e Árvores da Linha do Horizonte -->
+  <path d="M 0 172 Q 70 162 140 170 T 280 166 T 420 168 L 480 172 L 480 186 L 0 186 Z" fill="#1e1813" />
+  
+  <!-- Água com Reflexo Dourado Espelhado -->
+  <rect y="185" width="480" height="115" fill="#141a21" opacity="0.75" />
+  <ellipse cx="240" cy="205" rx="75" ry="14" fill="#fff2b3" opacity="0.85" />
+  <ellipse cx="240" cy="225" rx="110" ry="18" fill="#f1c40f" opacity="0.7" />
+  <ellipse cx="240" cy="248" rx="145" ry="18" fill="#e67e22" opacity="0.55" />
+  <ellipse cx="240" cy="275" rx="180" ry="15" fill="#a0522d" opacity="0.4" />
+
+  <!-- Margem em Primeiro Plano com Pinceladas Orgânicas -->
+  <path d="M 0 250 Q 80 230 160 300 L 0 300 Z" fill="#0e1114" />
+  <path d="M 330 300 Q 400 240 480 260 L 480 300 Z" fill="#0e1114" />
+</svg>
+

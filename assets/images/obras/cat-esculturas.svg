@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 240" width="300" height="240">
+  <defs>
+    <radialGradient id="sculptGlow" cx="45%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#473b2d" />
+      <stop offset="50%" stop-color="#241d15" />
+      <stop offset="100%" stop-color="#0d0a07" />
+    </radialGradient>
+    <linearGradient id="marble" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="40%" stop-color="#e8e2d5" />
+      <stop offset="80%" stop-color="#a69d8d" />
+      <stop offset="100%" stop-color="#696153" />
+    </linearGradient>
+  </defs>
+  <rect width="300" height="240" fill="url(#sculptGlow)" />
+  
+  <!-- Busto de Escultura Clássica de Mármore na Galeria -->
+  <g transform="translate(150, 20)">
+    <!-- Luz direcionada no mármore -->
+    <!-- Cabeça e Penteado Clássico -->
+    <ellipse cx="0" cy="65" rx="38" ry="46" fill="url(#marble)" />
+    <!-- Cabelos em ondas romanas -->
+    <path d="M -35 55 Q 0 30 35 55 Q 25 75 35 90 Q -5 95 -35 75 Z" fill="#b0a796" />
+    <circle cx="-25" cy="45" r="14" fill="#cfc7b8" />
+    <circle cx="25" cy="45" r="14" fill="#cfc7b8" />
+    <circle cx="0" cy="35" r="15" fill="#e5dfd3" />
+
+    <!-- Nariz reto clássico e queixo esculpido -->
+    <path d="M -4 55 L 2 78 L 10 80" stroke="#756b5a" stroke-width="2.5" fill="none" />
+    <ellipse cx="0" cy="98" rx="8" ry="4" fill="#877d6c" />
+
+    <!-- Pescoço e Músculos Trapézios Esculpidos -->
+    <path d="M -16 105 L -20 135 L 20 135 L 16 105 Z" fill="url(#marble)" />
+
+    <!-- Peito e Toga de Mármore -->
+    <path d="M -75 140 Q 0 120 75 140 L 65 195 L -65 195 Z" fill="url(#marble)" />
+    <!-- Dobras da Toga -->
+    <path d="M -50 145 Q 0 170 50 150" stroke="#5e5445" stroke-width="3" fill="none" />
+    <path d="M -35 160 Q 5 185 40 168" stroke="#5e5445" stroke-width="2.5" fill="none" />
+
+    <!-- Pedestal de Madeira ou Mármore Negro -->
+    <rect x="-35" y="195" width="70" height="35" rx="3" fill="#1c1610" stroke="#473a2c" stroke-width="2" />
+    <rect x="-42" y="190" width="84" height="8" rx="2" fill="#2d2319" />
+  </g>
+</svg>
+

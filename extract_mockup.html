@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ART SELL — Extrator de Imagens do Mockup</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #faf8f5; color: #1c1b18; padding: 2rem; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 2.5rem; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e8e3d8; }
+        h1 { font-family: Georgia, serif; color: #b38a54; margin-bottom: 0.5rem; }
+        .instructions { font-size: 0.95rem; color: #5a564f; line-height: 1.6; margin-bottom: 1.5rem; }
+        .upload-area { border: 2px dashed #b38a54; padding: 2.5rem; text-align: center; border-radius: 8px; background: #fdfbf7; cursor: pointer; transition: all 0.2s; margin-bottom: 2rem; }
+        .upload-area:hover { background: #f8f3eb; }
+        .btn { display: inline-block; background: #b38a54; color: #fff; padding: 0.75rem 1.5rem; border-radius: 4px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; margin-top: 1rem; }
+        .btn:hover { background: #9c7543; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 2rem; }
+        .card-thumb { border: 1px solid #e0dbd0; border-radius: 6px; padding: 8px; background: #faf8f5; text-align: center; }
+        .card-thumb img { width: 100%; border-radius: 4px; aspect-ratio: 16/10; object-fit: cover; }
+        .card-thumb span { display: block; font-size: 11px; margin-top: 6px; font-weight: 600; color: #444; }
+        .card-thumb a { display: inline-block; font-size: 10px; color: #b38a54; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ART SELL — Extrator de Imagens em Alta Resolução</h1>
+        <p class="instructions">
+            As imagens em SVG já estão ativas e funcionando perfeitamente no site. <br>
+            Caso você queira gerar os arquivos <strong>.JPG</strong> diretamente da imagem original do mockup, basta selecioná-la abaixo. O navegador irá recortar cada uma das obras e categorias com as coordenadas oficiais.
+        </p>
+
+        <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#b38a54" stroke-width="1.8" style="margin-bottom: 10px;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <h3 style="margin-bottom: 5px;">Clique aqui ou arraste o arquivo do Mockup (JPG/PNG)</h3>
+            <p style="font-size: 13px; color: #888;">O recorte de todas as 14 imagens será processado instantaneamente no seu navegador.</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        </div>
+
+        <div id="outputArea" style="display: none;">
+            <h3>Imagens Recortadas com Sucesso:</h3>
+            <div class="gallery-grid" id="galleryGrid"></div>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="index.php" class="btn">Abrir Site ART SELL (index.php) →</a>
+            <a href="index.html" class="btn" style="background: #333; margin-left: 10px;">Abrir Versão Estática (index.html) →</a>
+        </div>
+    </div>
+
+    <script>
+        const cropCoordinates = {
+            'hero-bg.jpg': { x: 0.0, y: 0.038, w: 1.0, h: 0.280, dir: 'assets/images/site/' },
+            'cat-arte-classica.jpg': { x: 0.146, y: 0.369, w: 0.081, h: 0.072, dir: 'assets/images/obras/' },
+            'cat-arte-moderna.jpg': { x: 0.235, y: 0.369, w: 0.081, h: 0.072, dir: 'assets/images/obras/' },
+            'cat-arte-contemporanea.jpg': { x: 0.324, y: 0.369, w: 0.081, h: 0.072, dir: 'assets/images/obras/' },
+            'cat-paisagens.jpg': { x: 0.413, y: 0.369, w: 0.081, h: 0.072, dir: 'assets/images/obras/' },
+            'cat-retratos.jpg': { x: 0.503, y: 0.369, w: 0.081, h: 0.072, dir: 'assets/images/obras/' },
+            'cat-abstrato.jpg': { x: 0.593, y: 0.369, w: 0.081, h: 0.072, dir: 'assets/images/obras/' },
+            'cat-gravuras.jpg': { x: 0.683, y: 0.369, w: 0.081, h: 0.072, dir: 'assets/images/obras/' },
+            'cat-esculturas.jpg': { x: 0.772, y: 0.369, w: 0.081, h: 0.072, dir: 'assets/images/obras/' },
+            'obra-horizontes-dourados.jpg': { x: 0.146, y: 0.514, w: 0.170, h: 0.087, dir: 'assets/images/obras/' },
+            'obra-silencio-urbano.jpg': { x: 0.325, y: 0.514, w: 0.170, h: 0.087, dir: 'assets/images/obras/' },
+            'obra-essencia.jpg': { x: 0.504, y: 0.514, w: 0.170, h: 0.087, dir: 'assets/images/obras/' },
+            'obra-azul-profundo.jpg': { x: 0.683, y: 0.514, w: 0.170, h: 0.087, dir: 'assets/images/obras/' },
+            'about-art-sell.jpg': { x: 0.0, y: 0.684, w: 0.395, h: 0.129, dir: 'assets/images/site/' },
+            'team-banner-bg.jpg': { x: 0.0, y: 0.813, w: 0.440, h: 0.100, dir: 'assets/images/site/' }
+        };
+
+        const fileInput = document.getElementById('fileInput');
+        const outputArea = document.getElementById('outputArea');
+        const galleryGrid = document.getElementById('galleryGrid');
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    processMockupImage(img);
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function processMockupImage(sourceImg) {
+            outputArea.style.display = 'block';
+            galleryGrid.innerHTML = '';
+
+            const origW = sourceImg.naturalWidth;
+            const origH = sourceImg.naturalHeight;
+
+            Object.entries(cropCoordinates).forEach(([filename, coords]) => {
+                const canvas = document.createElement('canvas');
+                const sx = coords.x * origW;
+                const sy = coords.y * origH;
+                const sw = coords.w * origW;
+                const sh = coords.h * origH;
+
+                canvas.width = sw;
+                canvas.height = sh;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(sourceImg, sx, sy, sw, sh, 0, 0, sw, sh);
+
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+
+                const card = document.createElement('div');
+                card.className = 'card-thumb';
+                card.innerHTML = `
+                    <img src="${dataUrl}" alt="${filename}">
+                    <span>${filename}</span>
+                    <a href="${dataUrl}" download="${filename}">Baixar JPG</a>
+                `;
+                galleryGrid.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
+

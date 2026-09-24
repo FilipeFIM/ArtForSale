@@ -1,0 +1,441 @@
+<?php
+/**
+ * ART SELL - Home Page
+ * Tecnologias: PHP 8+, HTML5, CSS3, JavaScript Vanilla
+ * Fidelidade máxima ao mockup de referência.
+ */
+
+$pathPrefix = '';
+$currentPage = 'inicio';
+
+require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/header.php';
+?>
+
+<main class="site-main">
+
+    <!-- ========================================================
+         SEÇÃO HERO
+         ======================================================== -->
+    <section class="hero-section" id="hero">
+        <!-- Fundo com imagem da galeria de arte do mockup -->
+        <div class="hero-background" style="background-image: url('<?= get_image_url('assets/images/site/hero-bg.jpg') ?>');" data-mockup-fallback="hero">
+            <div class="hero-overlay"></div>
+        </div>
+
+        <div class="hero-container">
+            <!-- Conteúdo Principal do Hero (Esquerda) -->
+            <div class="hero-content">
+                <span class="hero-eyebrow">GALERIA DE ARTE</span>
+                <h1 class="hero-title">
+                    Arte que<br>
+                    transforma<br>
+                    espaços.
+                </h1>
+                <p class="hero-description">
+                    Descubra obras únicas e cuidadosamente selecionadas para colecionadores, apreciadores e ambientes que merecem personalidade.
+                </p>
+                <div class="hero-cta-group">
+                    <a href="pages/obras.php" class="btn-primary">
+                        Explorar obras <span class="arrow">→</span>
+                    </a>
+                    <a href="#categorias" class="btn-outline-light">
+                        Ver categorias
+                    </a>
+                </div>
+
+                <!-- Indicador de Slide do Hero -->
+                <div class="hero-pagination">
+                    <span class="page-number active">01</span>
+                    <span class="page-number">02</span>
+                    <span class="page-number">03</span>
+                    <span class="page-line"></span>
+                </div>
+            </div>
+
+            <!-- Citação Editorial Sofisticada (Direita) -->
+            <div class="hero-quote-box">
+                <div class="quote-mark">“</div>
+                <blockquote class="quote-text">
+                    Mais que quadros, histórias que ganham vida no seu espaço.
+                </blockquote>
+                
+                <!-- Setas de Navegação do Hero -->
+                <div class="hero-nav-arrows">
+                    <button type="button" class="hero-arrow-btn" id="heroPrevBtn" aria-label="Slide anterior">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <button type="button" class="hero-arrow-btn" id="heroNextBtn" aria-label="Próximo slide">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transição Artística com Pinceladas Sutis -->
+    <div class="brush-transition-accent" aria-hidden="true"></div>
+
+    <!-- ========================================================
+         SEÇÃO EXPLORE POR CATEGORIA
+         ======================================================== -->
+    <section class="section-categories" id="categorias">
+        <div class="section-container">
+            <!-- Cabeçalho da Seção -->
+            <div class="section-header">
+                <div class="header-titles">
+                    <span class="section-eyebrow">CATEGORIAS</span>
+                    <h2 class="section-title">Explore por Categoria</h2>
+                </div>
+                <a href="pages/obras.php" class="section-link-all">
+                    Ver todas as categorias <span class="arrow">→</span>
+                </a>
+            </div>
+
+            <!-- Grade com as 8 Categorias do Mockup -->
+            <div class="categories-grid">
+                <?php foreach ($categorias as $cat): ?>
+                    <a href="pages/obras.php?categoria=<?= $cat['slug'] ?>" class="category-card" data-category="<?= $cat['slug'] ?>">
+                        <div class="category-thumb-wrapper">
+                            <img 
+                                src="<?= $cat['imagem'] ?>" 
+                                alt="<?= $cat['nome'] ?>" 
+                                class="category-thumb"
+                                loading="lazy"
+                                data-crop="<?= $cat['crop_key'] ?>"
+                                onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');"
+                            >
+                            <div class="category-hover-overlay"></div>
+                        </div>
+                        <span class="category-name"><?= $cat['nome'] ?></span>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SEÇÃO OBRAS EM DESTAQUE
+         ======================================================== -->
+    <section class="section-featured" id="obras-destaque">
+        <div class="section-container">
+            <!-- Cabeçalho da Seção -->
+            <div class="section-header">
+                <div class="header-titles">
+                    <span class="section-eyebrow">OBRAS EM DESTAQUE</span>
+                    <h2 class="section-title">Obras em Destaque</h2>
+                </div>
+                <a href="pages/obras.php" class="section-link-all">
+                    Ver todas as obras <span class="arrow">→</span>
+                </a>
+            </div>
+
+            <!-- Carrossel de Obras com Setas Laterais -->
+            <div class="featured-carousel-wrapper">
+                <!-- Seta Esquerda -->
+                <button type="button" class="carousel-arrow prev" id="featuredPrevBtn" aria-label="Obra anterior">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+
+                <!-- Grade/Track do Carrossel com 4 Obras -->
+                <div class="featured-carousel-track" id="featuredTrack">
+                    <?php foreach ($obrasDestaque as $obra): ?>
+                        <article class="artwork-card" data-id="<?= $obra['id'] ?>" data-title="<?= htmlspecialchars($obra['titulo']) ?>" data-artist="<?= htmlspecialchars($obra['artista']) ?>" data-dimensions="<?= htmlspecialchars($obra['dimensoes']) ?>" data-image="<?= $obra['imagem'] ?>">
+                            <div class="artwork-image-container">
+                                <img 
+                                    src="<?= $obra['imagem'] ?>" 
+                                    alt="<?= htmlspecialchars($obra['titulo']) ?> por <?= htmlspecialchars($obra['artista']) ?>" 
+                                    class="artwork-image"
+                                    loading="lazy"
+                                    data-crop="<?= $obra['crop_key'] ?>"
+                                    onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');"
+                                >
+                                <!-- Botão de Favoritar (Coração) -->
+                                <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar <?= htmlspecialchars($obra['titulo']) ?>" data-id="<?= $obra['id'] ?>">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="artwork-details">
+                                <h3 class="artwork-title"><?= htmlspecialchars($obra['titulo']) ?></h3>
+                                <p class="artwork-artist"><?= htmlspecialchars($obra['artista']) ?></p>
+                                <p class="artwork-dimensions"><?= htmlspecialchars($obra['dimensoes']) ?></p>
+                                
+                                <div class="artwork-footer-row">
+                                    <span class="artwork-price"><?= htmlspecialchars($obra['preco']) ?></span>
+                                    <a href="pages/obra.php?id=<?= $obra['id'] ?>" class="btn-ver-detalhes" data-id="<?= $obra['id'] ?>">
+                                        Ver detalhes
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+
+                <!-- Seta Direita -->
+                <button type="button" class="carousel-arrow next" id="featuredNextBtn" aria-label="Próxima obra">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Indicadores de Pontos (Dots) -->
+            <div class="carousel-dots" id="carouselDots">
+                <button type="button" class="dot" data-index="0" aria-label="Página 1"></button>
+                <button type="button" class="dot active" data-index="1" aria-label="Página 2"></button>
+                <button type="button" class="dot" data-index="2" aria-label="Página 3"></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SEÇÃO SOBRE: A ART SELL
+         ======================================================== -->
+    <section class="section-about" id="sobre">
+        <div class="about-container">
+            <!-- Imagem da Galeria com Busto Clássico (Esquerda) -->
+            <div class="about-media-col">
+                <div class="about-image-wrapper">
+                    <img 
+                        src="<?= get_image_url('assets/images/site/about-art-sell.jpg') ?>" 
+                        alt="Galeria de Arte ART SELL" 
+                        class="about-image"
+                        loading="lazy"
+                        data-crop="about_art_sell"
+                        onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');"
+                    >
+                </div>
+            </div>
+
+            <!-- Conteúdo e Diferenciais (Direita) -->
+            <div class="about-content-col">
+                <span class="section-eyebrow">SOBRE A ART SELL</span>
+                <h2 class="about-title">A Art Sell</h2>
+                <p class="about-paragraph">
+                    A Art Sell nasceu com o propósito de aproximar pessoas da arte, oferecendo uma seleção cuidadosa de obras capazes de transformar ambientes, despertar emoções e construir histórias.
+                </p>
+                <div class="about-cta">
+                    <a href="#contato" class="btn-primary">
+                        Conheça nossa história <span class="arrow">→</span>
+                    </a>
+                </div>
+
+                <!-- 4 Diferenciais em Destaque com Ícones Dourados -->
+                <div class="differentials-grid">
+                    <?php foreach ($diferenciais as $dif): ?>
+                        <div class="differential-item">
+                            <div class="differential-icon">
+                                <?php if ($dif['icone'] === 'shield'): ?>
+                                    <!-- Escudo / Curadoria -->
+                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                    </svg>
+                                <?php elseif ($dif['icone'] === 'award'): ?>
+                                    <!-- Selo / Procedência -->
+                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="8" r="6"></circle>
+                                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                                    </svg>
+                                <?php elseif ($dif['icone'] === 'user-check'): ?>
+                                    <!-- Atendimento Personalizado -->
+                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="8.5" cy="7" r="4"></circle>
+                                        <polyline points="17 11 19 13 23 9"></polyline>
+                                    </svg>
+                                <?php else: ?>
+                                    <!-- Qualidade e Confiança (Diamante/Estrela) -->
+                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M6 3h12l4 6-10 13L2 9z"></path>
+                                        <line x1="12" y1="22" x2="12" y2="9"></line>
+                                        <line x1="2" y1="9" x2="22" y2="9"></line>
+                                    </svg>
+                                <?php endif; ?>
+                            </div>
+                            <h4 class="differential-title"><?= htmlspecialchars($dif['titulo']) ?></h4>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================
+         SEÇÃO FALE COM NOSSA EQUIPE (Banner Escuro Premium)
+         ======================================================== -->
+    <section class="section-team-banner" id="contato">
+        <div class="team-banner-bg" style="background-image: url('<?= get_image_url('assets/images/site/team-banner-bg.jpg') ?>');" data-mockup-fallback="team">
+            <div class="team-banner-overlay"></div>
+        </div>
+
+        <div class="team-banner-container">
+            <!-- Texto Institucional da Equipe (Esquerda) -->
+            <div class="team-intro-col">
+                <span class="team-eyebrow">EM ATENDIMENTO</span>
+                <h2 class="team-title">Fale com nossa equipe</h2>
+                <p class="team-description">
+                    Estamos à disposição para atender você, esclarecer suas dúvidas e ajudar na escolha da obra ideal.
+                </p>
+            </div>
+
+            <!-- Cards dos Contatos Oficiais (Direita) -->
+            <div class="team-cards-grid">
+                <!-- Card Sra. Elisabeth -->
+                <div class="team-card">
+                    <div class="team-card-header">
+                        <div class="team-avatar-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="team-member-info">
+                            <h4 class="team-member-name"><?= $contatos['elisabeth']['nome'] ?></h4>
+                            <span class="team-member-phone"><?= $contatos['elisabeth']['telefone'] ?></span>
+                        </div>
+                    </div>
+                    <div class="team-card-actions">
+                        <a href="tel:5191140044" class="btn-contact-outline">
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            Ligar
+                        </a>
+                        <a href="<?= $contatos['elisabeth']['whatsapp_link'] ?>" target="_blank" rel="noopener noreferrer" class="btn-contact-whatsapp">
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                            </svg>
+                            WhatsApp
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card Felipe C -->
+                <div class="team-card">
+                    <div class="team-card-header">
+                        <div class="team-avatar-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="team-member-info">
+                            <h4 class="team-member-name"><?= $contatos['felipe']['nome'] ?></h4>
+                            <span class="team-member-phone"><?= $contatos['felipe']['telefone'] ?></span>
+                        </div>
+                    </div>
+                    <div class="team-card-actions">
+                        <a href="tel:51991266414" class="btn-contact-outline">
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            Ligar
+                        </a>
+                        <a href="<?= $contatos['felipe']['whatsapp_link'] ?>" target="_blank" rel="noopener noreferrer" class="btn-contact-whatsapp">
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                            </svg>
+                            WhatsApp
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card E-mail -->
+                <div class="team-card team-card-email">
+                    <div class="team-card-header">
+                        <div class="team-avatar-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </div>
+                        <div class="team-member-info">
+                            <h4 class="team-member-name">E-mail</h4>
+                            <span class="team-member-phone"><?= $contatos['email']['endereco'] ?></span>
+                        </div>
+                    </div>
+                    <div class="team-card-actions">
+                        <a href="<?= $contatos['email']['link'] ?>" class="btn-contact-outline btn-full-width">
+                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            Enviar e-mail
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ========================================================
+     MODAL DE CONSULTA DE OBRA / VER DETALHES
+     ======================================================== -->
+<div class="inquiry-modal-backdrop" id="inquiryModal">
+    <div class="inquiry-modal-content">
+        <button type="button" class="inquiry-modal-close" id="btnCloseInquiry" aria-label="Fechar janela">✕</button>
+        <div class="inquiry-modal-header">
+            <span class="modal-eyebrow">CONSULTORIA ESPECIALIZADA</span>
+            <h3 class="modal-title" id="modalArtworkTitle">Consultar Obra</h3>
+            <p class="modal-subtitle" id="modalArtworkSubtitle">Atendimento reservado para colecionadores e apreciadores.</p>
+        </div>
+        
+        <div class="inquiry-modal-body">
+            <div class="inquiry-preview-box" id="modalPreviewBox" style="display: none;">
+                <img id="modalArtworkImg" src="" alt="Obra selecionada" class="inquiry-preview-img">
+                <div class="inquiry-preview-meta">
+                    <h4 id="modalMetaTitle" class="inquiry-meta-title"></h4>
+                    <p id="modalMetaArtist" class="inquiry-meta-artist"></p>
+                    <p id="modalMetaDimensions" class="inquiry-meta-dim"></p>
+                    <span class="inquiry-meta-price">Preço sob consulta</span>
+                </div>
+            </div>
+
+            <p class="inquiry-instruction">
+                Escolha o canal de sua preferência para falar diretamente com nossos consultores de arte:
+            </p>
+
+            <div class="inquiry-options-grid">
+                <a href="<?= $contatos['elisabeth']['whatsapp_link'] ?>" id="btnModalWhatsElisabeth" target="_blank" rel="noopener noreferrer" class="inquiry-channel-btn whatsapp">
+                    <div class="channel-info">
+                        <strong>WhatsApp Sra. Elisabeth</strong>
+                        <span>Curadoria & Atendimento</span>
+                    </div>
+                    <span class="channel-arrow">→</span>
+                </a>
+                <a href="<?= $contatos['felipe']['whatsapp_link'] ?>" id="btnModalWhatsFelipe" target="_blank" rel="noopener noreferrer" class="inquiry-channel-btn whatsapp">
+                    <div class="channel-info">
+                        <strong>WhatsApp Felipe C</strong>
+                        <span>Atendimento & Vendas</span>
+                    </div>
+                    <span class="channel-arrow">→</span>
+                </a>
+                <a href="<?= $contatos['email']['link'] ?>" id="btnModalEmail" class="inquiry-channel-btn email">
+                    <div class="channel-info">
+                        <strong>Enviar E-mail Formal</strong>
+                        <span><?= $contatos['email']['endereco'] ?></span>
+                    </div>
+                    <span class="channel-arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php
+require_once __DIR__ . '/includes/footer.php';
+?>
+

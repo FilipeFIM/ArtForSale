@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 240" width="300" height="240">
+  <defs>
+    <linearGradient id="contempBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a3b2c" />
+      <stop offset="50%" stop-color="#2a2016" />
+      <stop offset="100%" stop-color="#14100b" />
+    </linearGradient>
+  </defs>
+  <rect width="300" height="240" fill="url(#contempBg)" />
+  <!-- Texturas densas de espátula e camadas terrosas -->
+  <g opacity="0.9">
+    <rect x="25" y="30" width="120" height="40" rx="3" fill="#c49b66" transform="rotate(-6 85 50)" />
+    <rect x="140" y="25" width="135" height="55" rx="3" fill="#875631" transform="rotate(4 200 50)" />
+    <rect x="40" y="80" width="160" height="50" rx="3" fill="#d9b684" transform="rotate(2 120 105)" />
+    <rect x="170" y="85" width="105" height="60" rx="3" fill="#523924" transform="rotate(-3 220 115)" />
+    <rect x="30" y="145" width="130" height="65" rx="3" fill="#9e6d42" transform="rotate(5 95 175)" />
+    <rect x="150" y="140" width="125" height="70" rx="3" fill="#caa065" transform="rotate(-4 210 175)" />
+    <!-- Respingo e acentos dourados contemporâneos -->
+    <circle cx="85" cy="65" r="8" fill="#f0d5a8" />
+    <circle cx="215" cy="115" r="12" fill="#2d1d12" />
+    <circle cx="160" cy="185" r="10" fill="#f5e0be" />
+  </g>
+</svg>
+

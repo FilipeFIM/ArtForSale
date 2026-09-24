@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ART SELL — Obras de Arte | Curadoria Exclusiva</title>
+    
+    <!-- Meta tags SEO e Compartilhamento -->
+    <meta name="description" content="Explore o catálogo completo de obras de arte da galeria ART SELL. Pinturas, esculturas e gravuras com procedência certificada e alto valor estético.">
+    <meta name="theme-color" content="#b38a54">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../assets/images/site/logo-icon.svg">
+
+    <!-- Tipografia Editorial Premium Google Fonts (Cormorant Garamond + Plus Jakarta Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Folhas de Estilo -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body>
+
+    <!-- Header Principal -->
+    <header class="site-header" id="siteHeader">
+        <div class="header-container">
+            <!-- Logo ART SELL -->
+            <a href="../index.html" class="header-logo" title="ART SELL - Arte que transforma espaços.">
+                <img src="../assets/images/site/logo.svg" alt="ART SELL" class="logo-image" width="220" height="48">
+            </a>
+
+            <!-- Menu de Navegação Desktop -->
+            <nav class="header-nav" aria-label="Navegação Principal">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="../index.html" class="nav-link">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="obras.html" class="nav-link active">Obras</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../index.html#categorias" class="nav-link">Categorias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../index.html#sobre" class="nav-link">Sobre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="../index.html#contato" class="nav-link">Contato</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Ações do Header (Pesquisa, Favoritos, Botão Consultar Obra) -->
+            <div class="header-actions">
+                <!-- Ícone de Pesquisa -->
+                <button type="button" class="action-btn" id="btnOpenSearch" title="Pesquisar obras" aria-label="Pesquisar">
+                    <svg class="action-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+
+                <!-- Favoritos -->
+                <button type="button" class="action-btn" id="btnOpenFavorites" title="Obras favoritas" aria-label="Favoritos">
+                    <svg class="action-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                    <span class="favorites-badge" id="favoritesCount">0</span>
+                </button>
+
+                <!-- Botão Consultar Obra -->
+                <a href="../index.html#contato" class="btn-consultar-obra" data-modal="consultar">
+                    Consultar obra
+                </a>
+
+                <!-- Botão Menu Mobile (Hambúrguer) -->
+                <button type="button" class="mobile-toggle-btn" id="btnMobileMenu" aria-label="Abrir menu" aria-expanded="false">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Drawer Mobile -->
+        <div class="mobile-drawer" id="mobileDrawer">
+            <div class="drawer-header">
+                <img src="../assets/images/site/logo.svg" alt="ART SELL" width="180">
+                <button type="button" class="drawer-close-btn" id="btnCloseDrawer" aria-label="Fechar menu">✕</button>
+            </div>
+            <nav class="mobile-nav">
+                <a href="../index.html" class="mobile-nav-link">Início</a>
+                <a href="obras.html" class="mobile-nav-link active">Obras</a>
+                <a href="../index.html#categorias" class="mobile-nav-link">Categorias</a>
+                <a href="../index.html#sobre" class="mobile-nav-link">Sobre</a>
+                <a href="../index.html#contato" class="mobile-nav-link">Contato</a>
+            </nav>
+            <div class="drawer-footer">
+                <a href="../index.html#contato" class="btn-consultar-obra btn-block" data-modal="consultar">
+                    Consultar obra
+                </a>
+            </div>
+        </div>
+        <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    </header>
+
+    <!-- Overlay de Pesquisa Rápida -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-modal">
+            <div class="search-modal-header">
+                <h3 class="search-modal-title">Pesquisar Obras de Arte</h3>
+                <button type="button" class="search-close-btn" id="btnCloseSearch">✕</button>
+            </div>
+            <div class="search-input-wrapper">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Digite o nome da obra, artista ou estilo..." autocomplete="off">
+            </div>
+            <div class="search-quick-tags">
+                <span class="quick-tag-label">Sugestões:</span>
+                <button type="button" class="quick-tag" data-tag="Horizontes Dourados">Horizontes Dourados</button>
+                <button type="button" class="quick-tag" data-tag="Silêncio Urbano">Silêncio Urbano</button>
+                <button type="button" class="quick-tag" data-tag="Paisagens">Paisagens</button>
+                <button type="button" class="quick-tag" data-tag="Abstrato">Abstrato</button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal do Catálogo -->
+    <main class="site-main catalogo-page">
+
+        <!-- ========================================================
+             CABEÇALHO DA PÁGINA (EDITORIAL / HERO SUTIL)
+             ======================================================== -->
+        <section class="catalogo-header-section">
+            <div class="section-container">
+                <!-- Breadcrumb Sofisticado -->
+                <nav class="catalogo-breadcrumb" aria-label="Navegação estrutural">
+                    <a href="../index.html" class="breadcrumb-link">Início</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span class="breadcrumb-current">Nossas Obras</span>
+                </nav>
+
+                <div class="catalogo-header-content">
+                    <span class="catalogo-eyebrow">NOSSAS OBRAS</span>
+                    <h1 class="catalogo-title">Obras de Arte</h1>
+                    <p class="catalogo-description">
+                        Descubra nossa curadoria de obras originais, com procedência garantida e estética atemporal para transformar e valorizar o seu espaço com personalidade e elegância.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transição Artística com Detalhe Sutil -->
+        <div class="brush-transition-accent" aria-hidden="true"></div>
+
+        <!-- ========================================================
+             SEÇÃO PRINCIPAL DO CATÁLOGO: BUSCA, FILTROS, GRADE E PAGINAÇÃO
+             ======================================================== -->
+        <section class="catalogo-content-section" id="catalogoSection">
+            <div class="section-container">
+
+                <!-- Painel de Controles: Pesquisa e Filtros de Categoria -->
+                <div class="catalogo-controls">
+                    
+                    <!-- Barra de Pesquisa em Tempo Real -->
+                    <div class="catalogo-search-wrapper">
+                        <div class="catalogo-search-input-box">
+                            <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input 
+                                type="text" 
+                                id="catalogoSearch" 
+                                class="catalogo-search-input" 
+                                placeholder="Pesquisar obras, artistas ou categorias..." 
+                                autocomplete="off"
+                                aria-label="Pesquisar obras, artistas ou categorias"
+                            >
+                            <button type="button" id="catalogoSearchClear" class="catalogo-search-clear" aria-label="Limpar pesquisa" title="Limpar pesquisa" style="display: none;">✕</button>
+                        </div>
+                    </div>
+
+                    <!-- Filtros de Categorias (Pills / Abas) -->
+                    <div class="catalogo-filters-bar">
+                        <div class="catalogo-filters-scroll" id="catalogoFilters" role="tablist" aria-label="Filtro de Categorias">
+                            <button type="button" class="filter-pill active" data-category="all" role="tab" aria-selected="true">
+                                Todas
+                            </button>
+                            <button type="button" class="filter-pill" data-category="arte-classica" role="tab" aria-selected="false">
+                                Arte Clássica
+                            </button>
+                            <button type="button" class="filter-pill" data-category="arte-moderna" role="tab" aria-selected="false">
+                                Arte Moderna
+                            </button>
+                            <button type="button" class="filter-pill" data-category="arte-contemporanea" role="tab" aria-selected="false">
+                                Arte Contemporânea
+                            </button>
+                            <button type="button" class="filter-pill" data-category="paisagens" role="tab" aria-selected="false">
+                                Paisagens
+                            </button>
+                            <button type="button" class="filter-pill" data-category="retratos" role="tab" aria-selected="false">
+                                Retratos
+                            </button>
+                            <button type="button" class="filter-pill" data-category="abstrato" role="tab" aria-selected="false">
+                                Abstrato
+                            </button>
+                            <button type="button" class="filter-pill" data-category="gravuras" role="tab" aria-selected="false">
+                                Gravuras
+                            </button>
+                            <button type="button" class="filter-pill" data-category="esculturas" role="tab" aria-selected="false">
+                                Esculturas
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Barra de Metadados: Contador de Obras e Ordenação -->
+                    <div class="catalogo-meta-bar">
+                        <div class="catalogo-count-box">
+                            <span id="catalogoCount" class="catalogo-count-text">
+                                Mostrando <strong>12</strong> obras
+                            </span>
+                            <span id="catalogoActiveBadge" class="catalogo-active-badge" style="display: none;"></span>
+                        </div>
+
+                        <div class="catalogo-sort-box">
+                            <label for="catalogoSort" class="catalogo-sort-label">
+                                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M3 6h18M6 12h12m-9 6h6"/>
+                                </svg>
+                                <span>Ordenar por:</span>
+                            </label>
+                            <div class="sort-select-wrapper">
+                                <select id="catalogoSort" class="catalogo-sort-select" aria-label="Ordenar obras por">
+                                    <option value="recente">Mais recentes</option>
+                                    <option value="az">Nome A-Z</option>
+                                    <option value="za">Nome Z-A</option>
+                                </select>
+                                <svg class="select-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ====================================================
+                     ESTADOS VISUAIS DO CATÁLOGO
+                     ==================================================== -->
+
+                <!-- 1. Estado de Carregamento (Loading) -->
+                <div id="catalogoLoading" class="catalogo-state-box catalogo-loading-state" style="display: none;">
+                    <div class="gold-loading-spinner" aria-hidden="true"></div>
+                    <p class="state-loading-text">Atualizando curadoria...</p>
+                </div>
+
+                <!-- 2. Estado: Nenhum Resultado Encontrado -->
+                <div id="catalogoNoResults" class="catalogo-state-box catalogo-no-results-state" style="display: none;">
+                    <div class="state-icon-circle">
+                        <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            <line x1="8" y1="11" x2="14" y2="11" stroke-dasharray="2 2"></line>
+                        </svg>
+                    </div>
+                    <h3 class="state-title">Nenhum resultado encontrado</h3>
+                    <p class="state-description" id="stateNoResultsMsg">
+                        Não encontramos nenhuma obra que corresponda aos termos pesquisados.
+                    </p>
+                    <button type="button" class="btn-state-reset" id="btnResetSearch">
+                        Limpar pesquisa e ver todas
+                    </button>
+                </div>
+
+                <!-- 3. Estado: Categoria Vazia -->
+                <div id="catalogoEmptyCategory" class="catalogo-state-box catalogo-empty-cat-state" style="display: none;">
+                    <div class="state-icon-circle">
+                        <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="state-title">Nenhuma obra nesta categoria</h3>
+                    <p class="state-description">
+                        No momento, todas as peças desta categoria encontram-se reservadas ou em acervo particular. Fale com nossos curadores para encomendas e consultas de procedência.
+                    </p>
+                    <div class="state-buttons-row">
+                        <button type="button" class="btn-state-reset" id="btnResetFilter">
+                            Ver todas as categorias
+                        </button>
+                        <a href="../index.html#contato" class="btn-state-outline" data-modal="consultar">
+                            Consultar curadoria
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ====================================================
+                     GRADE DO CATÁLOGO DE OBRAS (4 Desktop / 2 Tablet / 1 Mobile)
+                     12 Obras Fictícias Temporárias Fidedignas à Identidade
+                     ==================================================== -->
+                <div class="catalogo-grid" id="catalogoGrid">
+
+                    <!-- Obra 1: Horizontes Dourados -->
+                    <article class="artwork-card" data-id="101" data-title="Horizontes Dourados" data-artist="Maria Fernandes" data-dimensions="80 × 120 cm" data-price="Preço sob consulta" data-category="paisagens" data-category-name="Paisagens" data-image="../assets/images/obras/obra-horizontes-dourados.svg" data-year="2024" data-order="1">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/obra-horizontes-dourados.svg" alt="Horizontes Dourados por Maria Fernandes" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Paisagens</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Horizontes Dourados" data-id="101">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Horizontes Dourados</h3>
+                            <p class="artwork-artist">Maria Fernandes</p>
+                            <p class="artwork-dimensions">80 × 120 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=101" class="btn-ver-detalhes" data-id="101" data-title="Horizontes Dourados">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Obra 2: Silêncio Urbano -->
+                    <article class="artwork-card" data-id="102" data-title="Silêncio Urbano" data-artist="Carlos Menezes" data-dimensions="100 × 100 cm" data-price="Preço sob consulta" data-category="arte-moderna" data-category-name="Arte Moderna" data-image="../assets/images/obras/obra-silencio-urbano.svg" data-year="2024" data-order="2">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/obra-silencio-urbano.svg" alt="Silêncio Urbano por Carlos Menezes" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Arte Moderna</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Silêncio Urbano" data-id="102">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Silêncio Urbano</h3>
+                            <p class="artwork-artist">Carlos Menezes</p>
+                            <p class="artwork-dimensions">100 × 100 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=102" class="btn-ver-detalhes" data-id="102" data-title="Silêncio Urbano">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Obra 3: Essência -->
+                    <article class="artwork-card" data-id="103" data-title="Essência" data-artist="Juliana Costa" data-dimensions="60 × 90 cm" data-price="Preço sob consulta" data-category="retratos" data-category-name="Retratos" data-image="../assets/images/obras/obra-essencia.svg" data-year="2024" data-order="3">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/obra-essencia.svg" alt="Essência por Juliana Costa" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Retratos</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Essência" data-id="103">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Essência</h3>
+                            <p class="artwork-artist">Juliana Costa</p>
+                            <p class="artwork-dimensions">60 × 90 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=103" class="btn-ver-detalhes" data-id="103" data-title="Essência">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Obra 4: Azul Profundo -->
+                    <article class="artwork-card" data-id="104" data-title="Azul Profundo" data-artist="Rafael Almeida" data-dimensions="120 × 150 cm" data-price="Preço sob consulta" data-category="arte-contemporanea" data-category-name="Arte Contemporânea" data-image="../assets/images/obras/obra-azul-profundo.svg" data-year="2024" data-order="4">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/obra-azul-profundo.svg" alt="Azul Profundo por Rafael Almeida" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Arte Contemporânea</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Azul Profundo" data-id="104">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Azul Profundo</h3>
+                            <p class="artwork-artist">Rafael Almeida</p>
+                            <p class="artwork-dimensions">120 × 150 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=104" class="btn-ver-detalhes" data-id="104" data-title="Azul Profundo">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Obra 5: Aura Clássica -->
+                    <article class="artwork-card" data-id="105" data-title="Aura Clássica" data-artist="Helena Vianna" data-dimensions="70 × 100 cm" data-price="Preço sob consulta" data-category="arte-classica" data-category-name="Arte Clássica" data-image="../assets/images/obras/cat-arte-classica.svg" data-year="2023" data-order="5">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/cat-arte-classica.svg" alt="Aura Clássica por Helena Vianna" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Arte Clássica</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Aura Clássica" data-id="105">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Aura Clássica</h3>
+                            <p class="artwork-artist">Helena Vianna</p>
+                            <p class="artwork-dimensions">70 × 100 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=105" class="btn-ver-detalhes" data-id="105" data-title="Aura Clássica">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Obra 6: Ritmo Cromático -->
+                    <article class="artwork-card" data-id="106" data-title="Ritmo Cromático" data-artist="Beatriz Drummond" data-dimensions="90 × 90 cm" data-price="Preço sob consulta" data-category="arte-moderna" data-category-name="Arte Moderna" data-image="../assets/images/obras/cat-arte-moderna.svg" data-year="2024" data-order="6">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/cat-arte-moderna.svg" alt="Ritmo Cromático por Beatriz Drummond" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Arte Moderna</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Ritmo Cromático" data-id="106">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Ritmo Cromático</h3>
+                            <p class="artwork-artist">Beatriz Drummond</p>
+                            <p class="artwork-dimensions">90 × 90 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=106" class="btn-ver-detalhes" data-id="106" data-title="Ritmo Cromático">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Obra 7: Terra e Memória -->
+                    <article class="artwork-card" data-id="107" data-title="Terra e Memória" data-artist="Eduardo Fontes" data-dimensions="110 × 140 cm" data-price="Preço sob consulta" data-category="arte-contemporanea" data-category-name="Arte Contemporânea" data-image="../assets/images/obras/cat-arte-contemporanea.svg" data-year="2023" data-order="7">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/cat-arte-contemporanea.svg" alt="Terra e Memória por Eduardo Fontes" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Arte Contemporânea</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Terra e Memória" data-id="107">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Terra e Memória</h3>
+                            <p class="artwork-artist">Eduardo Fontes</p>
+                            <p class="artwork-dimensions">110 × 140 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=107" class="btn-ver-detalhes" data-id="107" data-title="Terra e Memória">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Obra 8: Crepúsculo Sereno -->
+                    <article class="artwork-card" data-id="108" data-title="Crepúsculo Sereno" data-artist="André Valente" data-dimensions="75 × 110 cm" data-price="Preço sob consulta" data-category="paisagens" data-category-name="Paisagens" data-image="../assets/images/obras/cat-paisagens.svg" data-year="2024" data-order="8">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/cat-paisagens.svg" alt="Crepúsculo Sereno por André Valente" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Paisagens</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Crepúsculo Sereno" data-id="108">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Crepúsculo Sereno</h3>
+                            <p class="artwork-artist">André Valente</p>
+                            <p class="artwork-dimensions">75 × 110 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=108" class="btn-ver-detalhes" data-id="108" data-title="Crepúsculo Sereno">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Obra 9: Olhar Silencioso -->
+                    <article class="artwork-card" data-id="109" data-title="Olhar Silencioso" data-artist="Gabriela Siqueira" data-dimensions="50 × 75 cm" data-price="Preço sob consulta" data-category="retratos" data-category-name="Retratos" data-image="../assets/images/obras/cat-retratos.svg" data-year="2023" data-order="9">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/cat-retratos.svg" alt="Olhar Silencioso por Gabriela Siqueira" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Retratos</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Olhar Silencioso" data-id="109">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Olhar Silencioso</h3>
+                            <p class="artwork-artist">Gabriela Siqueira</p>
+                            <p class="artwork-dimensions">50 × 75 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=109" class="btn-ver-detalhes" data-id="109" data-title="Olhar Silencioso">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Obra 10: Harmonia Geométrica -->
+                    <article class="artwork-card" data-id="110" data-title="Harmonia Geométrica" data-artist="Lucas Brandão" data-dimensions="100 × 120 cm" data-price="Preço sob consulta" data-category="abstrato" data-category-name="Abstrato" data-image="../assets/images/obras/cat-abstrato.svg" data-year="2024" data-order="10">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/cat-abstrato.svg" alt="Harmonia Geométrica por Lucas Brandão" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Abstrato</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Harmonia Geométrica" data-id="110">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Harmonia Geométrica</h3>
+                            <p class="artwork-artist">Lucas Brandão</p>
+                            <p class="artwork-dimensions">100 × 120 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=110" class="btn-ver-detalhes" data-id="110" data-title="Harmonia Geométrica">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Obra 11: Atelier Histórico -->
+                    <article class="artwork-card" data-id="111" data-title="Atelier Histórico" data-artist="Rodrigo Vasconcelos" data-dimensions="45 × 65 cm" data-price="Preço sob consulta" data-category="gravuras" data-category-name="Gravuras" data-image="../assets/images/obras/cat-gravuras.svg" data-year="2022" data-order="11">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/cat-gravuras.svg" alt="Atelier Histórico por Rodrigo Vasconcelos" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Gravuras</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Atelier Histórico" data-id="111">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Atelier Histórico</h3>
+                            <p class="artwork-artist">Rodrigo Vasconcelos</p>
+                            <p class="artwork-dimensions">45 × 65 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=111" class="btn-ver-detalhes" data-id="111" data-title="Atelier Histórico">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Obra 12: Busto Imperial -->
+                    <article class="artwork-card" data-id="112" data-title="Busto Imperial" data-artist="Marcelo Duarte" data-dimensions="55 × 35 × 30 cm" data-price="Preço sob consulta" data-category="esculturas" data-category-name="Esculturas" data-image="../assets/images/obras/cat-esculturas.svg" data-year="2023" data-order="12">
+                        <div class="artwork-image-container">
+                            <img src="../assets/images/obras/cat-esculturas.svg" alt="Busto Imperial por Marcelo Duarte" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <span class="artwork-category-tag">Esculturas</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Busto Imperial" data-id="112">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="artwork-details">
+                            <h3 class="artwork-title">Busto Imperial</h3>
+                            <p class="artwork-artist">Marcelo Duarte</p>
+                            <p class="artwork-dimensions">55 × 35 × 30 cm</p>
+                            <div class="artwork-footer-row">
+                                <span class="artwork-price">Preço sob consulta</span>
+                                <a href="obra.html?id=112" class="btn-ver-detalhes" data-id="112" data-title="Busto Imperial">Ver detalhes</a>
+                            </div>
+                        </div>
+                    </article>
+
+                </div>
+
+                <!-- ====================================================
+                     PAGINAÇÃO VISUAL (← 1 2 3 ... →)
+                     ==================================================== -->
+                <div class="catalogo-pagination-container">
+                    <nav class="catalogo-pagination" id="catalogoPagination" aria-label="Navegação entre páginas do catálogo">
+                        <!-- Gerado e controlado dinamicamente via main.js -->
+                    </nav>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================================
+         MODAL DE CONSULTA DE OBRA / VER DETALHES
+         ======================================================== -->
+    <div class="inquiry-modal-backdrop" id="inquiryModal">
+        <div class="inquiry-modal-content">
+            <button type="button" class="inquiry-modal-close" id="btnCloseInquiry" aria-label="Fechar janela">✕</button>
+            <div class="inquiry-modal-header">
+                <span class="modal-eyebrow">CONSULTORIA ESPECIALIZADA</span>
+                <h3 class="modal-title" id="modalArtworkTitle">Consultar Obra</h3>
+                <p class="modal-subtitle" id="modalArtworkSubtitle">Atendimento reservado para colecionadores e apreciadores.</p>
+            </div>
+            
+            <div class="inquiry-modal-body">
+                <div class="inquiry-preview-box" id="modalPreviewBox" style="display: none;">
+                    <img id="modalArtworkImg" src="" alt="Obra selecionada" class="inquiry-preview-img">
+                    <div class="inquiry-preview-meta">
+                        <h4 id="modalMetaTitle" class="inquiry-meta-title"></h4>
+                        <p id="modalMetaArtist" class="inquiry-meta-artist"></p>
+                        <p id="modalMetaDimensions" class="inquiry-meta-dim"></p>
+                        <span class="inquiry-meta-price">Preço sob consulta</span>
+                    </div>
+                </div>
+
+                <p class="inquiry-instruction">
+                    Escolha o canal de sua preferência para falar diretamente com nossos consultores de arte:
+                </p>
+
+                <div class="inquiry-options-grid">
+                    <a href="https://wa.me/555191140044?text=Ol%C3%A1%2C+Sra.+Elisabeth.+Gostaria+de+mais+informa%C3%A7%C3%B5es+sobre+as+obras+da+Art+Sell." id="btnModalWhatsElisabeth" target="_blank" rel="noopener noreferrer" class="inquiry-channel-btn whatsapp">
+                        <div class="channel-info">
+                            <strong>WhatsApp Sra. Elisabeth</strong>
+                            <span>Curadoria & Atendimento</span>
+                        </div>
+                        <span class="channel-arrow">→</span>
+                    </a>
+                    <a href="https://wa.me/5551991266414?text=Ol%C3%A1%2C+Felipe.+Gostaria+de+consultar+uma+obra+na+Art+Sell." id="btnModalWhatsFelipe" target="_blank" rel="noopener noreferrer" class="inquiry-channel-btn whatsapp">
+                        <div class="channel-info">
+                            <strong>WhatsApp Felipe C</strong>
+                            <span>Atendimento & Vendas</span>
+                        </div>
+                        <span class="channel-arrow">→</span>
+                    </a>
+                    <a href="mailto:xxxx@gmail.com?subject=Consulta+de+Obras+-+Art+Sell" id="btnModalEmail" class="inquiry-channel-btn email">
+                        <div class="channel-info">
+                            <strong>Enviar E-mail Formal</strong>
+                            <span>xxxx@gmail.com</span>
+                        </div>
+                        <span class="channel-arrow">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé Principal -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <!-- Coluna 1: Identidade e Redes Sociais -->
+            <div class="footer-col footer-col-brand">
+                <a href="../index.html" class="footer-logo">
+                    <img src="../assets/images/site/logo.svg" alt="ART SELL" width="210" height="46">
+                </a>
+                <p class="footer-slogan">Arte que transforma espaços.</p>
+                <div class="footer-social-icons">
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" title="Instagram" aria-label="Instagram">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                    <a href="https://wa.me/555191140044?text=Ol%C3%A1%2C+Sra.+Elisabeth.+Gostaria+de+mais+informa%C3%A7%C3%B5es+sobre+as+obras+da+Art+Sell." target="_blank" rel="noopener noreferrer" class="social-icon-btn" title="WhatsApp" aria-label="WhatsApp">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                        </svg>
+                    </a>
+                    <a href="mailto:xxxx@gmail.com?subject=Consulta+de+Obras+-+Art+Sell" class="social-icon-btn" title="E-mail" aria-label="E-mail">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Coluna 2: Navegação -->
+            <div class="footer-col footer-col-nav">
+                <h4 class="footer-heading">Navegação</h4>
+                <ul class="footer-link-list">
+                    <li><a href="../index.html">Início</a></li>
+                    <li><a href="obras.html">Obras</a></li>
+                    <li><a href="../index.html#categorias">Categorias</a></li>
+                    <li><a href="../index.html#sobre">Sobre</a></li>
+                    <li><a href="../index.html#contato">Contato</a></li>
+                </ul>
+            </div>
+
+            <!-- Coluna 3: Categorias -->
+            <div class="footer-col footer-col-cats">
+                <h4 class="footer-heading">Categorias</h4>
+                <div class="footer-cats-columns">
+                    <ul class="footer-link-list">
+                        <li><a href="obras.html">Pinturas</a></li>
+                        <li><a href="obras.html?categoria=arte-classica">Arte Clássica</a></li>
+                        <li><a href="obras.html?categoria=arte-moderna">Arte Moderna</a></li>
+                        <li><a href="obras.html?categoria=arte-contemporanea">Arte Contemporânea</a></li>
+                        <li><a href="obras.html?categoria=paisagens">Paisagens</a></li>
+                    </ul>
+                    <ul class="footer-link-list">
+                        <li><a href="obras.html?categoria=retratos">Retratos</a></li>
+                        <li><a href="obras.html?categoria=abstrato">Abstrato</a></li>
+                        <li><a href="obras.html?categoria=gravuras">Gravuras</a></li>
+                        <li><a href="obras.html?categoria=esculturas">Esculturas</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Coluna 4: Atendimento -->
+            <div class="footer-col footer-col-contact">
+                <h4 class="footer-heading">Atendimento</h4>
+                <div class="footer-contact-items">
+                    <!-- Elisabeth -->
+                    <div class="footer-contact-row">
+                        <div class="contact-row-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="contact-row-info">
+                            <span class="contact-name">Sra. Elisabeth</span>
+                            <a href="tel:5191140044" class="contact-value">(51) 9114-0044</a>
+                        </div>
+                    </div>
+
+                    <!-- Felipe -->
+                    <div class="footer-contact-row">
+                        <div class="contact-row-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="contact-row-info">
+                            <span class="contact-name">Felipe C</span>
+                            <a href="tel:51991266414" class="contact-value">(51) 99126-6414</a>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="footer-contact-row">
+                        <div class="contact-row-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </div>
+                        <div class="contact-row-info">
+                            <a href="mailto:xxxx@gmail.com?subject=Consulta+de+Obras+-+Art+Sell" class="contact-value">xxxx@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra Inferior de Direitos e Links Legais -->
+        <div class="footer-bottom">
+            <div class="footer-bottom-container">
+                <p class="copyright-text">
+                    &copy; 2026 ART SELL. Todos os direitos reservados.
+                </p>
+                <div class="footer-legal-links">
+                    <a href="#privacidade" class="legal-link">Política de Privacidade</a>
+                    <span class="divider">|</span>
+                    <a href="#termos" class="legal-link">Termos de Uso</a>
+                    <span class="divider">|</span>
+                    <a href="#mapa" class="legal-link">Mapa do Site</a>
+                </div>
+                <button type="button" class="back-to-top" id="btnBackToTop" aria-label="Voltar ao topo">
+                    <span class="arrow-up">⌃</span> Voltar ao topo
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts JavaScript Vanilla Obrigatórios -->
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/gallery.js"></script>
+</body>
+</html>
+

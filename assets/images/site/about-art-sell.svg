@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 440" width="600" height="440">
+  <defs>
+    <linearGradient id="abWall" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14110e" />
+      <stop offset="45%" stop-color="#261c14" />
+      <stop offset="100%" stop-color="#0f0c09" />
+    </linearGradient>
+    <radialGradient id="abSpot" cx="50%" cy="30%" r="55%">
+      <stop offset="0%" stop-color="#fedaa0" stop-opacity="0.45" />
+      <stop offset="60%" stop-color="#aa793a" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#15120e" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="abMarble" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="40%" stop-color="#ebe4d8" />
+      <stop offset="75%" stop-color="#b8ad9a" />
+      <stop offset="100%" stop-color="#736754" />
+    </linearGradient>
+    <linearGradient id="abGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4af37" />
+      <stop offset="50%" stop-color="#916c33" />
+      <stop offset="100%" stop-color="#dfbe7b" />
+    </linearGradient>
+  </defs>
+
+  <!-- Parede e Chão da Galeria -->
+  <rect width="600" height="440" fill="url(#abWall)" />
+  <circle cx="380" cy="180" r="220" fill="url(#abSpot)" />
+
+  <!-- Quadros em Destaque na Parede ao Fundo -->
+  <!-- Quadro 1 -->
+  <g transform="translate(220, 60)">
+    <rect width="115" height="180" rx="3" fill="url(#abGold)" />
+    <rect x="8" y="8" width="99" height="164" rx="2" fill="#29180d" />
+    <ellipse cx="50" cy="65" rx="28" ry="36" fill="#c49058" />
+    <rect x="25" y="105" width="50" height="60" fill="#69391b" />
+  </g>
+
+  <!-- Quadro 2 (Arco iluminado mais ao fundo) -->
+  <g transform="translate(365, 80)">
+    <rect width="85" height="150" rx="3" fill="url(#abGold)" />
+    <rect x="6" y="6" width="73" height="138" rx="2" fill="#3b2012" />
+    <circle cx="42" cy="55" r="22" fill="#e3a766" />
+  </g>
+
+  <!-- Quadro 3 (Retrato Expressionista) -->
+  <g transform="translate(480, 50)">
+    <rect width="110" height="200" rx="3" fill="url(#abGold)" />
+    <rect x="8" y="8" width="94" height="184" rx="2" fill="#2d1610" />
+    <circle cx="48" cy="85" r="30" fill="#f0b690" />
+    <path d="M 15 120 L 85 110 L 80 180 L 20 180 Z" fill="#224866" />
+  </g>
+
+  <!-- Palmeira / Planta Ornamental à Esquerda -->
+  <g transform="translate(0, 80)" opacity="0.85">
+    <path d="M 40 220 Q 20 110 -10 80" stroke="#192414" stroke-width="8" stroke-linecap="round" fill="none" />
+    <path d="M 45 210 Q 70 90 20 40" stroke="#25381d" stroke-width="9" stroke-linecap="round" fill="none" />
+    <path d="M 50 215 Q 110 110 140 70" stroke="#1c2b18" stroke-width="8" stroke-linecap="round" fill="none" />
+  </g>
+
+  <!-- Escultura / Busto de Mármore Clássico em Primeiro Plano (Esquerda) -->
+  <g transform="translate(130, 110)">
+    <!-- Pedestal Escuro -->
+    <rect x="-35" y="240" width="70" height="90" rx="3" fill="#1b1612" stroke="#4a3b2b" stroke-width="2" />
+    <!-- Cabeça e Ombros -->
+    <ellipse cx="0" cy="70" rx="46" ry="56" fill="url(#abMarble)" />
+    <!-- Cabelos clássicos esculpidos -->
+    <path d="M -45 55 Q 0 25 45 55 Q 35 85 45 100 Q -10 110 -45 85 Z" fill="#b0a796" />
+    <circle cx="-30" cy="45" r="18" fill="#cfc7b8" />
+    <circle cx="30" cy="45" r="18" fill="#cfc7b8" />
+    <circle cx="0" cy="30" r="20" fill="#e5dfd3" />
+
+    <!-- Nariz clássico e perfil -->
+    <path d="M -5 60 L 2 86 L 12 88" stroke="#756b5a" stroke-width="3" fill="none" />
+    <ellipse cx="0" cy="110" rx="10" ry="5" fill="#877d6c" />
+
+    <!-- Pescoço -->
+    <path d="M -20 115 L -25 155 L 25 155 L 20 115 Z" fill="url(#abMarble)" />
+
+    <!-- Peito e Toga -->
+    <path d="M -90 160 Q 0 135 90 160 L 75 240 L -75 240 Z" fill="url(#abMarble)" />
+    <path d="M -60 165 Q 0 195 60 170" stroke="#5e5445" stroke-width="3.5" fill="none" />
+    <path d="M -40 185 Q 5 215 45 195" stroke="#5e5445" stroke-width="3" fill="none" />
+  </g>
+</svg>
+

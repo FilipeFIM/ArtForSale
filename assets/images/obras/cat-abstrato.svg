@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 240" width="300" height="240">
+  <defs>
+    <linearGradient id="absBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#19283d" />
+      <stop offset="60%" stop-color="#121e30" />
+      <stop offset="100%" stop-color="#0a121f" />
+    </linearGradient>
+  </defs>
+  <rect width="300" height="240" fill="url(#absBg)" />
+  <!-- Padrão Geométrico / Pétalas Abstratas em Azul, Turquesa e Ocre Dourado -->
+  <g opacity="0.95">
+    <path d="M 50 40 C 90 20 120 70 70 90 C 30 110 20 60 50 40 Z" fill="#295b7a" />
+    <path d="M 120 30 C 170 10 200 65 150 85 C 100 105 80 50 120 30 Z" fill="#d49d4b" />
+    <path d="M 190 40 C 240 25 270 80 220 100 C 170 120 150 60 190 40 Z" fill="#1b415e" />
+    
+    <path d="M 30 100 C 80 80 105 140 60 155 C 10 170 0 120 30 100 Z" fill="#caa157" />
+    <path d="M 100 95 C 150 75 175 135 130 150 C 85 165 65 115 100 95 Z" fill="#327394" />
+    <path d="M 170 105 C 220 85 245 145 200 160 C 155 175 135 125 170 105 Z" fill="#e0ad58" />
+    <path d="M 235 95 C 285 80 295 140 260 155 C 220 170 200 110 235 95 Z" fill="#24516e" />
+
+    <path d="M 60 160 C 110 145 130 205 85 220 C 40 235 25 180 60 160 Z" fill="#1b4059" />
+    <path d="M 135 155 C 185 140 210 200 165 215 C 120 230 100 175 135 155 Z" fill="#c4974c" />
+    <path d="M 205 165 C 255 150 275 210 230 225 C 185 240 170 185 205 165 Z" fill="#387a9e" />
+  </g>
+</svg>
+

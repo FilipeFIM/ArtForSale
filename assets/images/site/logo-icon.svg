@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50" height="50" fill="none">
+  <defs>
+    <linearGradient id="goldGradIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#dfc08a" />
+      <stop offset="45%" stop-color="#b38a54" />
+      <stop offset="80%" stop-color="#8e6538" />
+      <stop offset="100%" stop-color="#caa267" />
+    </linearGradient>
+    <linearGradient id="goldLightIcon" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a67c4f" />
+      <stop offset="50%" stop-color="#f0dbb0" />
+      <stop offset="100%" stop-color="#8e6538" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(3, 2)">
+    <path d="M 22 2 L 6 46 L 13 46 L 25 12 Z" fill="url(#goldGradIcon)" />
+    <path d="M 21 2 L 40 46 L 33 46 L 19 12 Z" fill="url(#goldLightIcon)" />
+    <path d="M 12 33 L 34 33 L 31 38 L 10 38 Z" fill="url(#goldGradIcon)" opacity="0.95" />
+    <polygon points="21.5,1 25,12 18,12" fill="#f8e8c8" />
+  </g>
+</svg>
+

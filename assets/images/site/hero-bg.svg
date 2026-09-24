@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 700" width="1600" height="700">
+  <defs>
+    <!-- Gradientes de Ambiente -->
+    <linearGradient id="hallFloor" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14110e" />
+      <stop offset="40%" stop-color="#241b12" />
+      <stop offset="100%" stop-color="#0a0908" />
+    </linearGradient>
+    <linearGradient id="hallWall" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0d0c0a" />
+      <stop offset="50%" stop-color="#221a14" />
+      <stop offset="100%" stop-color="#15120f" />
+    </linearGradient>
+    <radialGradient id="ceilingLight" cx="50%" cy="15%" r="60%">
+      <stop offset="0%" stop-color="#f5e1b8" stop-opacity="0.35" />
+      <stop offset="40%" stop-color="#c59958" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#12100d" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="centerArchGlow" cx="51%" cy="42%" r="25%">
+      <stop offset="0%" stop-color="#ffdfa0" stop-opacity="0.75" />
+      <stop offset="40%" stop-color="#cc9243" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#1a140f" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="goldFrame" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4af37" />
+      <stop offset="40%" stop-color="#8c6832" />
+      <stop offset="70%" stop-color="#e8cd88" />
+      <stop offset="100%" stop-color="#694a1b" />
+    </linearGradient>
+    <linearGradient id="marbleBust" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdfbf7" />
+      <stop offset="50%" stop-color="#d8d1c5" />
+      <stop offset="100%" stop-color="#8a8377" />
+    </linearGradient>
+  </defs>
+
+  <!-- Parede de Fundo e Teto -->
+  <rect width="1600" height="460" fill="url(#hallWall)" />
+  <!-- Piso Polido de Madeira Nobre com Reflexos -->
+  <rect y="450" width="1600" height="250" fill="url(#hallFloor)" />
+  
+  <!-- Linhas de perspectiva do piso -->
+  <g stroke="#3a2b1c" stroke-width="1.2" opacity="0.4">
+    <line x1="810" y1="450" x2="300" y2="700" />
+    <line x1="810" y1="450" x2="520" y2="700" />
+    <line x1="810" y1="450" x2="720" y2="700" />
+    <line x1="810" y1="450" x2="900" y2="700" />
+    <line x1="810" y1="450" x2="1100" y2="700" />
+    <line x1="810" y1="450" x2="1350" y2="700" />
+  </g>
+
+  <!-- Arco Central Iluminado ao Fundo -->
+  <rect x="755" y="160" width="110" height="290" rx="55" fill="#1c130b" stroke="url(#goldFrame)" stroke-width="4" />
+  <circle cx="810" cy="280" r="160" fill="url(#centerArchGlow)" />
+  <!-- Pintura no fundo do arco -->
+  <rect x="778" y="240" width="64" height="95" rx="3" fill="#87431d" stroke="url(#goldFrame)" stroke-width="3" />
+  <ellipse cx="810" cy="275" rx="18" ry="24" fill="#ffc87a" opacity="0.8" />
+
+  <!-- Feixes de Iluminação de Spotlights -->
+  <polygon points="810,0 600,450 1020,450" fill="url(#ceilingLight)" />
+  <polygon points="320,0 150,450 490,450" fill="url(#ceilingLight)" opacity="0.6" />
+  <polygon points="1280,0 1100,450 1460,450" fill="url(#ceilingLight)" opacity="0.6" />
+
+  <!-- Quadro Parede Esquerda 1 (Retrato Clássico com Moldura Dourada) -->
+  <g transform="translate(120, 80)">
+    <rect width="90" height="280" rx="4" fill="url(#goldFrame)" />
+    <rect x="10" y="12" width="70" height="256" rx="2" fill="#1b120c" />
+    <ellipse cx="45" cy="100" rx="22" ry="32" fill="#b88350" opacity="0.9" />
+    <ellipse cx="45" cy="180" rx="28" ry="40" fill="#2d2218" />
+  </g>
+
+  <!-- Quadro Parede Esquerda 2 -->
+  <g transform="translate(480, 110)">
+    <rect width="95" height="240" rx="4" fill="url(#goldFrame)" />
+    <rect x="8" y="10" width="79" height="220" rx="2" fill="#261b11" />
+    <ellipse cx="47" cy="85" rx="24" ry="30" fill="#c49364" />
+    <rect x="25" y="125" width="45" height="90" fill="#693b1d" />
+  </g>
+
+  <!-- Quadro Parede Direita 1 (Retrato Colorido Expressionista do Mockup) -->
+  <g transform="translate(1080, 90)">
+    <rect width="130" height="260" rx="4" fill="url(#goldFrame)" />
+    <rect x="10" y="10" width="110" height="240" rx="2" fill="#2a1610" />
+    <!-- Cores expressionistas da obra do mockup -->
+    <path d="M 20 40 Q 65 15 100 50 Q 115 140 85 220 Q 30 210 20 120 Z" fill="#c8522c" />
+    <circle cx="65" cy="110" r="35" fill="#f2b58d" />
+    <circle cx="55" cy="105" r="5" fill="#22110c" />
+    <circle cx="78" cy="105" r="5" fill="#22110c" />
+    <path d="M 52 130 Q 65 142 80 130" stroke="#8c2310" stroke-width="3" fill="none" />
+    <path d="M 15 180 L 115 160 L 105 245 L 20 245 Z" fill="#234e70" opacity="0.8" />
+  </g>
+
+  <!-- Quadro Parede Direita 2 -->
+  <g transform="translate(1260, 120)">
+    <rect width="80" height="220" rx="4" fill="url(#goldFrame)" />
+    <rect x="8" y="10" width="64" height="200" rx="2" fill="#1e1812" />
+    <ellipse cx="40" cy="80" rx="20" ry="26" fill="#a87c52" />
+  </g>
+
+  <!-- Escultura / Busto de Mármore Clássico no Pedestal (Centro-Esquerda) -->
+  <g transform="translate(610, 240)">
+    <!-- Pedestal Escuro -->
+    <rect x="24" y="180" width="42" height="95" rx="3" fill="#1f1a14" stroke="#4a3c2c" stroke-width="1.5" />
+    <rect x="18" y="174" width="54" height="8" rx="2" fill="#30261c" />
+    <!-- Busto -->
+    <ellipse cx="45" cy="155" rx="16" ry="22" fill="url(#marbleBust)" />
+    <circle cx="45" cy="108" r="20" fill="url(#marbleBust)" />
+    <!-- Detalhes do Rosto e Cabelo Clássico Greco-Romano -->
+    <path d="M 30 98 Q 45 85 60 98 Q 65 115 58 128 Q 45 136 32 126 Z" fill="url(#marbleBust)" />
+    <path d="M 28 94 Q 45 80 62 94 Q 55 106 45 102 Q 35 106 28 94 Z" fill="#b0a89a" />
+    <!-- Sombra do pedestal no piso polido -->
+    <ellipse cx="45" cy="275" rx="35" ry="10" fill="#080706" opacity="0.8" />
+  </g>
+
+  <!-- Planta / Palmeira Ornamental na Esquerda -->
+  <g transform="translate(20, 220)" opacity="0.85">
+    <path d="M 60 220 Q 30 140 0 100" stroke="#1d2616" stroke-width="8" stroke-linecap="round" fill="none" />
+    <path d="M 65 210 Q 75 120 40 70" stroke="#25331c" stroke-width="9" stroke-linecap="round" fill="none" />
+    <path d="M 70 215 Q 110 130 140 90" stroke="#1c2b18" stroke-width="8" stroke-linecap="round" fill="none" />
+  </g>
+
+  <!-- Banco de Couro Preto da Galeria (Primeiro Plano) -->
+  <g transform="translate(820, 480)">
+    <rect x="0" y="15" width="230" height="50" rx="8" fill="#171412" stroke="#3d3328" stroke-width="2" />
+    <!-- Almofadas capitonê -->
+    <rect x="10" y="20" width="100" height="40" rx="4" fill="#241f1a" />
+    <rect x="120" y="20" width="100" height="40" rx="4" fill="#201b17" />
+    <!-- Pernas de metal polido -->
+    <line x1="20" y1="65" x2="15" y2="105" stroke="#998369" stroke-width="5" stroke-linecap="round" />
+    <line x1="210" y1="65" x2="215" y2="105" stroke="#998369" stroke-width="5" stroke-linecap="round" />
+    <ellipse cx="115" cy="108" rx="125" ry="14" fill="#080706" opacity="0.75" />
+  </g>
+</svg>
+

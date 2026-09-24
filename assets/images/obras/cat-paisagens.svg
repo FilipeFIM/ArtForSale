@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 240" width="300" height="240">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4a607a" />
+      <stop offset="35%" stop-color="#ab6b45" />
+      <stop offset="60%" stop-color="#f7be6d" />
+      <stop offset="70%" stop-color="#ffdc8b" />
+      <stop offset="75%" stop-color="#cf7a3e" />
+      <stop offset="100%" stop-color="#1c242e" />
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="50%" cy="58%" r="40%">
+      <stop offset="0%" stop-color="#fff5db" />
+      <stop offset="25%" stop-color="#ffd078" />
+      <stop offset="60%" stop-color="#e07a34" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#ab6b45" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <!-- Céu e Horizonte de Pôr do Sol -->
+  <rect width="300" height="240" fill="url(#skyGrad)" />
+  <circle cx="150" cy="138" r="85" fill="url(#sunGlow)" />
+  <ellipse cx="150" cy="138" rx="26" ry="18" fill="#ffffff" opacity="0.9" />
+
+  <!-- Silhueta da Costa e Floresta Distante -->
+  <path d="M 0 138 Q 45 130 90 136 T 180 134 T 270 132 L 300 136 L 300 152 L 0 152 Z" fill="#201c18" />
+  
+  <!-- Água e Reflexos Dourados no Lago -->
+  <ellipse cx="150" cy="175" rx="55" ry="16" fill="#ffe299" opacity="0.75" />
+  <ellipse cx="150" cy="195" rx="80" ry="18" fill="#f5ae56" opacity="0.6" />
+  <ellipse cx="150" cy="218" rx="110" ry="14" fill="#cf7130" opacity="0.5" />
+  
+  <!-- Vegetação em Primeiro Plano -->
+  <path d="M 0 205 Q 60 190 110 240 L 0 240 Z" fill="#0d1114" />
+  <path d="M 230 240 Q 260 195 300 210 L 300 240 Z" fill="#0d1114" />
+</svg>
+

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+  <defs>
+    <linearGradient id="suBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f2eee6" />
+      <stop offset="60%" stop-color="#ded8cb" />
+      <stop offset="100%" stop-color="#c4bcb0" />
+    </linearGradient>
+  </defs>
+  <!-- Fundo Texturizado / Tela de Pintura Urbana -->
+  <rect width="480" height="300" fill="url(#suBg)" />
+
+  <!-- Pinceladas Verticais de Silhueta Urbana Abstrata (Carlos Menezes) -->
+  <g opacity="0.92">
+    <!-- Prédios / Formas Verticais em Cinza, Azul Petróleo, Ocre e Ferrugem -->
+    <rect x="40" y="80" width="35" height="180" fill="#4d6270" />
+    <rect x="80" y="50" width="45" height="210" fill="#8c775d" />
+    <rect x="130" y="70" width="30" height="190" fill="#bfa37e" />
+    <rect x="165" y="40" width="50" height="220" fill="#30414f" />
+    <rect x="220" y="60" width="40" height="200" fill="#cc8b4b" />
+    <rect x="265" y="30" width="55" height="230" fill="#475966" />
+    <rect x="325" y="85" width="40" height="175" fill="#a6845d" />
+    <rect x="370" y="55" width="45" height="205" fill="#2d3d4a" />
+    <rect x="420" y="95" width="30" height="165" fill="#c49354" />
+
+    <!-- Camadas Sobrepostas com Texturas Espatuladas -->
+    <rect x="65" y="110" width="40" height="120" fill="#d9b682" opacity="0.8" />
+    <rect x="180" y="90" width="60" height="140" fill="#a14930" opacity="0.85" />
+    <rect x="280" y="100" width="45" height="130" fill="#698596" opacity="0.8" />
+    <rect x="350" y="125" width="50" height="110" fill="#d6a863" opacity="0.75" />
+
+    <!-- Acentos Horizontais e Base da Cidade -->
+    <rect x="20" y="240" width="440" height="25" fill="#1c252d" />
+    <line x1="15" y1="268" x2="465" y2="268" stroke="#8c775d" stroke-width="2.5" />
+    <line x1="30" y1="274" x2="450" y2="274" stroke="#d9b682" stroke-width="1.5" />
+  </g>
+</svg>
+
