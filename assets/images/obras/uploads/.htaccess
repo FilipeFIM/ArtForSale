@@ -1,0 +1,27 @@
+# ==============================================================================
+# ART FOR SALE - Proteção de Diretório de Uploads
+# Bloqueia estritamente a execução de qualquer script ou arquivo executável
+# ==============================================================================
+
+# Bloqueia execução de scripts PHP e quaisquer arquivos executáveis
+<FilesMatch "(?i)\.(php|phtml|php3|php4|php5|php7|php8|phps|phar|cgi|pl|py|sh|bash|exe|bat|cmd|com)$">
+    Order allow,deny
+    Deny from all
+    Require all denied
+</FilesMatch>
+
+# Desativa execução de PHP se o módulo Apache estiver ativo
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+# Força proteção nosniff para prevenir content-sniffing
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>

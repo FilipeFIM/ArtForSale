@@ -1,5 +1,5 @@
 /**
- * ART SELL - JavaScript Vanilla Principal (main.js)
+ * ART FOR SALE - JavaScript Vanilla Principal (main.js)
  * Interações de interface: Header, Drawer Mobile, Favoritos, Modal de Consulta, Pesquisa e Rolagem
  */
 
@@ -173,13 +173,13 @@ document.addEventListener('DOMContentLoaded', () => {
             modalMetaArtist.textContent = artworkData.artist;
             modalMetaDimensions.textContent = artworkData.dimensions;
 
-            const textElisabeth = encodeURIComponent(`Olá, Sra. Elisabeth. Gostaria de saber mais sobre a obra "${artworkData.title}" (${artworkData.artist}, ${artworkData.dimensions}) da Art Sell.`);
-            const textFelipe = encodeURIComponent(`Olá, Felipe. Gostaria de consultar a obra "${artworkData.title}" (${artworkData.artist}, ${artworkData.dimensions}) da Art Sell.`);
-            const mailSubject = encodeURIComponent(`Consulta: Obra ${artworkData.title} - Art Sell`);
+            const textElisabeth = encodeURIComponent(`Olá, Sra. Elisabeth. Gostaria de saber mais sobre a obra "${artworkData.title}" (${artworkData.artist}, ${artworkData.dimensions}) da Art For Sale.`);
+            const textFelipe = encodeURIComponent(`Olá, Felipe. Gostaria de consultar a obra "${artworkData.title}" (${artworkData.artist}, ${artworkData.dimensions}) da Art For Sale.`);
+            const mailSubject = encodeURIComponent(`Consulta: Obra ${artworkData.title} - Art For Sale`);
 
             if (btnModalWhatsElisabeth) btnModalWhatsElisabeth.href = `https://wa.me/555191140044?text=${textElisabeth}`;
             if (btnModalWhatsFelipe) btnModalWhatsFelipe.href = `https://wa.me/5551991266414?text=${textFelipe}`;
-            if (btnModalEmail) btnModalEmail.href = `mailto:xxxx@gmail.com?subject=${mailSubject}`;
+            if (btnModalEmail) btnModalEmail.href = `mailto:artforsale1944@gmail.com?subject=${mailSubject}`;
         } else {
             modalArtworkTitle.textContent = 'Consultar Obra';
             modalArtworkSubtitle.textContent = 'Atendimento reservado para colecionadores e apreciadores.';
@@ -272,6 +272,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Função de sanitização contra XSS no DOM
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     // Busca instantânea no acervo da página
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
@@ -293,12 +304,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (title.includes(query) || artist.includes(query)) {
                     count++;
+                    const safeTitle = escapeHtml(card.dataset.title || 'Obra');
+                    const safeArtist = escapeHtml(card.dataset.artist || 'Artista');
+                    const safeId = encodeURIComponent(card.dataset.id || '');
+                    const safeImage = escapeHtml(card.dataset.image || '');
+
                     resultsHtml += `
-                        <a href="${detailPathPrefix}${card.dataset.id}" class="inquiry-preview-box" style="text-decoration: none; color: inherit; cursor: pointer; display: flex;">
-                            <img src="${card.dataset.image}" alt="${card.dataset.title}" class="inquiry-preview-img">
+                        <a href="${detailPathPrefix}${safeId}" class="inquiry-preview-box" style="text-decoration: none; color: inherit; cursor: pointer; display: flex;">
+                            <img src="${safeImage}" alt="${safeTitle}" class="inquiry-preview-img">
                             <div class="inquiry-preview-meta">
-                                <h4 class="inquiry-meta-title">${card.dataset.title}</h4>
-                                <p class="inquiry-meta-artist">${card.dataset.artist}</p>
+                                <h4 class="inquiry-meta-title">${safeTitle}</h4>
+                                <p class="inquiry-meta-artist">${safeArtist}</p>
                                 <span class="inquiry-meta-price">Ver detalhes →</span>
                             </div>
                         </a>
@@ -307,7 +323,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (count === 0) {
-                resultsHtml = `<p style="font-size: 0.85rem; color: #888; padding: 1rem 0;">Nenhuma obra encontrada para "${e.target.value}".</p>`;
+                const safeQuery = escapeHtml(e.target.value);
+                resultsHtml = `<p style="font-size: 0.85rem; color: #888; padding: 1rem 0;">Nenhuma obra encontrada para "${safeQuery}".</p>`;
             }
 
             searchResults.innerHTML = resultsHtml;
@@ -403,21 +420,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (catalogoState.sortBy === 'za') {
                     return (b.dataset.title || '').localeCompare(a.dataset.title || '', 'pt-BR');
                 } else {
-                    // Mais recentes: ordem cadastrada
-                    const orderA = parseInt(a.dataset.order || '0', 10);
-                    const orderB = parseInt(b.dataset.order || '0', 10);
-                    return orderA - orderB;
+                    // Mais recentes: preserva a ordem do DOM renderizada pelo PHP (novas obras no topo)
+                    const orderA = isNaN(parseInt(a.dataset.order, 10)) ? 0 : parseInt(a.dataset.order, 10);
+                    const orderB = isNaN(parseInt(b.dataset.order, 10)) ? 0 : parseInt(b.dataset.order, 10);
+                    if (orderA !== orderB) return orderA - orderB;
+                    return originalCards.indexOf(a) - originalCards.indexOf(b);
                 }
             });
 
             return filtered;
         }
 
+        // Renderiza cards em estado skeleton dourado/museu
+        function renderSkeletonLoading(count = 8) {
+            let html = '';
+            for (let i = 0; i < count; i++) {
+                html += `
+                    <article class="artwork-card skeleton-card" aria-hidden="true">
+                        <div class="artwork-image-container">
+                            <div class="skeleton-image skeleton-shimmer"></div>
+                            <div class="skeleton-badge skeleton-shimmer"></div>
+                        </div>
+                        <div class="skeleton-content">
+                            <div class="skeleton-line skeleton-title skeleton-shimmer"></div>
+                            <div class="skeleton-line skeleton-artist skeleton-shimmer"></div>
+                            <div class="skeleton-line skeleton-meta skeleton-shimmer"></div>
+                            <div class="skeleton-footer">
+                                <div class="skeleton-line skeleton-price skeleton-shimmer"></div>
+                                <div class="skeleton-btn skeleton-shimmer"></div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }
+            catalogoGrid.innerHTML = html;
+            catalogoGrid.style.display = 'grid';
+            catalogoGrid.style.opacity = '1';
+        }
+
         // Renderiza o catálogo na tela
         function renderCatalogo(withLoading = false) {
-            if (withLoading && catalogoLoading) {
-                catalogoLoading.style.display = 'block';
-                catalogoGrid.style.opacity = '0.35';
+            if (withLoading) {
+                renderSkeletonLoading(Math.min(catalogoState.itemsPerPage, originalCards.length || 8));
             }
 
             const executeRender = () => {
@@ -914,6 +958,124 @@ document.addEventListener('DOMContentLoaded', () => {
                 openInquiryModal(artworkData);
             });
         }
+    }
+
+    /* ==========================================================
+       8. CONTROLADOR DO CARROSSEL DE OBRAS EM DESTAQUE (Home - #obras-destaque)
+       Setas laterais de navegação suave, paginação visual por dots
+       e compatibilidade touch/swipe responsivo.
+       ========================================================== */
+    const featuredTrack = document.getElementById('featuredTrack');
+    if (featuredTrack) {
+        const featuredPrevBtn = document.getElementById('featuredPrevBtn');
+        const featuredNextBtn = document.getElementById('featuredNextBtn');
+        const carouselDotsContainer = document.getElementById('carouselDots');
+
+        function getItemsPerPage() {
+            const width = window.innerWidth;
+            if (width <= 600) return 1;
+            if (width <= 992) return 2;
+            return 4;
+        }
+
+        function getTotalPages() {
+            const cards = featuredTrack.querySelectorAll('.artwork-card');
+            const perPage = getItemsPerPage();
+            return Math.max(1, Math.ceil(cards.length / perPage));
+        }
+
+        function updateDots(activePage) {
+            if (!carouselDotsContainer) return;
+            const dots = carouselDotsContainer.querySelectorAll('.dot');
+            dots.forEach((dot, idx) => {
+                if (idx === activePage) {
+                    dot.classList.add('active');
+                    dot.setAttribute('aria-current', 'true');
+                } else {
+                    dot.classList.remove('active');
+                    dot.removeAttribute('aria-current');
+                }
+            });
+        }
+
+        function renderDots() {
+            if (!carouselDotsContainer) return;
+            const totalPages = getTotalPages();
+            if (totalPages <= 1) {
+                carouselDotsContainer.style.display = 'none';
+                return;
+            }
+            carouselDotsContainer.style.display = 'flex';
+            let dotsHtml = '';
+            for (let i = 0; i < totalPages; i++) {
+                dotsHtml += `<button type="button" class="dot ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Ir para página ${i + 1} dos destaques"></button>`;
+            }
+            carouselDotsContainer.innerHTML = dotsHtml;
+        }
+
+        function getCurrentPage() {
+            const scrollLeft = featuredTrack.scrollLeft;
+            const pageWidth = featuredTrack.clientWidth;
+            if (pageWidth === 0) return 0;
+            return Math.min(getTotalPages() - 1, Math.max(0, Math.round(scrollLeft / pageWidth)));
+        }
+
+        function scrollToPage(pageIndex) {
+            const totalPages = getTotalPages();
+            let targetPage = pageIndex;
+            if (targetPage < 0) targetPage = totalPages - 1;
+            if (targetPage >= totalPages) targetPage = 0;
+
+            const pageWidth = featuredTrack.clientWidth;
+            featuredTrack.scrollTo({
+                left: targetPage * pageWidth,
+                behavior: 'smooth'
+            });
+            updateDots(targetPage);
+        }
+
+        if (featuredPrevBtn) {
+            featuredPrevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const curr = getCurrentPage();
+                scrollToPage(curr - 1);
+            });
+        }
+
+        if (featuredNextBtn) {
+            featuredNextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const curr = getCurrentPage();
+                scrollToPage(curr + 1);
+            });
+        }
+
+        if (carouselDotsContainer) {
+            carouselDotsContainer.addEventListener('click', (e) => {
+                const dot = e.target.closest('.dot');
+                if (!dot) return;
+                const targetIndex = parseInt(dot.dataset.index, 10);
+                if (!isNaN(targetIndex)) {
+                    scrollToPage(targetIndex);
+                }
+            });
+        }
+
+        let scrollTimeout;
+        featuredTrack.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const page = getCurrentPage();
+                updateDots(page);
+            }, 60);
+        });
+
+        // Inicializa dots dinamicamente de acordo com o tamanho da tela
+        renderDots();
+        window.addEventListener('resize', () => {
+            renderDots();
+            updateDots(getCurrentPage());
+        });
     }
 
 });

@@ -1,0 +1,32 @@
+# ==============================================================================
+# ART FOR SALE - Arquivo de Bloqueio Git (.gitignore)
+# Garante que credenciais, caches e arquivos de upload não sejam versionados
+# ==============================================================================
+
+# Arquivos de Variáveis de Ambiente e Chaves Secretas
+.env
+.env.*
+!.env.example
+
+# Cache local do banco e respostas transitórias
+/database/cache/*.json
+!/database/cache/.gitkeep
+
+# Diretório de uploads locais de obras, categorias e artistas
+/assets/images/obras/uploads/*
+!/assets/images/obras/uploads/.htaccess
+!/assets/images/obras/uploads/.gitkeep
+/assets/images/categorias/uploads/*
+!/assets/images/categorias/uploads/.gitkeep
+/assets/images/artistas/uploads/*
+!/assets/images/artistas/uploads/.gitkeep
+
+# Arquivos temporários e logs
+*.log
+/tmp/
+*.tmp
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini

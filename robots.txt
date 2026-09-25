@@ -1,0 +1,23 @@
+# ==============================================================================
+# ART FOR SALE - robots.txt
+# Slogan: "Arte que transforma espaços."
+# ==============================================================================
+
+User-agent: *
+Allow: /
+Allow: /index.php
+Allow: /pages/
+Allow: /pages/obras.php
+Allow: /pages/obra.php
+Allow: /pages/categorias.php
+Allow: /assets/
+
+# Bloqueia diretórios restritos e painel de administração
+Disallow: /admin/
+Disallow: /includes/
+Disallow: /database/
+Disallow: /supabase/
+
+# Sitemaps Oficiais (Dinâmico e Estático)
+Sitemap: sitemap.xml
+Sitemap: sitemap.php

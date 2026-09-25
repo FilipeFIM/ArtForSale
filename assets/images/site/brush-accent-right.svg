@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550 850" width="550" height="850" fill="none">
+  <defs>
+    <linearGradient id="brushGoldR1" x1="100%" y1="0%" x2="0%" y2="85%">
+      <stop offset="0%" stop-color="#dfc294" stop-opacity="0.36"/>
+      <stop offset="40%" stop-color="#c9a777" stop-opacity="0.25"/>
+      <stop offset="80%" stop-color="#e2cfb4" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#fdfbf7" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="brushGoldR2" x1="100%" y1="20%" x2="15%" y2="100%">
+      <stop offset="0%" stop-color="#b38a54" stop-opacity="0.28"/>
+      <stop offset="55%" stop-color="#cbb592" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#f7f2ea" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="brushWashR" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#d4bf9c" stop-opacity="0.22"/>
+      <stop offset="65%" stop-color="#ebdcc5" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#faf8f5" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Camada 1: Grande aguada suave envolvente -->
+  <path d="M590,40 Q410,60 280,180 Q160,290 120,440 Q80,560 170,680 Q270,800 460,820 Q560,830 590,790 Z" fill="url(#brushWashR)" />
+
+  <!-- Camada 2: Pincelada principal dinâmica ampla (superior direita para baixo) -->
+  <path d="M580,30 C460,50 330,120 220,230 C120,330 75,440 65,550 C55,650 130,730 260,760 C390,790 510,750 580,710 C440,650 260,595 210,505 C155,420 195,310 310,210 C410,125 510,75 580,30 Z" fill="url(#brushGoldR1)" />
+
+  <!-- Camada 3: Feixes e estrias de pincel seco (dry brush) -->
+  <path d="M570,80 Q430,120 310,230 Q200,335 155,460 Q215,380 340,270 Q460,180 570,120 Z" fill="url(#brushGoldR2)" />
+  <path d="M580,160 Q460,205 350,310 Q240,410 200,520 Q250,440 370,345 Q470,265 580,210 Z" fill="url(#brushGoldR1)" opacity="0.85" />
+  <path d="M560,250 Q450,305 365,410 Q280,510 245,620 Q290,540 380,450 Q470,370 560,300 Z" fill="url(#brushGoldR2)" opacity="0.75" />
+
+  <!-- Camada 4: Traços menores e respingos finos característicos de tela de pintura -->
+  <path d="M470,90 C390,110 320,160 270,215 C330,185 410,135 470,90 Z" fill="#cfb68f" opacity="0.30"/>
+  <path d="M370,200 C280,280 210,370 170,450 C220,380 300,290 370,200 Z" fill="#dfc294" opacity="0.25"/>
+  <path d="M290,340 C220,440 175,540 150,620 C185,540 240,440 290,340 Z" fill="#b38a54" opacity="0.20"/>
+
+  <!-- Respingos de tinta de alta precisão -->
+  <circle cx="210" cy="220" r="3.5" fill="#dfc294" opacity="0.38"/>
+  <circle cx="130" cy="350" r="4" fill="#cfb68f" opacity="0.32"/>
+  <circle cx="165" cy="580" r="3" fill="#dfc294" opacity="0.26"/>
+  <circle cx="260" cy="670" r="4.5" fill="#c9a777" opacity="0.30"/>
+  <circle cx="390" cy="740" r="2.5" fill="#dfc294" opacity="0.22"/>
+</svg>

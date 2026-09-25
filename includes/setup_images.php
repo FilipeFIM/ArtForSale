@@ -1,6 +1,6 @@
 <?php
 /**
- * ART SELL - Processador e Extrator de Imagens do Mockup
+ * ART FOR SALE - Processador e Extrator de Imagens do Mockup
  * Garante que todas as imagens do mockup de referência sejam extraídas e disponibilizadas
  * nas pastas /assets/images/site/ e /assets/images/obras/
  */
@@ -20,12 +20,20 @@ foreach ($dirsToCreate as $dir) {
 }
 
 // Caminho do mockup original (uploaded) e destino local
-$sourceUploadPath = 'C:/Users/Enio/.gemini/antigravity/brain/ce408758-2b8a-4827-8ad5-6d6ab8b059a3/.user_uploaded/media_1790217196741.jpg';
+$sourceUploadPaths = [
+    'C:/Users/Enio/.gemini/antigravity/brain/8fe1b026-5aa9-4960-9ace-f628732a93b5/.user_uploaded/media_1790300585674.jpg',
+    'C:/Users/Enio/.gemini/antigravity/brain/ce408758-2b8a-4827-8ad5-6d6ab8b059a3/.user_uploaded/media_1790217196741.jpg'
+];
 $localMockupPath = SITE_IMG_PATH . '/mockup_original.jpg';
 
-// Copia o arquivo original para dentro do projeto se ainda não existir
-if (!file_exists($localMockupPath) && file_exists($sourceUploadPath)) {
-    @copy($sourceUploadPath, $localMockupPath);
+// Copia o arquivo original mais recente para dentro do projeto se ainda não existir
+foreach ($sourceUploadPaths as $sup) {
+    if (file_exists($sup)) {
+        if (!file_exists($localMockupPath) || filesize($localMockupPath) < 10000) {
+            @copy($sup, $localMockupPath);
+        }
+        break;
+    }
 }
 
 // Coordenadas relativas de corte (x%, y%, w%, h%) baseadas na imagem de referência
@@ -72,7 +80,7 @@ $cropDefinitions = [
     OBRAS_PATH . '/obra-azul-profundo.jpg' => [
         'x' => 0.683, 'y' => 0.514, 'w' => 0.170, 'h' => 0.087
     ],
-    // Seção A Art Sell (foto lateral esquerda)
+    // Seção A Art For Sale (foto lateral esquerda)
     SITE_IMG_PATH . '/about-art-sell.jpg' => [
         'x' => 0.0, 'y' => 0.684, 'w' => 0.395, 'h' => 0.129
     ],

@@ -1,0 +1,128 @@
+[
+    {
+        "id": "a1000000-0000-0000-0000-000000000001",
+        "name": "Maria Fernandes",
+        "slug": "maria-fernandes",
+        "biography": "Pintora contemporânea reconhecida pelo lirismo visual e domínio das transições cromáticas entre tons ocres e profundidades noturnas.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "a1000000-0000-0000-0000-000000000002",
+        "name": "Carlos Menezes",
+        "slug": "carlos-menezes",
+        "biography": "Mestre na exploração geométrica dos cenários metropolitanos, contrastando paletas sóbrias com detalhes em ouro envelhecido.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "a1000000-0000-0000-0000-000000000003",
+        "name": "Juliana Costa",
+        "slug": "juliana-costa",
+        "biography": "Especialista em retratos de grande intensidade psicológica com forte influência do claro-escuro caravaggesco.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "a1000000-0000-0000-0000-000000000004",
+        "name": "Rafael Almeida",
+        "slug": "rafael-almeida",
+        "biography": "Pesquisador de pigmentos minerais e azul ultramarino em peças de grandes formatos que evocam a imensidão espacial.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "a1000000-0000-0000-0000-000000000005",
+        "name": "Helena Vianna",
+        "slug": "helena-vianna",
+        "biography": "Reinterpreta o rigor renascentista e a draperie acadêmica com estética atemporal voltada ao colecionismo moderno.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "a1000000-0000-0000-0000-000000000006",
+        "name": "Beatriz Drummond",
+        "slug": "beatriz-drummond",
+        "biography": "Compositora de sinfonias visuais através de acordes tonais vibrantes e ritmo gestual arrojado.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "a1000000-0000-0000-0000-000000000007",
+        "name": "Eduardo Fontes",
+        "slug": "eduardo-fontes",
+        "biography": "Dedicado à pesquisa matérica orgânica e minerais terrosos que dialogam com a arquitetura biofílica contemporânea.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "a1000000-0000-0000-0000-000000000010",
+        "name": "Lucas Brandão",
+        "slug": "lucas-brandao",
+        "biography": "Artista construtivista que conjuga proporção áurea, geometria ortogonal e delicadas incrustações em folha de ouro.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "a1000000-0000-0000-0000-000000000011",
+        "name": "Rodrigo Vasconcelos",
+        "slug": "rodrigo-vasconcelos",
+        "biography": "Gravurista tradicional com sólida reputação internacional em água-forte e ponta-seca sobre papéis 300g.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "a1000000-0000-0000-0000-000000000012",
+        "name": "Marcelo Duarte",
+        "slug": "marcelo-duarte",
+        "biography": "Escultor clássico que funde a solenidade greco-romana em mármore com a fluidez do bronze e pátinas nobres.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "db78ff36-132e-433b-93b1-ffc6b04227c1",
+        "name": "Di Natureza",
+        "slug": "di-natureza-637e",
+        "biography": "Mestre em exibição na galeria Art Sale.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T21:29:49.462712+00:00"
+    },
+    {
+        "id": "a1000000-0000-0000-0000-000000000008",
+        "name": "André Valente",
+        "slug": "andre-valente",
+        "biography": "Paisagista lírico mestre na captura de atmosferas serranas, névoas matinais e o calor acolhedor da luz dourada.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "a1000000-0000-0000-0000-000000000009",
+        "name": "Gabriela Siqueira",
+        "slug": "gabriela-siqueira",
+        "biography": "Retratista delicada com economia gestual refinada sobre madeiras nobres tratadas à têmpera.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "e83a17dc-4c56-44bf-bb57-2c0fa222b321",
+        "name": "X",
+        "slug": "x-9ec7",
+        "biography": "Mestre em exibição na galeria Art Sale.",
+        "image_url": "",
+        "active": true,
+        "created_at": "2026-09-24T21:45:34.767399+00:00"
+    }
+]

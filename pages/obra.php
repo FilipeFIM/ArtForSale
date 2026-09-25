@@ -1,6 +1,6 @@
 <?php
 /**
- * ART SELL - Detalhes da Obra
+ * ART FOR SALE - Detalhes da Obra
  * Página: /pages/obra.php
  * Tecnologias: PHP 8+, HTML5, CSS3, JavaScript Vanilla
  * Fidelidade máxima à identidade visual premium e refinamento da galeria.
@@ -10,28 +10,110 @@ $pathPrefix = '../';
 $currentPage = 'obras';
 
 require_once dirname(__DIR__) . '/includes/config.php';
+require_once dirname(__DIR__) . '/includes/supabase.php';
 
-// Resgata obra solicitada via ?id=... (padrão: 101 - Horizontes Dourados)
-$obraId = isset($_GET['id']) ? (int)$_GET['id'] : 101;
-$obra = get_obra_by_id($obraId);
+// Resgata obra solicitada via ?id=... ou ?slug=... (padrão: 101 - Horizontes Dourados)
+$obraId = isset($_GET['id']) ? trim($_GET['id']) : (isset($_GET['slug']) ? trim($_GET['slug']) : '101');
+$obra = null;
 
-if (!$obra) {
-    $obra = $catalogoObras[0];
+if (function_exists('supabase_buscar_obra')) {
+    $obra = supabase_buscar_obra($obraId);
+}
+$catalogoObras = [];
+if (function_exists('supabase_buscar_obras')) {
+    $catalogoObras = supabase_buscar_obras(null, null, 24);
+}
+if (!is_array($catalogoObras)) {
+    $catalogoObras = [];
 }
 
-// Obter as 4 fotos da galeria da obra
+if (!$obra && function_exists('artsale_get_local_artworks')) {
+    $locais = artsale_get_local_artworks();
+    foreach ($locais as $loc) {
+        if ((string)($loc['id'] ?? '') === (string)$obraId || (string)($loc['slug'] ?? '') === (string)$obraId) {
+            $obra = $loc;
+            break;
+        }
+    }
+}
+
+if (!$obra) {
+    $obra = get_obra_by_id((int)$obraId);
+}
+
+$deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];
+if (!is_array($deletedIds)) {
+    $deletedIds = [];
+}
+$catalogoObras = array_values(array_filter($catalogoObras, fn($item) => !in_array((string)($item['id'] ?? ''), $deletedIds, true)));
+
+if (!$obra) {
+    if (!empty($catalogoObras)) {
+        $obra = $catalogoObras[0];
+    } else {
+        header('Location: obras.php');
+        exit;
+    }
+}
+
+// Normaliza imagem principal da obra
+$obra['imagem'] = artsale_resolve_image_url($obra['imagem'] ?? '', '../');
+
+// Obter TODAS as fotos da galeria da obra (com a imagem principal em 1º lugar)
 $galeria = !empty($obra['galeria']) ? $obra['galeria'] : [
-    ['tipo' => 'frontal', 'titulo' => 'Fotografia frontal', 'imagem' => $obra['imagem']],
-    ['tipo' => 'lateral', 'titulo' => 'Fotografia lateral', 'imagem' => get_image_url('assets/images/obras/obra-horizontes-dourados-lateral.svg')],
-    ['tipo' => 'detalhe', 'titulo' => 'Detalhe / textura', 'imagem' => get_image_url('assets/images/obras/obra-horizontes-dourados-detalhe.svg')],
-    ['tipo' => 'ambiente', 'titulo' => 'Obra em ambiente', 'imagem' => get_image_url('assets/images/obras/obra-horizontes-dourados-ambiente.svg')]
+    ['tipo' => 'principal', 'titulo' => 'Fotografia Principal', 'imagem' => $obra['imagem']]
 ];
 
-// Obras para a seção de recomendações no rodapé (outras obras do catálogo)
+// Garantir que cada foto da galeria esteja devidamente resolvida para o caminho ../ ou Supabase
+$galeria = array_map(function($g) {
+    if (is_array($g)) {
+        $g['imagem'] = artsale_resolve_image_url($g['imagem'] ?? '', '../');
+    }
+    return $g;
+}, $galeria);
+
+// Obras para a seção de recomendações no rodapé (outras obras do acervo)
 $outrasObras = array_filter($catalogoObras, function($item) use ($obra) {
-    return $item['id'] !== $obra['id'];
+    return (string)$item['id'] !== (string)$obra['id'];
 });
 $obrasRelacionadas = array_slice($outrasObras, 0, 4);
+foreach ($obrasRelacionadas as &$rel) {
+    $rel['imagem'] = artsale_resolve_image_url($rel['imagem'] ?? '', '../');
+}
+unset($rel);
+
+// ==============================================================================
+// SEO Dinâmico Art For Sale (Supabase, Open Graph & Schema.org)
+// ==============================================================================
+$obraTitulo = $obra['titulo'] ?? $obra['name'] ?? 'Obra de Arte';
+$obraArtista = $obra['artista'] ?? 'Artista Convidado';
+$obraCanonical = function_exists('artsale_absolute_url') 
+    ? artsale_absolute_url('pages/obra.php?id=' . urlencode((string)$obra['id'])) 
+    : "http://localhost:8000/pages/obra.php?id={$obra['id']}";
+$obraOgImage = function_exists('artsale_absolute_url') 
+    ? artsale_absolute_url($obra['imagem']) 
+    : $obra['imagem'];
+
+$seoMeta = [
+    'title'          => "{$obraTitulo} | Art For Sale",
+    'description'    => "{$obraTitulo}, de {$obraArtista}. Conheça esta obra na Art For Sale.",
+    'canonical'      => $obraCanonical,
+    'og_type'        => 'article',
+    'og_title'       => "{$obraTitulo} | Art For Sale",
+    'og_description' => "{$obraTitulo}, de {$obraArtista}. Conheça esta obra na Art For Sale.",
+    'og_image'       => $obraOgImage,
+    'og_url'         => $obraCanonical,
+    'schemas'        => [
+        function_exists('artsale_schema_visual_artwork') 
+            ? artsale_schema_visual_artwork($obra, $obraCanonical, $obraOgImage) 
+            : [],
+        function_exists('artsale_schema_breadcrumb') ? artsale_schema_breadcrumb([
+            ['name' => 'Início', 'url' => artsale_absolute_url('index.php')],
+            ['name' => 'Obras', 'url' => artsale_absolute_url('pages/obras.php')],
+            ['name' => $obraTitulo, 'url' => $obraCanonical]
+        ]) : []
+    ]
+];
 
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
@@ -72,11 +154,15 @@ require_once dirname(__DIR__) . '/includes/header.php';
                             <!-- Imagem Principal Ativa -->
                             <img 
                                 id="obraMainImage" 
-                                src="<?= $galeria[0]['imagem'] ?>" 
+                                src="<?= htmlspecialchars($galeria[0]['imagem']) ?>" 
                                 alt="<?= htmlspecialchars($obra['titulo']) ?> - <?= htmlspecialchars($galeria[0]['titulo']) ?>" 
                                 class="obra-main-img"
                                 data-current-index="0"
+                                width="800"
+                                height="600"
                                 loading="eager"
+                                fetchpriority="high"
+                                decoding="sync"
                                 onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');"
                             >
 
@@ -127,7 +213,16 @@ require_once dirname(__DIR__) . '/includes/header.php';
                                     aria-label="Ver <?= htmlspecialchars($item['titulo']) ?>"
                                 >
                                     <div class="thumb-img-wrapper">
-                                        <img src="<?= $item['imagem'] ?>" alt="Miniatura <?= htmlspecialchars($item['titulo']) ?>" class="thumb-img" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                                        <img 
+                                            src="<?= htmlspecialchars(artsale_get_thumbnail_url($item['imagem'], 160, 120, 80, '../')) ?>" 
+                                            alt="Miniatura <?= htmlspecialchars($item['titulo']) ?>" 
+                                            class="thumb-img" 
+                                            width="80" 
+                                            height="60" 
+                                            loading="lazy" 
+                                            decoding="async" 
+                                            onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');"
+                                        >
                                     </div>
                                     <span class="thumb-label"><?= htmlspecialchars($item['titulo']) ?></span>
                                 </button>
@@ -244,6 +339,13 @@ require_once dirname(__DIR__) . '/includes/header.php';
                         </div>
                     </div>
 
+                    <?php if (!empty($obra['biografia_artista'])): ?>
+                    <div class="obra-artist-card-block" style="margin-bottom: 2rem; padding: 1.25rem 1.5rem; background: rgba(179,138,84,0.05); border: 1px solid rgba(179,138,84,0.25); border-radius: 6px;">
+                        <h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.35rem; color: #b38a54; margin-bottom: 0.5rem;">Sobre o Artista: <?= htmlspecialchars($obra['artista']) ?></h3>
+                        <p style="font-size: 0.875rem; color: #d4cfc5; line-height: 1.65; margin: 0;"><?= nl2br(htmlspecialchars($obra['biografia_artista'])) ?></p>
+                    </div>
+                    <?php endif; ?>
+
                     <!-- ================================================
                          BLOCO DE PREÇO SOB CONSULTA E BOTÃO DE INTERESSE
                          (Regra: Somente UM botão principal, sem WhatsApp)
@@ -314,10 +416,13 @@ require_once dirname(__DIR__) . '/includes/header.php';
                     <article class="artwork-card" data-id="<?= $rel['id'] ?>" data-title="<?= htmlspecialchars($rel['titulo']) ?>" data-artist="<?= htmlspecialchars($rel['artista']) ?>" data-dimensions="<?= htmlspecialchars($rel['dimensoes']) ?>" data-image="<?= $rel['imagem'] ?>">
                         <div class="artwork-image-container">
                             <img 
-                                src="<?= $rel['imagem'] ?>" 
+                                src="<?= htmlspecialchars(artsale_get_thumbnail_url($rel['imagem'], 480, 300, 82, '../')) ?>" 
                                 alt="<?= htmlspecialchars($rel['titulo']) ?> por <?= htmlspecialchars($rel['artista']) ?>" 
                                 class="artwork-image" 
+                                width="400"
+                                height="250"
                                 loading="lazy"
+                                decoding="async"
                                 onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');"
                             >
                             <span class="artwork-category-tag"><?= htmlspecialchars($rel['categoria']) ?></span>
@@ -478,6 +583,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 </div>
 
 <?php
+$hasInquiryModal = true;
 require_once dirname(__DIR__) . '/includes/footer.php';
 ?>
 

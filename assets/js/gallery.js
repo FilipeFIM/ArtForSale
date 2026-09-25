@@ -1,5 +1,5 @@
 /**
- * ART SELL - JavaScript de Galeria e Carrossel (gallery.js)
+ * ART FOR SALE - JavaScript de Galeria e Carrossel (gallery.js)
  * Gerencia o carrossel de obras em destaque, paginação e garantia de renderização das imagens do mockup
  */
 
@@ -157,8 +157,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!coords) return;
 
-                // Testa se a imagem já carregou normalmente
-                if (imgEl.complete && imgEl.naturalWidth > 50) {
+                // Testa se a imagem já carregou normalmente como imagem real (não SVG)
+                if (imgEl.complete && imgEl.naturalWidth > 50 && !imgEl.src.toLowerCase().includes('.svg')) {
                     return; // Já carregou o JPG do disco com sucesso
                 }
 
@@ -222,12 +222,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Tenta também caso a imagem falhe ao carregar (troca para .svg ou canvas)
+        // Caso ocorra qualquer erro de carregamento, aplica o recorte diretamente do mockup original (nunca troca para SVG)
         cropElements.forEach(imgEl => {
             imgEl.addEventListener('error', () => {
-                if (!imgEl.src.endsWith('.svg')) {
-                    imgEl.src = imgEl.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');
-                } else if (isLoaded) {
+                if (isLoaded) {
                     applyCrops();
                 }
             });

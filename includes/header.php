@@ -1,22 +1,52 @@
 <?php
 /**
- * ART SELL - Header
+ * ART FOR SALE - Header
  * Estrutura visual sofisticada, minimalista e fiel ao mockup
  */
+require_once __DIR__ . '/seo_helper.php';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= SITE_NAME ?> — <?= SITE_SLOGAN ?></title>
-    
-    <!-- Meta tags SEO e Compartilhamento -->
-    <meta name="description" content="Descubra obras únicas e cuidadosamente selecionadas para colecionadores, apreciadores e ambientes que merecem personalidade.">
+    <!-- SEO Completo, Open Graph e Schema.org -->
+<?php
+if (isset($seoMeta) && is_array($seoMeta) && function_exists('artsale_render_seo_tags')) {
+    artsale_render_seo_tags($seoMeta);
+} else {
+    $defaultHomeSeo = [
+        'title'          => 'Art For Sale',
+        'description'    => 'Descubra obras selecionadas pela Art For Sale. Arte que transforma espaços.',
+        'canonical'      => function_exists('artsale_absolute_url') ? artsale_absolute_url('index.php') : '',
+        'og_type'        => 'website',
+        'og_title'       => 'Art For Sale',
+        'og_description' => 'Descubra obras selecionadas pela Art For Sale. Arte que transforma espaços.',
+        'og_image'       => function_exists('artsale_absolute_url') ? artsale_absolute_url('assets/images/site/about-art-sell.jpg') : '',
+        'og_url'         => function_exists('artsale_absolute_url') ? artsale_absolute_url('index.php') : '',
+        'schemas'        => function_exists('artsale_schema_gallery') ? [artsale_schema_gallery()] : []
+    ];
+    if (function_exists('artsale_render_seo_tags')) {
+        artsale_render_seo_tags($defaultHomeSeo);
+    } else {
+        echo '    <title>Art For Sale</title>' . PHP_EOL;
+        echo '    <meta name="description" content="Descubra obras selecionadas pela Art For Sale. Arte que transforma espaços.">' . PHP_EOL;
+    }
+}
+?>
     <meta name="theme-color" content="#b38a54">
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="<?= $pathPrefix ?? '' ?>assets/images/site/logo-icon.svg">
+
+    <!-- Preload Crítico e Conexões Otimizadas -->
+    <?php if (empty($pathPrefix)): ?>
+    <link rel="preload" as="image" href="<?= function_exists('get_image_url') ? get_image_url('assets/images/site/hero-bg.jpg') : 'assets/images/site/hero-bg.jpg' ?>" fetchpriority="high">
+    <?php endif; ?>
+    <?php if (defined('SUPABASE_URL') && !empty(SUPABASE_URL)): ?>
+    <link rel="dns-prefetch" href="https://<?= parse_url(SUPABASE_URL, PHP_URL_HOST) ?? '' ?>">
+    <link rel="preconnect" href="https://<?= parse_url(SUPABASE_URL, PHP_URL_HOST) ?? '' ?>" crossorigin>
+    <?php endif; ?>
 
     <!-- Tipografia Editorial Premium Google Fonts (Cormorant Garamond + Plus Jakarta Sans) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,7 +62,7 @@
     <!-- Header Principal -->
     <header class="site-header" id="siteHeader">
         <div class="header-container">
-            <!-- Logo ART SELL -->
+            <!-- Logo ART FOR SALE -->
             <a href="<?= $pathPrefix ?? '' ?>index.php" class="header-logo" title="<?= SITE_NAME ?> - <?= SITE_SLOGAN ?>">
                 <img src="<?= $pathPrefix ?? '' ?>assets/images/site/logo.svg" alt="<?= SITE_NAME ?>" class="logo-image" width="220" height="48">
             </a>
@@ -47,7 +77,7 @@
                         <a href="<?= $pathPrefix ?? '' ?>pages/obras.php" class="nav-link <?= ($currentPage ?? '') === 'obras' ? 'active' : '' ?>">Obras</a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= ($currentPage ?? '') === 'inicio' ? '#categorias' : ($pathPrefix ?? '') . 'index.php#categorias' ?>" class="nav-link">Categorias</a>
+                        <a href="<?= ($currentPage ?? '') === 'inicio' ? '#categorias' : ($pathPrefix ?? '') . 'pages/categorias.php' ?>" class="nav-link <?= ($currentPage ?? '') === 'categorias' ? 'active' : '' ?>">Categorias</a>
                     </li>
                     <li class="nav-item">
                         <a href="<?= ($currentPage ?? '') === 'inicio' ? '#sobre' : ($pathPrefix ?? '') . 'index.php#sobre' ?>" class="nav-link">Sobre</a>
@@ -99,7 +129,7 @@
             <nav class="mobile-nav">
                 <a href="<?= $pathPrefix ?? '' ?>index.php" class="mobile-nav-link <?= ($currentPage ?? '') === 'inicio' ? 'active' : '' ?>">Início</a>
                 <a href="<?= $pathPrefix ?? '' ?>pages/obras.php" class="mobile-nav-link <?= ($currentPage ?? '') === 'obras' ? 'active' : '' ?>">Obras</a>
-                <a href="<?= ($currentPage ?? '') === 'inicio' ? '#categorias' : ($pathPrefix ?? '') . 'index.php#categorias' ?>" class="mobile-nav-link">Categorias</a>
+                <a href="<?= ($currentPage ?? '') === 'inicio' ? '#categorias' : ($pathPrefix ?? '') . 'pages/categorias.php' ?>" class="mobile-nav-link <?= ($currentPage ?? '') === 'categorias' ? 'active' : '' ?>">Categorias</a>
                 <a href="<?= ($currentPage ?? '') === 'inicio' ? '#sobre' : ($pathPrefix ?? '') . 'index.php#sobre' ?>" class="mobile-nav-link">Sobre</a>
                 <a href="<?= ($currentPage ?? '') === 'inicio' ? '#contato' : ($pathPrefix ?? '') . 'index.php#contato' ?>" class="mobile-nav-link">Contato</a>
             </nav>

@@ -1,0 +1,69 @@
+# ==============================================================================
+# ART FOR SALE - Apache Web Server Security, Optimization & Routing (.htaccess)
+# Slogan: "Arte que transforma espaços."
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. BLOQUEIO DE ARQUIVOS SENSÍVEIS E CONFIDENCIAIS
+# ------------------------------------------------------------------------------
+<FilesMatch "(^\.env|^\.git|.*\.sql|.*\.log|.*\.json$|composer\.(json|lock)|package(-lock)?\.json)">
+    Order allow,deny
+    Deny from all
+    Require all denied
+</FilesMatch>
+
+# ------------------------------------------------------------------------------
+# 2. CABEÇALHOS DE SEGURANÇA HTTP (SECURITY HEADERS)
+# ------------------------------------------------------------------------------
+<IfModule mod_headers.c>
+    # Previne que o navegador tente adivinhar o MIME-type (MIME-sniffing)
+    Header set X-Content-Type-Options "nosniff"
+
+    # Previne Clickjacking bloqueando iframes externos
+    Header set X-Frame-Options "SAMEORIGIN"
+
+    # Habilita filtro XSS nos navegadores
+    Header set X-XSS-Protection "1; mode=block"
+
+    # Política restrita de Referrer para proteção de privacidade
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Remove assinatura de versão do PHP / servidor se suportado
+    Header unset X-Powered-By
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# 3. REESCRITA DE URLS E ROTAS
+# ------------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Bloqueia tentativas de acesso direto a arquivos ocultos (.env, etc.)
+    RewriteRule (^|/)\.(?!well-known) - [F]
+
+    # Redireciona sitemap.xml para sitemap.php dinâmico
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# 4. COMPRESSÃO GZIP / DEFLATE PARA PERFORMANCE
+# ------------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# 5. CACHE DE CABEÇALHOS ESTÁTICOS
+# ------------------------------------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+</IfModule>

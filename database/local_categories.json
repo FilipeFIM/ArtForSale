@@ -1,0 +1,74 @@
+[
+    {
+        "id": "c1000000-0000-0000-0000-000000000001",
+        "name": "Arte Clássica",
+        "slug": "arte-classica",
+        "description": "Obras com rigor técnico, proporção harmônica e reverência à grande tradição acadêmica e renascentista.",
+        "image_url": "assets\/images\/obras\/cat-arte-classica.svg",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "c1000000-0000-0000-0000-000000000002",
+        "name": "Arte Moderna",
+        "slug": "arte-moderna",
+        "description": "Expressões vanguardistas com desconstrução da forma, lirismo cromático e ruptura estética do século XX.",
+        "image_url": "assets\/images\/obras\/cat-arte-moderna.svg",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "c1000000-0000-0000-0000-000000000003",
+        "name": "Arte Contemporânea",
+        "slug": "arte-contemporanea",
+        "description": "Linguagens contemporâneas marcadas pela experimentação matérica, pigmentos nobres e reflexão crítica.",
+        "image_url": "assets\/images\/obras\/cat-arte-contemporanea.svg",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "c1000000-0000-0000-0000-000000000004",
+        "name": "Paisagens",
+        "slug": "paisagens",
+        "description": "Composições que celebram o horizonte, a luz crepuscular, águas serenas e atmosferas contemplativas.",
+        "image_url": "assets\/images\/obras\/cat-paisagens.svg",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "c1000000-0000-0000-0000-000000000005",
+        "name": "Retratos",
+        "slug": "retratos",
+        "description": "Estudos refinados da figura humana, intensidade psicológica e narrativa velada no olhar.",
+        "image_url": "assets\/images\/obras\/cat-retratos.svg",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "c1000000-0000-0000-0000-000000000006",
+        "name": "Abstrato",
+        "slug": "abstrato",
+        "description": "Campos ópticos hipnóticos, proporção áurea e harmonias visuais que despertam emoções e sensações puras.",
+        "image_url": "assets\/images\/obras\/cat-abstrato.svg",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "c1000000-0000-0000-0000-000000000007",
+        "name": "Gravuras",
+        "slug": "gravuras",
+        "description": "Tiragens de autor meticulosamente executadas em técnicas de metal, água-forte e ponta-seca sobre papéis nobres.",
+        "image_url": "assets\/images\/obras\/cat-gravuras.svg",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    },
+    {
+        "id": "c1000000-0000-0000-0000-000000000008",
+        "name": "Esculturas",
+        "slug": "esculturas",
+        "description": "Obras tridimensionais cinzeladas em mármore nobre e bronze com pátina por mestres da tridimensionalidade.",
+        "image_url": "assets\/images\/obras\/cat-esculturas.svg",
+        "active": true,
+        "created_at": "2026-09-24T15:57:47.464326+00:00"
+    }
+]

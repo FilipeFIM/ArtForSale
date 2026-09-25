@@ -1,14 +1,15 @@
 <?php
 /**
- * ART SELL - Configuração Global
+ * ART FOR SALE - Configuração Global
  * Identidade: Galeria de Arte Premium
  * Slogan: Arte que transforma espaços.
  */
 
 // Informações Gerais do Site
-define('SITE_NAME', 'ART SELL');
+define('SITE_NAME', 'Art For Sale');
 define('SITE_SLOGAN', 'Arte que transforma espaços.');
 define('SITE_YEAR', 2026);
+define('SITE_CONTACT_EMAIL', 'artforsale1944@gmail.com');
 
 // Caminhos base
 define('BASE_PATH', dirname(__DIR__));
@@ -24,18 +25,18 @@ $contatos = [
         'cargo' => 'Curadoria & Atendimento',
         'telefone' => '(51) 9114-0044',
         'whatsapp' => '555191140044',
-        'whatsapp_link' => 'https://wa.me/555191140044?text=' . urlencode('Olá, Sra. Elisabeth. Gostaria de mais informações sobre as obras da Art Sell.')
+        'whatsapp_link' => 'https://wa.me/555191140044?text=' . urlencode('Olá, Sra. Elisabeth. Gostaria de mais informações sobre as obras da Art For Sale.')
     ],
     'felipe' => [
         'nome' => 'Felipe C',
         'cargo' => 'Atendimento & Vendas',
         'telefone' => '(51) 99126-6414',
         'whatsapp' => '5551991266414',
-        'whatsapp_link' => 'https://wa.me/5551991266414?text=' . urlencode('Olá, Felipe. Gostaria de consultar uma obra na Art Sell.')
+        'whatsapp_link' => 'https://wa.me/5551991266414?text=' . urlencode('Olá, Felipe. Gostaria de consultar uma obra na Art For Sale.')
     ],
     'email' => [
-        'endereco' => 'xxxx@gmail.com',
-        'link' => 'mailto:xxxx@gmail.com?subject=' . urlencode('Consulta de Obras - Art Sell')
+        'endereco' => defined('SITE_CONTACT_EMAIL') ? SITE_CONTACT_EMAIL : 'artforsale1944@gmail.com',
+        'link' => 'mailto:' . (defined('SITE_CONTACT_EMAIL') ? SITE_CONTACT_EMAIL : 'artforsale1944@gmail.com') . '?subject=' . urlencode('Consulta de Obras - Art For Sale')
     ]
 ];
 
@@ -43,19 +44,345 @@ if (!isset($pathPrefix)) {
     $pathPrefix = '';
 }
 
+if (!ob_get_level()) {
+    ob_start();
+}
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Polyfills para ambientes PHP sem a extensão mbstring habilitada
+if (!function_exists('mb_strtolower')) {
+    function mb_strtolower(string $str, ?string $encoding = null): string {
+        return strtolower($str);
+    }
+}
+if (!function_exists('mb_strtoupper')) {
+    function mb_strtoupper(string $str, ?string $encoding = null): string {
+        return strtoupper($str);
+    }
+}
+if (!function_exists('mb_strlen')) {
+    function mb_strlen(string $str, ?string $encoding = null): int {
+        return strlen($str);
+    }
+}
+if (!function_exists('mb_substr')) {
+    function mb_substr(string $str, int $start, ?int $length = null, ?string $encoding = null): string {
+        return $length === null ? substr($str, $start) : substr($str, $start, $length);
+    }
+}
+
+/**
+ * Retorna lista de IDs de obras que foram excluídas permanentemente pelo curador.
+ * Previne que obras excluídas reapareçam mesmo se houver fallback de catálogo seed.
+ */
+function artsale_get_deleted_artwork_ids(): array {
+    $file = BASE_PATH . '/database/deleted_artworks.json';
+    $ids = [];
+    if (file_exists($file)) {
+        $content = @file_get_contents($file);
+        $decoded = json_decode($content ?: '[]', true);
+        if (is_array($decoded)) {
+            $ids = $decoded;
+        }
+    }
+    if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['deleted_artworks']) && is_array($_SESSION['deleted_artworks'])) {
+        $ids = array_unique(array_merge($ids, $_SESSION['deleted_artworks']));
+    }
+    return array_values(array_map('strval', $ids));
+}
+
+/**
+ * Marca uma obra como permanentemente excluída em arquivo e sessão
+ */
+function artsale_mark_artwork_deleted(string $artworkId): void {
+    if (empty($artworkId)) return;
+    $dir = BASE_PATH . '/database';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+    $file = $dir . '/deleted_artworks.json';
+    $current = artsale_get_deleted_artwork_ids();
+    $idStr = (string)$artworkId;
+    if (!in_array($idStr, $current, true)) {
+        $current[] = $idStr;
+        @file_put_contents($file, json_encode(array_values($current), JSON_PRETTY_PRINT));
+    }
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        $_SESSION['deleted_artworks'] = $current;
+    }
+    if (function_exists('artsale_remove_local_artwork')) {
+        artsale_remove_local_artwork($artworkId);
+    }
+}
+
+/**
+ * Retorna as obras cadastradas localmente pelo curador (persistência garantida)
+ */
+function artsale_get_local_artworks(): array {
+    $file = BASE_PATH . '/database/local_artworks.json';
+    if (!file_exists($file)) return [];
+    $content = @file_get_contents($file);
+    $data = json_decode($content ?: '[]', true);
+    if (!is_array($data)) return [];
+    $deletedIds = artsale_get_deleted_artwork_ids();
+    return array_values(array_filter($data, fn($item) => !empty($item['id']) && !in_array((string)$item['id'], $deletedIds, true)));
+}
+
+/**
+ * Salva ou atualiza uma obra no arquivo local de persistência
+ */
+function artsale_save_local_artwork(array $artwork): void {
+    if (empty($artwork['id'])) return;
+    $deletedIds = artsale_get_deleted_artwork_ids();
+    if (in_array((string)$artwork['id'], $deletedIds, true)) return;
+
+    $dir = BASE_PATH . '/database';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+    $file = $dir . '/local_artworks.json';
+    $current = artsale_get_local_artworks();
+    $idStr = (string)$artwork['id'];
+
+    $found = false;
+    foreach ($current as $idx => $item) {
+        if ((string)($item['id'] ?? '') === $idStr) {
+            $current[$idx] = array_merge($item, $artwork);
+            $found = true;
+            break;
+        }
+    }
+    if (!$found) {
+        array_unshift($current, $artwork);
+    }
+    @file_put_contents($file, json_encode(array_values($current), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+/**
+ * Remove uma obra da persistência local
+ */
+function artsale_remove_local_artwork(string $artworkId): void {
+    if (empty($artworkId)) return;
+    $file = BASE_PATH . '/database/local_artworks.json';
+    if (!file_exists($file)) return;
+    $current = artsale_get_local_artworks();
+    $idStr = (string)$artworkId;
+    $filtered = array_values(array_filter($current, fn($item) => (string)($item['id'] ?? '') !== $idStr));
+    @file_put_contents($file, json_encode($filtered, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+/**
+ * Retorna lista de categorias locais
+ */
+function artsale_get_local_categories(): array {
+    $file = BASE_PATH . '/database/local_categories.json';
+    if (!file_exists($file)) return [];
+    $content = @file_get_contents($file);
+    $data = json_decode($content ?: '[]', true);
+    return is_array($data) ? $data : [];
+}
+
+/**
+ * Salva ou atualiza uma categoria na persistência local
+ */
+function artsale_save_local_category(array $categoria): void {
+    if (empty($categoria['id']) && empty($categoria['slug'])) return;
+    $dir = BASE_PATH . '/database';
+    if (!is_dir($dir)) @mkdir($dir, 0777, true);
+    $file = $dir . '/local_categories.json';
+    $current = artsale_get_local_categories();
+    $idStr = (string)($categoria['id'] ?? '');
+    $slugStr = (string)($categoria['slug'] ?? '');
+
+    $found = false;
+    foreach ($current as $idx => $item) {
+        if ((!empty($idStr) && (string)($item['id'] ?? '') === $idStr) ||
+            (!empty($slugStr) && (string)($item['slug'] ?? '') === $slugStr)) {
+            $current[$idx] = array_merge($item, $categoria);
+            $found = true;
+            break;
+        }
+    }
+    if (!$found) {
+        $current[] = $categoria;
+    }
+    @file_put_contents($file, json_encode(array_values($current), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+/**
+ * Retorna lista de artistas locais
+ */
+function artsale_get_local_artists(): array {
+    $file = BASE_PATH . '/database/local_artists.json';
+    if (!file_exists($file)) return [];
+    $content = @file_get_contents($file);
+    $data = json_decode($content ?: '[]', true);
+    return is_array($data) ? $data : [];
+}
+
+/**
+ * Salva ou atualiza um artista na persistência local
+ */
+function artsale_save_local_artist(array $artista): void {
+    if (empty($artista['id']) && empty($artista['slug'])) return;
+    $dir = BASE_PATH . '/database';
+    if (!is_dir($dir)) @mkdir($dir, 0777, true);
+    $file = $dir . '/local_artists.json';
+    $current = artsale_get_local_artists();
+    $idStr = (string)($artista['id'] ?? '');
+    $slugStr = (string)($artista['slug'] ?? '');
+
+    $found = false;
+    foreach ($current as $idx => $item) {
+        if ((!empty($idStr) && (string)($item['id'] ?? '') === $idStr) ||
+            (!empty($slugStr) && (string)($item['slug'] ?? '') === $slugStr)) {
+            $current[$idx] = array_merge($item, $artista);
+            $found = true;
+            break;
+        }
+    }
+    if (!$found) {
+        $current[] = $artista;
+    }
+    @file_put_contents($file, json_encode(array_values($current), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+/**
+ * Mescla obras prioritárias (reais/cadastradas) no início do catálogo base,
+ * garantindo que as obras recém-cadastradas apareçam em primeiro lugar.
+ */
+function artsale_merge_catalogo(array $prioritarias, array $catalogoBase): array {
+    $deletedIds = artsale_get_deleted_artwork_ids();
+    $seenIds = [];
+    $resultado = [];
+
+    // 1. Obras prioritárias (vindas do Supabase ou persistência local)
+    foreach ($prioritarias as $obra) {
+        $id = (string)($obra['id'] ?? '');
+        if (empty($id) || in_array($id, $deletedIds, true) || isset($seenIds[$id])) {
+            continue;
+        }
+        $seenIds[$id] = true;
+        $resultado[] = $obra;
+    }
+
+    // 2. Obras do catálogo base/seed para manter a galeria completa
+    foreach ($catalogoBase as $obra) {
+        $id = (string)($obra['id'] ?? '');
+        if (empty($id) || in_array($id, $deletedIds, true) || isset($seenIds[$id])) {
+            continue;
+        }
+        $seenIds[$id] = true;
+        $resultado[] = $obra;
+    }
+
+    return $resultado;
+}
+
+/**
+ * Resolve com segurança a URL de exibição de qualquer imagem da galeria/acervo.
+ * Suporta:
+ * - URLs absolutas do Supabase Storage (https://...supabase.co/...)
+ * - URLs de upload local (/assets/images/obras/uploads/...)
+ * - URLs relativas da pasta de assets com ajuste automático de pathPrefix (../ ou vazio)
+ * - Fallback neutro exclusivo "placeholder-obra.svg" caso nenhuma imagem tenha sido fornecida
+ */
+function artsale_resolve_image_url(?string $url, string $prefix = ''): string {
+    $clean = trim($url ?? '');
+    
+    // Se vazio, usa o SVG neutro elegante de curadoria (nunca uma foto aleatória de outra obra)
+    if (empty($clean)) {
+        return $prefix . 'assets/images/obras/placeholder-obra.svg';
+    }
+    
+    // Se for URL externa completa (Supabase Storage, CDN, http/https, data URI)
+    if (preg_match('#^(https?:)?//#i', $clean) || str_starts_with($clean, 'data:')) {
+        return $clean;
+    }
+    
+    // Normaliza removendo prefixos relativos pré-existentes
+    $normalized = preg_replace('#^(\.\./|\./|/)+#', '', $clean);
+    
+    // Se o arquivo local original não existir mas existir versão .svg
+    $fullDiskPath = BASE_PATH . '/' . $normalized;
+    if (!file_exists($fullDiskPath)) {
+        $svgCandidate = preg_replace('/\.(jpg|jpeg|png)$/i', '.svg', $fullDiskPath);
+        if (file_exists($svgCandidate)) {
+            $normalized = preg_replace('/\.(jpg|jpeg|png)$/i', '.svg', $normalized);
+        } else {
+            // Se o arquivo realmente não existe no disco, usa o placeholder elegante
+            if (!str_contains($normalized, 'placeholder-obra.svg')) {
+                return $prefix . 'assets/images/obras/placeholder-obra.svg';
+            }
+        }
+    }
+    
+    return $prefix . $normalized;
+}
+
 // Função auxiliar que resolve o arquivo da imagem (.jpg ou .svg de fallback) com suporte a pathPrefix
 function get_image_url(string $path): string {
     global $pathPrefix;
-    $cleanPath = ltrim($path, '/');
-    $prefix = $pathPrefix ?? '';
-    if (file_exists(BASE_PATH . '/' . $cleanPath)) {
-        return $prefix . $cleanPath;
+    return artsale_resolve_image_url($path, $pathPrefix ?? '');
+}
+
+/**
+ * Retorna a URL de miniatura otimizada para cards e listas, reduzindo tráfego e acelerando renderização.
+ * - Prioriza imagens do Supabase Storage com parâmetros de transformação quando disponível.
+ * - Suporta parâmetros de redimensionamento e WebP automático em serviços de mídia e CDN.
+ * - Evita o download de arquivos pesados (ex: 5MB a 10MB) dentro de cards pequenos.
+ */
+function artsale_get_thumbnail_url(?string $url, int $width = 480, int $height = 0, int $quality = 82, string $prefix = ''): string {
+    $resolved = artsale_resolve_image_url($url, $prefix);
+    if (empty($resolved) || str_ends_with($resolved, '.svg')) {
+        return $resolved;
     }
-    $svgPath = preg_replace('/\.(jpg|jpeg|png)$/i', '.svg', $cleanPath);
-    if (file_exists(BASE_PATH . '/' . $svgPath)) {
-        return $prefix . $svgPath;
+
+    // 1. Supabase Storage: utiliza o endpoint de renderização com dimensões exatas e qualidade
+    if (str_contains($resolved, '/storage/v1/object/public/')) {
+        if ($width > 0) {
+            $renderUrl = str_replace('/storage/v1/object/public/', '/storage/v1/render/image/public/', $resolved);
+            $params = ['width=' . $width, 'quality=' . $quality];
+            if ($height > 0) $params[] = 'height=' . $height;
+            $params[] = 'resize=contain';
+            $sep = str_contains($renderUrl, '?') ? '&' : '?';
+            return $renderUrl . $sep . implode('&', $params);
+        }
+        return $resolved;
     }
-    return $prefix . $cleanPath;
+
+    // 2. Unsplash CDN: aplica redimensionamento exato, auto=format (WebP automático) e qualidade otimizada
+    if (str_contains($resolved, 'images.unsplash.com')) {
+        if ($width > 0) {
+            $baseUrl = preg_replace('/\?(.*)$/', '', $resolved);
+            $params = [
+                'w=' . $width,
+                'auto=format',
+                'fit=crop',
+                'q=' . $quality
+            ];
+            if ($height > 0) {
+                $params[] = 'h=' . $height;
+            }
+            return $baseUrl . '?' . implode('&', $params);
+        }
+        return $resolved;
+    }
+
+    // 3. Imagem local: verifica se existe versão .webp equivalente no disco
+    if (!preg_match('#^(https?:)?//#i', $resolved)) {
+        $cleanPath = preg_replace('#^(\.\./|\./|/)+#', '', $resolved);
+        $fullDiskPath = BASE_PATH . '/' . $cleanPath;
+        $webpDiskCandidate = preg_replace('/\.(jpg|jpeg|png)$/i', '.webp', $fullDiskPath);
+        if (file_exists($webpDiskCandidate)) {
+            return $prefix . preg_replace('/\.(jpg|jpeg|png)$/i', '.webp', $cleanPath);
+        }
+    }
+
+    return $resolved;
 }
 
 // Categorias Oficiais do Mockup
@@ -272,7 +599,7 @@ $catalogoObras = [
         'categoria' => 'Arte Contemporânea',
         'categoria_slug' => 'arte-contemporanea',
         'disponibilidade' => 'Disponível',
-        'procedencia' => 'Galeria Art Sell',
+        'procedencia' => 'Galeria Art For Sale',
         'localizacao' => 'Belo Horizonte - MG',
         'preco' => 'Preço sob consulta',
         'imagem' => get_image_url('assets/images/obras/obra-azul-profundo.jpg'),
@@ -376,7 +703,7 @@ $catalogoObras = [
         'categoria' => 'Paisagens',
         'categoria_slug' => 'paisagens',
         'disponibilidade' => 'Disponível',
-        'procedencia' => 'Galeria Art Sell',
+        'procedencia' => 'Galeria Art For Sale',
         'localizacao' => 'Gramado - RS',
         'preco' => 'Preço sob consulta',
         'imagem' => get_image_url('assets/images/obras/cat-paisagens.jpg'),
@@ -480,7 +807,7 @@ $catalogoObras = [
         'categoria' => 'Esculturas',
         'categoria_slug' => 'esculturas',
         'disponibilidade' => 'Disponível',
-        'procedencia' => 'Acervo da Galeria Art Sell',
+        'procedencia' => 'Acervo da Galeria Art For Sale',
         'localizacao' => 'Porto Alegre - RS',
         'preco' => 'Preço sob consulta',
         'imagem' => get_image_url('assets/images/obras/cat-esculturas.jpg'),
@@ -494,19 +821,33 @@ $catalogoObras = [
     ]
 ];
 
-// Função auxiliar para resgatar uma obra pelo ID ou retornar a principal (Horizontes Dourados)
+// Função auxiliar para resgatar uma obra pelo ID ou retornar a principal válida
 function get_obra_by_id($id) {
     global $catalogoObras;
     $id = (int)$id;
+    $deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];
+    
+    // Se o próprio ID solicitado estiver na lista de excluídos, retorna null
+    if (in_array((string)$id, $deletedIds, true)) {
+        return null;
+    }
+
     foreach ($catalogoObras as $obra) {
         if ($obra['id'] === $id) {
             return $obra;
         }
     }
-    return !empty($catalogoObras) ? $catalogoObras[0] : null;
+    
+    // Retorna a primeira obra disponível que NÃO esteja na lista de excluídos
+    foreach ($catalogoObras as $obra) {
+        if (!in_array((string)$obra['id'], $deletedIds, true)) {
+            return $obra;
+        }
+    }
+    return null;
 }
 
-// Diferenciais da Galeria (A Art Sell)
+// Diferenciais da Galeria (A Art For Sale)
 $diferenciais = [
     [
         'icone' => 'shield',

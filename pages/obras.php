@@ -1,6 +1,6 @@
 <?php
 /**
- * ART SELL - Catálogo Geral de Obras de Arte
+ * ART FOR SALE - Catálogo Geral de Obras de Arte
  * Página: /pages/obras.php
  * Tecnologias: PHP 8+, HTML5, CSS3, JavaScript Vanilla
  * Fidelidade máxima à identidade visual premium e refinamento da Home.
@@ -10,6 +10,42 @@ $pathPrefix = '../';
 $currentPage = 'obras';
 
 require_once dirname(__DIR__) . '/includes/config.php';
+require_once dirname(__DIR__) . '/includes/supabase.php';
+
+$catalogoObras = [];
+if (function_exists('supabase_buscar_obras')) {
+    $catalogoObras = supabase_buscar_obras(null, null, 100);
+}
+if (!is_array($catalogoObras)) {
+    $catalogoObras = [];
+}
+
+$deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];
+if (!is_array($deletedIds)) {
+    $deletedIds = [];
+}
+$catalogoObras = array_values(array_filter($catalogoObras, fn($item) => !in_array((string)($item['id'] ?? ''), $deletedIds, true)));
+
+// ==============================================================================
+// SEO Dinâmico do Catálogo de Obras Art For Sale
+// ==============================================================================
+$seoMeta = [
+    'title'          => 'Obras de Arte | Art For Sale',
+    'description'    => 'Descubra nossa curadoria de obras originais, com procedência garantida e estética atemporal para transformar espaços com personalidade.',
+    'canonical'      => function_exists('artsale_absolute_url') ? artsale_absolute_url('pages/obras.php') : '',
+    'og_type'        => 'website',
+    'og_title'       => 'Obras de Arte | Art For Sale',
+    'og_description' => 'Descubra nossa curadoria de obras originais, com procedência garantida e estética atemporal para transformar espaços com personalidade.',
+    'og_image'       => function_exists('artsale_absolute_url') ? artsale_absolute_url('assets/images/site/about-art-sell.jpg') : '',
+    'og_url'         => function_exists('artsale_absolute_url') ? artsale_absolute_url('pages/obras.php') : '',
+    'schemas'        => [
+        function_exists('artsale_schema_breadcrumb') ? artsale_schema_breadcrumb([
+            ['name' => 'Início', 'url' => artsale_absolute_url('index.php')],
+            ['name' => 'Obras', 'url' => artsale_absolute_url('pages/obras.php')]
+        ]) : []
+    ]
+];
+
 require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
@@ -190,29 +226,32 @@ require_once dirname(__DIR__) . '/includes/header.php';
                 <?php foreach ($catalogoObras as $obra): ?>
                     <article 
                         class="artwork-card" 
-                        data-id="<?= $obra['id'] ?>" 
+                        data-id="<?= htmlspecialchars((string)$obra['id']) ?>" 
                         data-title="<?= htmlspecialchars($obra['titulo']) ?>" 
                         data-artist="<?= htmlspecialchars($obra['artista']) ?>" 
                         data-dimensions="<?= htmlspecialchars($obra['dimensoes']) ?>" 
                         data-price="<?= htmlspecialchars($obra['preco']) ?>"
-                        data-category="<?= $obra['categoria_slug'] ?>"
+                        data-category="<?= htmlspecialchars($obra['categoria_slug'] ?? 'pinturas') ?>"
                         data-category-name="<?= htmlspecialchars($obra['categoria']) ?>"
-                        data-image="<?= $obra['imagem'] ?>"
-                        data-year="<?= $obra['ano'] ?>"
-                        data-order="<?= $obra['ordem'] ?>"
+                        data-image="<?= htmlspecialchars($obra['imagem']) ?>"
+                        data-year="<?= (int)($obra['ano'] ?? 2024) ?>"
+                        data-order="<?= (int)($obra['ordem'] ?? 0) ?>"
                     >
                         <div class="artwork-image-container">
                             <img 
-                                src="<?= $obra['imagem'] ?>" 
+                                src="<?= htmlspecialchars(artsale_get_thumbnail_url($obra['imagem'], 480, 300, 82, '../')) ?>" 
                                 alt="<?= htmlspecialchars($obra['titulo']) ?> por <?= htmlspecialchars($obra['artista']) ?>" 
                                 class="artwork-image"
+                                width="400"
+                                height="250"
                                 loading="lazy"
-                                onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');"
+                                decoding="async"
+                                onerror="this.onerror=null; this.src='../assets/images/obras/placeholder-obra.svg';"
                             >
                             <span class="artwork-category-tag"><?= htmlspecialchars($obra['categoria']) ?></span>
                             
                             <!-- Botão de Favoritar (Coração) -->
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar <?= htmlspecialchars($obra['titulo']) ?>" data-id="<?= $obra['id'] ?>">
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar <?= htmlspecialchars($obra['titulo']) ?>" data-id="<?= htmlspecialchars((string)$obra['id']) ?>">
                                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                 </svg>
@@ -226,7 +265,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                             
                             <div class="artwork-footer-row">
                                 <span class="artwork-price"><?= htmlspecialchars($obra['preco']) ?></span>
-                                <a href="obra.php?id=<?= $obra['id'] ?>" class="btn-ver-detalhes" data-id="<?= $obra['id'] ?>">
+                                <a href="obra.php?id=<?= urlencode((string)$obra['id']) ?>" class="btn-ver-detalhes" data-id="<?= htmlspecialchars((string)$obra['id']) ?>">
                                     Ver detalhes
                                 </a>
                             </div>
@@ -304,6 +343,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
 </div>
 
 <?php
+$hasInquiryModal = true;
 require_once dirname(__DIR__) . '/includes/footer.php';
 ?>
 

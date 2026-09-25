@@ -1,6 +1,6 @@
 <?php
 /**
- * ART SELL - Script de Inicialização e Diagnóstico
+ * ART FOR SALE - Script de Inicialização e Diagnóstico
  * Executa a cópia do mockup e extração das imagens para /assets/images/
  */
 
@@ -12,7 +12,7 @@ header('Content-Type: text/html; charset=utf-8');
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>ART SELL — Diagnóstico de Inicialização</title>
+    <title>ART FOR SALE — Diagnóstico de Inicialização</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #faf8f5; color: #1c1b18; padding: 2rem; }
         .card { max-width: 680px; margin: 0 auto; background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e8e3d8; }
@@ -27,7 +27,7 @@ header('Content-Type: text/html; charset=utf-8');
 </head>
 <body>
     <div class="card">
-        <h1>ART SELL — Diagnóstico de Assets</h1>
+        <h1>ART FOR SALE — Diagnóstico de Assets</h1>
         <p>Verificação do ambiente PHP e extração automática das imagens do mockup.</p>
         
         <div class="status-item">
@@ -69,7 +69,7 @@ header('Content-Type: text/html; charset=utf-8');
         </div>
 
         <div style="text-align: center;">
-            <a href="index.php" class="btn">Acessar a Home da ART SELL →</a>
+            <a href="index.php" class="btn">Acessar a Home da ART FOR SALE →</a>
         </div>
     </div>
 </body>

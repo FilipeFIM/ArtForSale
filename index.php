@@ -1,6 +1,6 @@
 <?php
 /**
- * ART SELL - Home Page
+ * ART FOR SALE - Home Page
  * Tecnologias: PHP 8+, HTML5, CSS3, JavaScript Vanilla
  * Fidelidade máxima ao mockup de referência.
  */
@@ -9,6 +9,85 @@ $pathPrefix = '';
 $currentPage = 'inicio';
 
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/supabase.php';
+
+if (function_exists('supabase_buscar_obras')) {
+    $catalogoObras = supabase_buscar_obras(null, null, 24);
+}
+if (!isset($catalogoObras) || !is_array($catalogoObras)) {
+    $catalogoObras = [];
+}
+
+// Carrega categorias dinâmicas do Supabase
+$categoriasHome = function_exists('supabase_buscar_categorias') ? supabase_buscar_categorias(true) : [];
+if (empty($categoriasHome) && function_exists('artsale_get_local_categories')) {
+    $categoriasHome = artsale_get_local_categories();
+}
+if (empty($categoriasHome)) {
+    global $categorias;
+    $categoriasHome = $categorias ?? [];
+}
+
+$deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];
+if (!is_array($deletedIds)) {
+    $deletedIds = [];
+}
+$catalogoObras = array_values(array_filter($catalogoObras, fn($item) => !in_array((string)($item['id'] ?? ''), $deletedIds, true)));
+
+// Seleção curatorial inteligente para Obras em Destaque na Home:
+// 1. Prioriza obras novas criadas pelo curador/usuário no início
+// 2. Inclui todas as obras ativas marcadas com destaque = true
+// 3. Completa o carrossel com as demais obras ativas do acervo (até 12 obras para deslizar com setas)
+$obrasDestaque = [];
+$seenDestaqueIds = [];
+
+// 1. Obras cadastradas pelo usuário (imagens reais)
+foreach ($catalogoObras as $obra) {
+    $idStr = (string)($obra['id'] ?? '');
+    if (empty($idStr) || isset($seenDestaqueIds[$idStr])) continue;
+    $isCustom = !empty($obra['imagem_storage_path']) 
+        || str_contains($obra['imagem'] ?? '', 'uploads/') 
+        || (!is_numeric($obra['id']) && !str_starts_with((string)$obra['id'], 'b1000'));
+    if ($isCustom) {
+        $seenDestaqueIds[$idStr] = true;
+        $obrasDestaque[] = $obra;
+    }
+}
+
+// 2. Obras marcadas como destaque = true no painel
+foreach ($catalogoObras as $obra) {
+    $idStr = (string)($obra['id'] ?? '');
+    if (empty($idStr) || isset($seenDestaqueIds[$idStr])) continue;
+    if (!empty($obra['destaque'])) {
+        $seenDestaqueIds[$idStr] = true;
+        $obrasDestaque[] = $obra;
+    }
+}
+
+// 3. Completa com obras ativas para garantir carrossel com múltiplas páginas
+foreach ($catalogoObras as $obra) {
+    $idStr = (string)($obra['id'] ?? '');
+    if (empty($idStr) || isset($seenDestaqueIds[$idStr])) continue;
+    $seenDestaqueIds[$idStr] = true;
+    $obrasDestaque[] = $obra;
+    if (count($obrasDestaque) >= 12) break;
+}
+
+// ==============================================================================
+// SEO Dinâmico Home Page Art For Sale
+// ==============================================================================
+$seoMeta = [
+    'title'          => 'Art For Sale | Galeria de Arte',
+    'description'    => 'Descubra obras selecionadas pela Art For Sale. Arte que transforma espaços.',
+    'canonical'      => function_exists('artsale_absolute_url') ? artsale_absolute_url('index.php') : 'http://localhost:8000/index.php',
+    'og_type'        => 'website',
+    'og_title'       => 'Art For Sale | Galeria de Arte',
+    'og_description' => 'Descubra obras selecionadas pela Art For Sale. Arte que transforma espaços.',
+    'og_image'       => function_exists('artsale_absolute_url') ? artsale_absolute_url('assets/images/site/about-art-sell.jpg') : '',
+    'og_url'         => function_exists('artsale_absolute_url') ? artsale_absolute_url('index.php') : 'http://localhost:8000/index.php',
+    'schemas'        => function_exists('artsale_schema_gallery') ? [artsale_schema_gallery()] : []
+];
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -82,6 +161,10 @@ require_once __DIR__ . '/includes/header.php';
     <!-- Transição Artística com Pinceladas Sutis -->
     <div class="brush-transition-accent" aria-hidden="true"></div>
 
+    <!-- Pinceladas Artísticas Discretas de Fundo (Fidelidade ao Mockup Oficial) -->
+    <div class="artistic-flank-decor flank-left" aria-hidden="true"></div>
+    <div class="artistic-flank-decor flank-right" aria-hidden="true"></div>
+
     <!-- ========================================================
          SEÇÃO EXPLORE POR CATEGORIA
          ======================================================== -->
@@ -93,27 +176,35 @@ require_once __DIR__ . '/includes/header.php';
                     <span class="section-eyebrow">CATEGORIAS</span>
                     <h2 class="section-title">Explore por Categoria</h2>
                 </div>
-                <a href="pages/obras.php" class="section-link-all">
+                <a href="pages/categorias.php" class="section-link-all">
                     Ver todas as categorias <span class="arrow">→</span>
                 </a>
             </div>
 
-            <!-- Grade com as 8 Categorias do Mockup -->
+            <!-- Grade com as 8 Categorias Oficiais do Mockup -->
             <div class="categories-grid">
-                <?php foreach ($categorias as $cat): ?>
-                    <a href="pages/obras.php?categoria=<?= $cat['slug'] ?>" class="category-card" data-category="<?= $cat['slug'] ?>">
+                <?php 
+                $categoriasHomeExibidas = array_slice($categoriasHome, 0, 8);
+                foreach ($categoriasHomeExibidas as $cat): 
+                    $catSlug = $cat['slug'] ?? '';
+                    $catNome = $cat['name'] ?? ($cat['nome'] ?? '');
+                    $catImg = artsale_resolve_image_url($cat['image_url'] ?? ($cat['imagem'] ?? ''), '');
+                ?>
+                    <a href="pages/categorias.php?slug=<?= urlencode($catSlug) ?>" class="category-card" data-category="<?= htmlspecialchars($catSlug) ?>">
                         <div class="category-thumb-wrapper">
                             <img 
-                                src="<?= $cat['imagem'] ?>" 
-                                alt="<?= $cat['nome'] ?>" 
+                                src="<?= htmlspecialchars(artsale_get_thumbnail_url($catImg, 240, 160)) ?>" 
+                                alt="<?= htmlspecialchars($catNome) ?>" 
                                 class="category-thumb"
+                                width="240"
+                                height="160"
                                 loading="lazy"
-                                data-crop="<?= $cat['crop_key'] ?>"
-                                onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');"
+                                decoding="async"
+                                onerror="this.onerror=null; this.src='assets/images/obras/placeholder-obra.svg';"
                             >
                             <div class="category-hover-overlay"></div>
                         </div>
-                        <span class="category-name"><?= $cat['nome'] ?></span>
+                        <span class="category-name"><?= htmlspecialchars($catNome) ?></span>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -147,19 +238,24 @@ require_once __DIR__ . '/includes/header.php';
 
                 <!-- Grade/Track do Carrossel com 4 Obras -->
                 <div class="featured-carousel-track" id="featuredTrack">
-                    <?php foreach ($obrasDestaque as $obra): ?>
-                        <article class="artwork-card" data-id="<?= $obra['id'] ?>" data-title="<?= htmlspecialchars($obra['titulo']) ?>" data-artist="<?= htmlspecialchars($obra['artista']) ?>" data-dimensions="<?= htmlspecialchars($obra['dimensoes']) ?>" data-image="<?= $obra['imagem'] ?>">
+                    <?php foreach ($obrasDestaque as $obra): 
+                        $resolvedImg = artsale_resolve_image_url($obra['imagem'] ?? '', '');
+                    ?>
+                        <article class="artwork-card" data-id="<?= htmlspecialchars((string)$obra['id']) ?>" data-title="<?= htmlspecialchars($obra['titulo']) ?>" data-artist="<?= htmlspecialchars($obra['artista']) ?>" data-dimensions="<?= htmlspecialchars($obra['dimensoes']) ?>" data-image="<?= $resolvedImg ?>">
                             <div class="artwork-image-container">
                                 <img 
-                                    src="<?= $obra['imagem'] ?>" 
+                                    src="<?= htmlspecialchars(artsale_get_thumbnail_url($resolvedImg, 480, 300)) ?>" 
                                     alt="<?= htmlspecialchars($obra['titulo']) ?> por <?= htmlspecialchars($obra['artista']) ?>" 
                                     class="artwork-image"
+                                    width="400"
+                                    height="250"
                                     loading="lazy"
-                                    data-crop="<?= $obra['crop_key'] ?>"
-                                    onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');"
+                                    decoding="async"
+                                    data-crop="<?= $obra['crop_key'] ?? '' ?>"
+                                    onerror="this.onerror=null; this.src='assets/images/obras/placeholder-obra.svg';"
                                 >
                                 <!-- Botão de Favoritar (Coração) -->
-                                <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar <?= htmlspecialchars($obra['titulo']) ?>" data-id="<?= $obra['id'] ?>">
+                                <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar <?= htmlspecialchars($obra['titulo']) ?>" data-id="<?= htmlspecialchars((string)$obra['id']) ?>">
                                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                     </svg>
@@ -172,8 +268,8 @@ require_once __DIR__ . '/includes/header.php';
                                 <p class="artwork-dimensions"><?= htmlspecialchars($obra['dimensoes']) ?></p>
                                 
                                 <div class="artwork-footer-row">
-                                    <span class="artwork-price"><?= htmlspecialchars($obra['preco']) ?></span>
-                                    <a href="pages/obra.php?id=<?= $obra['id'] ?>" class="btn-ver-detalhes" data-id="<?= $obra['id'] ?>">
+                                    <span class="artwork-price">Preço sob consulta</span>
+                                    <a href="pages/obra.php?id=<?= urlencode((string)$obra['id']) ?>" class="btn-ver-detalhes" data-id="<?= htmlspecialchars((string)$obra['id']) ?>">
                                         Ver detalhes
                                     </a>
                                 </div>
@@ -191,39 +287,44 @@ require_once __DIR__ . '/includes/header.php';
             </div>
 
             <!-- Indicadores de Pontos (Dots) -->
-            <div class="carousel-dots" id="carouselDots">
-                <button type="button" class="dot" data-index="0" aria-label="Página 1"></button>
-                <button type="button" class="dot active" data-index="1" aria-label="Página 2"></button>
-                <button type="button" class="dot" data-index="2" aria-label="Página 3"></button>
+            <?php $totalDots = max(1, (int)ceil(count($obrasDestaque) / 4)); ?>
+            <div class="carousel-dots" id="carouselDots" <?= $totalDots <= 1 ? 'style="display:none;"' : '' ?>>
+                <?php for ($d = 0; $d < $totalDots; $d++): ?>
+                    <button type="button" class="dot <?= $d === 0 ? 'active' : '' ?>" data-index="<?= $d ?>" aria-label="Página <?= $d + 1 ?>"></button>
+                <?php endfor; ?>
             </div>
         </div>
     </section>
 
     <!-- ========================================================
-         SEÇÃO SOBRE: A ART SELL
+         SEÇÃO SOBRE: A ART FOR SALE
          ======================================================== -->
     <section class="section-about" id="sobre">
         <div class="about-container">
             <!-- Imagem da Galeria com Busto Clássico (Esquerda) -->
             <div class="about-media-col">
                 <div class="about-image-wrapper">
-                    <img 
-                        src="<?= get_image_url('assets/images/site/about-art-sell.jpg') ?>" 
-                        alt="Galeria de Arte ART SELL" 
-                        class="about-image"
-                        loading="lazy"
-                        data-crop="about_art_sell"
-                        onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');"
-                    >
+                    <picture>
+                        <source srcset="<?= get_image_url('assets/images/site/about-art-gallery.webp') ?>" type="image/webp">
+                        <img 
+                            src="<?= get_image_url('assets/images/site/about-art-gallery.jpg') ?>" 
+                            alt="Galeria de Arte Art For Sale" 
+                            class="about-image"
+                            width="600"
+                            height="353"
+                            loading="lazy"
+                            decoding="async"
+                        >
+                    </picture>
                 </div>
             </div>
 
             <!-- Conteúdo e Diferenciais (Direita) -->
             <div class="about-content-col">
-                <span class="section-eyebrow">SOBRE A ART SELL</span>
-                <h2 class="about-title">A Art Sell</h2>
+                <span class="section-eyebrow">SOBRE A ART FOR SALE</span>
+                <h2 class="about-title">A Art For Sale</h2>
                 <p class="about-paragraph">
-                    A Art Sell nasceu com o propósito de aproximar pessoas da arte, oferecendo uma seleção cuidadosa de obras capazes de transformar ambientes, despertar emoções e construir histórias.
+                    A Art For Sale nasceu com o propósito de aproximar pessoas da arte, oferecendo uma seleção cuidadosa de obras capazes de transformar ambientes, despertar emoções e construir histórias.
                 </p>
                 <div class="about-cta">
                     <a href="#contato" class="btn-primary">
@@ -436,6 +537,7 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <?php
+$hasInquiryModal = true;
 require_once __DIR__ . '/includes/footer.php';
 ?>
 

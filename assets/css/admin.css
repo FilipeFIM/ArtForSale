@@ -1,0 +1,1128 @@
+/**
+ * ART FOR SALE - Estilos do Painel Administrativo de Curadoria
+ * Identidade Visual: Galeria de Arte Premium, Editorial, Luxuosa e Refinada
+ * Sincronizado 100% com a estética do site principal (Off-white, Marfim, Ouro Champagne, Grafite Noir)
+ */
+
+/* ==========================================================
+   1. VARIÁVEIS DE DESIGN E TEMA (LIGHT / DEFAULT - IGUAL AO SITE)
+   ========================================================== */
+:root,
+html[data-theme="light"],
+body[data-theme="light"] {
+    /* Superfícies e Fundos (Idêntico ao site principal) */
+    --bg-dark: #faf8f5;              /* Marfim editorial suave (site: --color-bg-body) */
+    --bg-page: #faf8f5;
+    --bg-topbar: #ffffff;            /* Barra superior em Branco Estúdio Luminoso (igual ao site principal) */
+    --bg-tabs: #ffffff;              /* Barra de abas limpa, marfim/branca de estúdio */
+    --bg-card: #ffffff;              /* Cards brancos imaculados */
+    --bg-card-alt: #fbf9f5;          /* Superfície secundária e cabeçalhos de tabela */
+    --bg-card-hover: #f7f3eb;        /* Hover sutil champagne */
+    --bg-input: #ffffff;             /* Campos de formulário com fundo branco */
+
+    /* Tons de Ouro / Champagne da Marca */
+    --color-gold: #b38a54;           /* Ouro nobre principal */
+    --color-gold-hover: #9c7543;     /* Ouro escuro/aquecido no hover */
+    --color-gold-light: #dfc294;     /* Ouro claro suave */
+    --color-gold-subtle: #f8f3eb;    /* Pílula e fundo sutil ouro champagne */
+    --color-gold-glow: rgba(179, 138, 84, 0.22);
+    --border-gold: rgba(179, 138, 84, 0.40);
+    --border-gold-strong: #b38a54;
+
+    /* Tipografia e Textos */
+    --text-main: #1c1b18;            /* Tinta preta refinada (site: --color-text-main) */
+    --text-secondary: #5a564f;       /* Cinza bronze quente para subtítulos */
+    --text-muted: #7e796e;           /* Texto secundário e legendas */
+    --text-light: #ded9ce;           /* Texto claro para uso na topbar escura */
+
+    /* Bordas e Divisores */
+    --border-color: #e8e3d8;         /* Borda delicada de galeria (site: --color-border-light) */
+    --border-subtle: #f0ece3;        /* Borda ultra sutil */
+
+    /* Cores Semânticas de Estado (Paleta Galeria Editorial) */
+    --color-success: #2e7d32;
+    --color-success-bg: #edf7ee;
+    --color-success-border: #c8e6c9;
+
+    --color-warning: #b25900;
+    --color-warning-bg: #fff3e0;
+    --color-warning-border: #ffe0b2;
+
+    --color-danger: #c93b3b;
+    --color-danger-bg: #fdf2f2;
+    --color-danger-border: #fed7d7;
+
+    --color-info: #1565c0;
+    --color-info-bg: #e3f2fd;
+    --color-info-border: #bbdefb;
+
+    /* Sombras e Elevações de Luxo */
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 2px 14px rgba(28, 27, 24, 0.05);
+    --shadow-hover: 0 12px 32px rgba(179, 138, 84, 0.14), 0 2px 6px rgba(0, 0, 0, 0.04);
+    --shadow-dropdown: 0 10px 30px rgba(0, 0, 0, 0.10);
+
+    /* Tipografia */
+    --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ==========================================================
+   2. TEMA ESCURO DE CURADORIA (OBSIDIAN NOIR - OPCIONAL VIA TOGGLE)
+   ========================================================== */
+html[data-theme="dark"],
+body[data-theme="dark"] {
+    --bg-dark: #0f0e0c;
+    --bg-page: #0f0e0c;
+    --bg-topbar: #161512;
+    --bg-tabs: #141310;
+    --bg-card: #1a1815;
+    --bg-card-alt: #22201b;
+    --bg-card-hover: #2a2722;
+    --bg-input: #141310;
+
+    --color-gold: #c59b63;
+    --color-gold-hover: #dcb37b;
+    --color-gold-light: #ebd0a8;
+    --color-gold-subtle: rgba(197, 155, 99, 0.14);
+    --color-gold-glow: rgba(197, 155, 99, 0.28);
+    --border-gold: rgba(197, 155, 99, 0.40);
+    --border-gold-strong: #c59b63;
+
+    --text-main: #f7f4ed;
+    --text-secondary: #c9c3b7;
+    --text-muted: #9c968b;
+    --text-light: #f5f2eb;
+
+    --border-color: #2c2923;
+    --border-subtle: #38342c;
+
+    --color-success: #4caf50;
+    --color-success-bg: rgba(76, 175, 80, 0.14);
+    --color-success-border: rgba(76, 175, 80, 0.35);
+
+    --color-warning: #f59e0b;
+    --color-warning-bg: rgba(245, 158, 11, 0.14);
+    --color-warning-border: rgba(245, 158, 11, 0.35);
+
+    --color-danger: #ef4444;
+    --color-danger-bg: rgba(239, 68, 68, 0.14);
+    --color-danger-border: rgba(239, 68, 68, 0.35);
+
+    --color-info: #38bdf8;
+    --color-info-bg: rgba(56, 189, 248, 0.14);
+    --color-info-border: rgba(56, 189, 248, 0.35);
+
+    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.30);
+    --shadow-card: 0 2px 14px rgba(0, 0, 0, 0.45);
+    --shadow-hover: 0 12px 32px rgba(197, 155, 99, 0.20);
+    --shadow-dropdown: 0 10px 30px rgba(0, 0, 0, 0.50);
+}
+
+/* ==========================================================
+   3. ESTILIZAÇÃO ESTRUTURAL E RESET MODERNO
+   ========================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ==========================================================
+   4. TOPBAR EDITORIAL (LUMINOSA NO LIGHT / NOIR NO DARK)
+   ========================================================== */
+.admin-topbar {
+    background-color: var(--bg-topbar);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.9rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 14px rgba(28, 27, 24, 0.04);
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+[data-theme="dark"] .admin-topbar {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.brand-box {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.brand-box a {
+    display: flex;
+    align-items: center;
+}
+
+/* Suporte à troca de logotipo conforme o tema */
+.admin-logo-dark {
+    display: none !important;
+}
+.admin-logo-light {
+    display: block !important;
+}
+
+[data-theme="dark"] .admin-logo-light {
+    display: none !important;
+}
+[data-theme="dark"] .admin-logo-dark {
+    display: block !important;
+}
+
+.badge-role {
+    background: var(--color-gold-subtle);
+    color: var(--color-gold);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid var(--border-gold);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.badge-role::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-gold);
+    display: inline-block;
+    box-shadow: 0 0 8px var(--color-gold);
+}
+
+.user-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    font-size: 0.8125rem;
+}
+
+.user-email-label {
+    color: var(--text-muted);
+}
+
+.user-email-label strong {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+[data-theme="dark"] .user-email-label strong {
+    color: #ffffff;
+}
+
+/* Botão Alternador de Tema (Light / Dark) */
+.theme-toggle-btn {
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 0.42rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--color-gold-subtle);
+    border-color: var(--border-gold);
+    color: var(--color-gold);
+}
+
+[data-theme="dark"] .theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+[data-theme="dark"] .theme-toggle-btn:hover {
+    background: var(--color-gold-subtle);
+    border-color: var(--border-gold);
+    color: var(--color-gold);
+}
+
+.btn-link-site {
+    color: var(--color-gold);
+    text-decoration: none;
+    border: 1px solid var(--border-gold);
+    padding: 0.42rem 0.95rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--color-gold-subtle);
+}
+
+.btn-link-site:hover {
+    background-color: var(--color-gold);
+    color: #ffffff;
+    border-color: var(--color-gold);
+    box-shadow: 0 4px 15px var(--color-gold-glow);
+}
+
+.btn-logout-link {
+    color: var(--color-danger);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    padding: 0.42rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-logout-link:hover {
+    color: #ffffff;
+    background-color: var(--color-danger);
+}
+
+[data-theme="dark"] .btn-logout-link {
+    color: #ff9999;
+}
+
+[data-theme="dark"] .btn-logout-link:hover {
+    color: #ffffff;
+    background-color: rgba(201, 59, 59, 0.35);
+}
+
+/* ==========================================================
+   5. BARRA DE NAVEGAÇÃO DE ABAS (ESTÚDIO EDITORIAL)
+   ========================================================== */
+.admin-tabs-bar {
+    background-color: var(--bg-tabs);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 2.5rem;
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 1.1rem 1.35rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    border-radius: 6px 6px 0 0;
+}
+
+.tab-btn:hover {
+    color: var(--text-main);
+    background-color: rgba(179, 138, 84, 0.04);
+}
+
+.tab-btn.active {
+    color: var(--color-gold);
+    border-bottom-color: var(--color-gold);
+    background: var(--color-gold-subtle);
+    font-weight: 700;
+}
+
+.tab-count {
+    background: var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.18rem 0.55rem;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active .tab-count {
+    background: var(--color-gold);
+    color: #ffffff;
+    box-shadow: 0 2px 8px var(--color-gold-glow);
+}
+
+/* ==========================================================
+   6. CONTAINER PRINCIPAL E CABEÇALHOS
+   ========================================================== */
+.admin-content {
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2.75rem 2.5rem;
+    flex-grow: 1;
+}
+
+.header-title-box {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2.25rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.section-headline {
+    font-family: var(--font-serif);
+    font-size: 2.6rem;
+    font-weight: 500;
+    color: var(--text-main);
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+}
+
+.section-subhead {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+/* ==========================================================
+   7. INDICADORES & CARDS DE ESTATÍSTICA (KPI GRID)
+   ========================================================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2.75rem;
+}
+
+@media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+    .stats-grid { grid-template-columns: 1fr; }
+}
+
+.stat-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.65rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-gold);
+    box-shadow: var(--shadow-hover);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--border-color), transparent);
+    transition: background 0.25s ease;
+}
+
+.stat-card.gold-top::before { background: linear-gradient(90deg, #b38a54, #dfc294); }
+.stat-card.green-top::before { background: linear-gradient(90deg, #2e7d32, #81c784); }
+.stat-card.orange-top::before { background: linear-gradient(90deg, #d97706, #fbbf24); }
+.stat-card.blue-top::before { background: linear-gradient(90deg, #1976d2, #64b5f6); }
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.15rem;
+}
+
+.stat-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.stat-icon {
+    font-size: 1.35rem;
+    opacity: 0.9;
+    color: var(--color-gold);
+}
+
+.stat-number {
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    font-weight: 600;
+    color: var(--text-main);
+    line-height: 1;
+    margin-bottom: 0.45rem;
+    letter-spacing: -0.02em;
+}
+
+.stat-description {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-top: auto;
+}
+
+/* ==========================================================
+   8. PAINÉIS, CAIXAS E CARDS DE CONTEÚDO
+   ========================================================== */
+.panel-box {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 2rem;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.panel-title {
+    font-family: var(--font-serif);
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    letter-spacing: -0.01em;
+}
+
+.panel-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 1.1rem;
+    background: var(--color-gold);
+    border-radius: 2px;
+}
+
+.panel-link {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-gold);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.panel-link:hover {
+    color: var(--color-gold-hover);
+    transform: translateX(2px);
+}
+
+.dash-tables-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2.75rem;
+}
+
+@media (max-width: 992px) {
+    .dash-tables-row { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================
+   9. TABELAS DE DADOS ESTILIZADAS (EDITORIAL ART CATALOG)
+   ========================================================== */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    text-align: left;
+}
+
+.data-table th {
+    padding: 0.9rem 1.1rem;
+    background-color: var(--bg-card-alt);
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table td {
+    padding: 1rem 1.1rem;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+    color: var(--text-main);
+    transition: background-color 0.15s ease;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tbody tr:hover td {
+    background-color: var(--bg-card-hover);
+}
+
+/* Thumbnails de Obras em Tabelas */
+.artwork-thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    background-color: var(--bg-card-alt);
+}
+
+/* ==========================================================
+   10. STATUS PILLS & BADGES (CRISP, ELEGANT & REFINED)
+   ========================================================== */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.26rem 0.7rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.status-available,
+.status-disponivel {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+    border: 1px solid var(--color-success-border);
+}
+
+.status-reserved,
+.status-reservada {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning-border);
+}
+
+.status-sold,
+.status-vendida {
+    background-color: var(--color-info-bg);
+    color: var(--color-info);
+    border: 1px solid var(--color-info-border);
+}
+
+.status-new {
+    background-color: var(--color-gold-subtle);
+    color: var(--color-gold);
+    border: 1px solid var(--border-gold);
+}
+
+.status-in_progress,
+.status-viewed {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning-border);
+}
+
+.status-completed,
+.status-answered {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+    border: 1px solid var(--color-success-border);
+}
+
+.badge-destaque {
+    background: var(--color-gold-subtle);
+    color: var(--color-gold);
+    border: 1px solid var(--border-gold);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* ==========================================================
+   11. FORMULÁRIOS, INPUTS & CONTROLES
+   ========================================================== */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.55rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text-main);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 3px var(--color-gold-glow);
+    background-color: var(--bg-card);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.form-help {
+    font-size: 0.78125rem;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+    line-height: 1.45;
+}
+
+/* Botões do Sistema */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.4rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: inherit;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #b38a54 0%, #9c7543 100%);
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 4px 14px rgba(179, 138, 84, 0.28);
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(179, 138, 84, 0.38);
+    background: linear-gradient(135deg, #c59b63 0%, #a87e49 100%);
+    color: #ffffff;
+}
+
+.btn-secondary {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--bg-card-hover);
+    border-color: var(--border-gold);
+    color: var(--color-gold);
+}
+
+.btn-danger {
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger-border);
+    color: var(--color-danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: var(--color-danger);
+    color: #ffffff;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.78125rem;
+    border-radius: 4px;
+}
+
+/* ==========================================================
+   12. ALERTAS E MENSAGENS DE NOTIFICAÇÃO
+   ========================================================== */
+.alert {
+    padding: 1.1rem 1.4rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: var(--shadow-card);
+}
+
+.alert-success {
+    background-color: var(--color-success-bg);
+    border: 1px solid var(--color-success-border);
+    color: var(--color-success);
+}
+
+.alert-error {
+    background-color: var(--color-danger-bg);
+    border: 1px solid var(--color-danger-border);
+    color: var(--color-danger);
+}
+
+.alert-info {
+    background-color: var(--color-info-bg);
+    border: 1px solid var(--color-info-border);
+    color: var(--color-info);
+}
+
+.alert-warning {
+    background-color: var(--color-warning-bg);
+    border: 1px solid var(--color-warning-border);
+    color: var(--color-warning);
+}
+
+/* ==========================================================
+   13. GRADE DE FOTOGRAFIAS E STORAGE (OBRA-EDITAR & GESTOR)
+   ========================================================== */
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.35rem;
+    margin-top: 1.5rem;
+}
+
+.photo-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.photo-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-gold);
+    box-shadow: var(--shadow-hover);
+}
+
+.photo-card.is-primary {
+    border-color: var(--color-gold);
+    box-shadow: 0 4px 18px var(--color-gold-glow);
+}
+
+.photo-card.is-primary::after {
+    content: 'CAPA PRINCIPAL';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--color-gold);
+    color: #ffffff;
+    font-size: 0.625rem;
+    font-weight: 800;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    letter-spacing: 0.08em;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.photo-stage {
+    width: 100%;
+    height: 170px;
+    background: var(--bg-card-alt);
+    position: relative;
+    cursor: zoom-in;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.photo-stage img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.photo-stage:hover img {
+    transform: scale(1.04);
+}
+
+.photo-meta {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: var(--bg-card);
+    flex-grow: 1;
+}
+
+.photo-type-name {
+    font-size: 0.78125rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-transform: capitalize;
+}
+
+.photo-storage-path {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.photo-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+}
+
+.btn-copy-chip {
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.22rem 0.55rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-copy-chip:hover {
+    background: var(--color-gold-subtle);
+    border-color: var(--border-gold);
+    color: var(--color-gold);
+}
+
+.btn-del-photo {
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-danger-border);
+    color: var(--color-danger);
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: auto;
+    transition: all 0.2s ease;
+}
+
+.btn-del-photo:hover {
+    background: var(--color-danger);
+    color: #ffffff;
+}
+
+/* ==========================================================
+   14. DROPZONE DE UPLOAD NO STORAGE
+   ========================================================== */
+.upload-dropzone-box {
+    border: 2px dashed var(--border-gold);
+    background: var(--color-gold-subtle);
+    border-radius: 12px;
+    padding: 2.25rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.upload-dropzone-box:hover {
+    border-color: var(--color-gold);
+    background: rgba(179, 138, 84, 0.12);
+    transform: translateY(-2px);
+}
+
+.dropzone-icon {
+    font-size: 2.2rem;
+    color: var(--color-gold);
+    margin-bottom: 0.75rem;
+}
+
+.dropzone-title {
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.35rem;
+}
+
+.dropzone-subtitle {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+/* ==========================================================
+   15. MODAIS & LIGHTBOX
+   ========================================================== */
+.modal-overlay,
+.lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(18, 17, 15, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1.5rem;
+}
+
+.modal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    max-width: 640px;
+    width: 100%;
+    padding: 2.25rem;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+    position: relative;
+    animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ==========================================================
+   16. LOGIN CARD EXCLUSIVO
+   ========================================================== */
+.login-body {
+    background-color: var(--bg-dark);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background-image: 
+        radial-gradient(circle at 50% 15%, rgba(179, 138, 84, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 80% 85%, rgba(179, 138, 84, 0.08) 0%, transparent 45%);
+}
+
+.login-card-editorial {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 3rem 2.5rem;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(179, 138, 84, 0.12), 0 4px 18px rgba(0, 0, 0, 0.04);
+    text-align: center;
+}
+
+/* ==========================================================
+   17. ANIMAÇÕES & MICRO-INTERAÇÕES
+   ========================================================== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
