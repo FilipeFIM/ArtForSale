@@ -18,6 +18,12 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
+require_once __DIR__ . '/auth_check.php';
+
+if (function_exists('artsale_clear_auth_cookies')) {
+    artsale_clear_auth_cookies();
+}
+
 session_destroy();
 ?>
 <!DOCTYPE html>
@@ -31,9 +37,13 @@ session_destroy();
     <script>
         try {
             sessionStorage.removeItem('artsale_admin_token');
+            sessionStorage.removeItem('artsale_admin_refresh_token');
             sessionStorage.removeItem('artsale_admin_user');
             sessionStorage.removeItem('artsell_admin_token');
+            sessionStorage.removeItem('artsell_admin_refresh_token');
             sessionStorage.removeItem('artsell_admin_user');
+            localStorage.removeItem('artsale_admin_token');
+            localStorage.removeItem('artsale_admin_refresh_token');
         } catch (_) {}
         window.location.href = 'login.php?msg=logout';
     </script>

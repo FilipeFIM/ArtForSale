@@ -121,6 +121,12 @@
             clearTimeout(timeoutId);
 
             if (!response.ok) {
+                if (response.status === 401 && !options._retried) {
+                    const refreshedToken = await refreshAdminSession();
+                    if (refreshedToken) {
+                        return request(endpoint, method, { ...options, token: refreshedToken, _retried: true });
+                    }
+                }
                 let errDetail = `HTTP ${response.status} ${response.statusText}`;
                 try {
                     const errJson = await response.json();
@@ -691,9 +697,15 @@
                 return { data: null, error: new Error(msg) };
             }
 
-            // Armazena sessão localmente
+            // Armazena sessão localmente com refresh_token para persistência contínua
             if (data.access_token) {
                 sessionStorage.setItem('artsell_admin_token', data.access_token);
+                sessionStorage.setItem('artsale_admin_token', data.access_token);
+                if (data.refresh_token) {
+                    sessionStorage.setItem('artsell_admin_refresh_token', data.refresh_token);
+                    sessionStorage.setItem('artsale_admin_refresh_token', data.refresh_token);
+                    try { localStorage.setItem('artsale_admin_refresh_token', data.refresh_token); } catch (_) {}
+                }
                 sessionStorage.setItem('artsell_admin_user', JSON.stringify(data.user || {}));
             }
 
@@ -704,11 +716,58 @@
     }
 
     /**
+     * Renova o token de acesso silenciosamente via refresh_token (tornando a sessão virtualmente infinita)
+     */
+    async function refreshAdminSession() {
+        const cfg = window.ARTSALE_CONFIG || window.ARTSELL_CONFIG;
+        if (!cfg || !cfg.supabaseUrl) return null;
+
+        let refreshToken = null;
+        try {
+            refreshToken = sessionStorage.getItem('artsale_admin_refresh_token') ||
+                           sessionStorage.getItem('artsell_admin_refresh_token') ||
+                           localStorage.getItem('artsale_admin_refresh_token');
+        } catch (_) {}
+
+        if (!refreshToken) return null;
+
+        const cleanBaseUrl = cfg.supabaseUrl.replace(/\/+$/, '').replace(/\/rest\/v1\/?$/i, '');
+        const refreshUrl = `${cleanBaseUrl}/auth/v1/token?grant_type=refresh_token`;
+
+        try {
+            const resp = await fetch(refreshUrl, {
+                method: 'POST',
+                headers: {
+                    'apikey': cfg.supabaseAnonKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ refresh_token: refreshToken })
+            });
+
+            if (resp.ok) {
+                const refreshed = await resp.json();
+                if (refreshed.access_token) {
+                    sessionStorage.setItem('artsell_admin_token', refreshed.access_token);
+                    sessionStorage.setItem('artsale_admin_token', refreshed.access_token);
+                    if (refreshed.refresh_token) {
+                        sessionStorage.setItem('artsell_admin_refresh_token', refreshed.refresh_token);
+                        sessionStorage.setItem('artsale_admin_refresh_token', refreshed.refresh_token);
+                        try { localStorage.setItem('artsale_admin_refresh_token', refreshed.refresh_token); } catch (_) {}
+                    }
+                    return refreshed.access_token;
+                }
+            }
+        } catch (_) {}
+
+        return null;
+    }
+
+    /**
      * Retorna a sessão administrativa ativa
      */
     function getAdminSession() {
-        const token = sessionStorage.getItem('artsell_admin_token');
-        const userStr = sessionStorage.getItem('artsell_admin_user');
+        const token = sessionStorage.getItem('artsell_admin_token') || sessionStorage.getItem('artsale_admin_token');
+        const userStr = sessionStorage.getItem('artsell_admin_user') || sessionStorage.getItem('artsale_admin_user');
         let user = null;
         if (userStr) {
             try { user = JSON.parse(userStr); } catch (_) {}
@@ -721,7 +780,15 @@
      */
     function logoutAdmin() {
         sessionStorage.removeItem('artsell_admin_token');
+        sessionStorage.removeItem('artsale_admin_token');
+        sessionStorage.removeItem('artsell_admin_refresh_token');
+        sessionStorage.removeItem('artsale_admin_refresh_token');
         sessionStorage.removeItem('artsell_admin_user');
+        sessionStorage.removeItem('artsale_admin_user');
+        try {
+            localStorage.removeItem('artsale_admin_token');
+            localStorage.removeItem('artsale_admin_refresh_token');
+        } catch (_) {}
     }
 
     /**

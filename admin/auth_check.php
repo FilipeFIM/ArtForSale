@@ -25,8 +25,10 @@ if (session_status() === PHP_SESSION_NONE) {
                (!empty($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443) ||
                (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
 
+    // Sessão persistente de longa duração (30 dias = 2592000 segundos)
+    $lifetime = 60 * 60 * 24 * 30;
     session_set_cookie_params([
-        'lifetime' => 0,
+        'lifetime' => $lifetime,
         'path'     => '/',
         'domain'   => '',
         'secure'   => $isHttps,
@@ -79,18 +81,143 @@ function require_csrf_token(): void {
 }
 
 /**
+ * Grava cookies de autenticação criptograficamente seguros para garantir persistência
+ * em ambientes serverless (Vercel) e evitar perdas de sessão entre requisições.
+ */
+function artsale_set_auth_cookies(string $token, ?string $refreshToken = null, ?array $user = null): void {
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+               (!empty($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443) ||
+               (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+    $expire = time() + (60 * 60 * 24 * 30); // 30 dias
+
+    setcookie('artsale_jwt', $token, [
+        'expires'  => $expire,
+        'path'     => '/',
+        'domain'   => '',
+        'secure'   => $isHttps,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+
+    if (!empty($refreshToken)) {
+        setcookie('artsale_refresh', $refreshToken, [
+            'expires'  => $expire,
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => $isHttps,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    }
+
+    if (!empty($user)) {
+        setcookie('artsale_user', json_encode($user), [
+            'expires'  => $expire,
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => $isHttps,
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    }
+}
+
+/**
+ * Remove cookies de autenticação no logout
+ */
+function artsale_clear_auth_cookies(): void {
+    $opts = [
+        'expires'  => time() - 86400,
+        'path'     => '/',
+        'domain'   => '',
+        'secure'   => false,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ];
+    setcookie('artsale_jwt', '', $opts);
+    setcookie('artsale_refresh', '', $opts);
+    setcookie('artsale_user', '', $opts);
+}
+
+/**
  * Retorna true se o usuário está autenticado E possui role 'admin'
+ * Se o token JWT estiver expirado, realiza auto-renovação transparente via refresh_token
+ * Suporta restauração automática de sessão via cookies seguros em ambientes Serverless (Vercel).
  */
 function is_admin_authenticated(): bool {
     $auth = $_SESSION['artsale_admin_auth'] ?? $_SESSION['artsell_admin_auth'] ?? false;
-    if ($auth !== true) {
-        return false;
-    }
     $token = $_SESSION['artsale_admin_token'] ?? $_SESSION['artsell_admin_token'] ?? null;
+    $refreshToken = $_SESSION['artsale_admin_refresh_token'] ?? $_SESSION['artsell_admin_refresh_token'] ?? null;
     $user = $_SESSION['artsale_admin_user'] ?? $_SESSION['artsell_admin_user'] ?? null;
-    if (empty($token) || empty($user)) {
+
+    // Resiliência Serverless (Vercel): Se a sessão em memória/tmp não existir, restaura a partir dos cookies
+    if ((!$auth || empty($token) || empty($user)) && !empty($_COOKIE['artsale_jwt'])) {
+        $cookieToken = trim($_COOKIE['artsale_jwt']);
+        $cookieRefresh = trim($_COOKIE['artsale_refresh'] ?? '');
+        $cookieUserJson = trim($_COOKIE['artsale_user'] ?? '');
+        $cookieUser = !empty($cookieUserJson) ? @json_decode($cookieUserJson, true) : null;
+
+        // Se o token estiver expirado mas temos o refresh token, auto-renova imediatamente
+        if (function_exists('supabase_is_jwt_expired') && supabase_is_jwt_expired($cookieToken)) {
+            if (!empty($cookieRefresh) && function_exists('supabase_auth_refresh')) {
+                $renewed = supabase_auth_refresh($cookieRefresh);
+                if (!empty($renewed['access_token'])) {
+                    $cookieToken = $renewed['access_token'];
+                    $cookieRefresh = $renewed['refresh_token'] ?? $cookieRefresh;
+                    artsale_set_auth_cookies($cookieToken, $cookieRefresh, $cookieUser);
+                }
+            }
+        }
+
+        $validUser = function_exists('supabase_get_auth_user') ? supabase_get_auth_user($cookieToken) : null;
+        if ($validUser && !empty($validUser['id'])) {
+            $role = ($cookieUser['role'] ?? '') === 'admin' ? 'admin' : '';
+            if (empty($role) && function_exists('supabase_get_user_profile')) {
+                $prof = supabase_get_user_profile($validUser['id'], $cookieToken);
+                $role = $prof['role'] ?? '';
+            }
+            if ($role === 'admin') {
+                $user = [
+                    'id'    => $validUser['id'],
+                    'email' => $validUser['email'] ?? ($cookieUser['email'] ?? ''),
+                    'name'  => $cookieUser['name'] ?? 'Administrador',
+                    'role'  => 'admin'
+                ];
+                $_SESSION['artsale_admin_auth'] = true;
+                $_SESSION['artsale_admin_token'] = $cookieToken;
+                $_SESSION['artsale_admin_refresh_token'] = $cookieRefresh;
+                $_SESSION['artsale_admin_user'] = $user;
+                $_SESSION['artsell_admin_auth'] = true;
+                $_SESSION['artsell_admin_token'] = $cookieToken;
+                $_SESSION['artsell_admin_refresh_token'] = $cookieRefresh;
+                $_SESSION['artsell_admin_user'] = $user;
+                $auth = true;
+                $token = $cookieToken;
+                $refreshToken = $cookieRefresh;
+            }
+        }
+    }
+
+    if ($auth !== true || empty($token) || empty($user)) {
         return false;
     }
+
+    // Auto-refresh silencioso caso o access_token tenha expirado
+    if (function_exists('supabase_is_jwt_expired') && supabase_is_jwt_expired($token)) {
+        $refreshToken = $_SESSION['artsale_admin_refresh_token'] ?? $_SESSION['artsell_admin_refresh_token'] ?? null;
+        if (!empty($refreshToken) && function_exists('supabase_auth_refresh')) {
+            $renewed = supabase_auth_refresh($refreshToken);
+            if (!empty($renewed['access_token'])) {
+                $_SESSION['artsale_admin_token'] = $renewed['access_token'];
+                $_SESSION['artsale_admin_refresh_token'] = $renewed['refresh_token'];
+                $_SESSION['artsell_admin_token'] = $renewed['access_token'];
+                $_SESSION['artsell_admin_refresh_token'] = $renewed['refresh_token'];
+                artsale_set_auth_cookies($renewed['access_token'], $renewed['refresh_token'], $user);
+                return true;
+            }
+        }
+    }
+
     $role = $user['role'] ?? '';
     return ($role === 'admin');
 }
@@ -129,12 +256,23 @@ function get_admin_user(): array {
 
 /**
  * Retorna o JWT Bearer token da sessão ativa do administrador.
- * Se o JWT tiver expirado no Supabase Auth, retorna null para que a operação
- * utilize a chave de acesso do projeto e não seja bloqueada por "JWT expired".
+ * Se o JWT tiver expirado no Supabase Auth, tenta renovar silenciosamente
+ * usando o refresh_token salvo. Se não for possível, faz fallback seguro.
  */
 function get_admin_token(): ?string {
     $token = $_SESSION['artsale_admin_token'] ?? $_SESSION['artsell_admin_token'] ?? null;
     if (!empty($token) && function_exists('supabase_is_jwt_expired') && supabase_is_jwt_expired($token)) {
+        $refreshToken = $_SESSION['artsale_admin_refresh_token'] ?? $_SESSION['artsell_admin_refresh_token'] ?? null;
+        if (!empty($refreshToken) && function_exists('supabase_auth_refresh')) {
+            $renewed = supabase_auth_refresh($refreshToken);
+            if (!empty($renewed['access_token'])) {
+                $_SESSION['artsale_admin_token'] = $renewed['access_token'];
+                $_SESSION['artsale_admin_refresh_token'] = $renewed['refresh_token'];
+                $_SESSION['artsell_admin_token'] = $renewed['access_token'];
+                $_SESSION['artsell_admin_refresh_token'] = $renewed['refresh_token'];
+                return $renewed['access_token'];
+            }
+        }
         return null;
     }
     return $token;

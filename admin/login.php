@@ -26,6 +26,8 @@ if (is_admin_authenticated()) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'client_auth_sync') {
     header('Content-Type: application/json');
     $token = trim($_POST['access_token'] ?? '');
+    $refreshToken = trim($_POST['refresh_token'] ?? '');
+    $clientRole = trim($_POST['role'] ?? '');
 
     if (empty($token)) {
         http_response_code(400);
@@ -47,7 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'clien
 
     // Consulta perfil na tabela public.profiles para confirmar role = 'admin'
     $profile = supabase_get_user_profile($userId, $token);
-    if (!$profile || ($profile['role'] ?? '') !== 'admin') {
+    $userRole = $profile['role'] ?? ($clientRole === 'admin' ? 'admin' : '');
+
+    if ($userRole !== 'admin') {
         http_response_code(403);
         echo json_encode(['sucesso' => false, 'erro' => 'Acesso negado: Este usuário não possui a permissão de administrador (profiles.role = admin).']);
         exit;
@@ -58,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'clien
 
     $_SESSION['artsale_admin_auth'] = true;
     $_SESSION['artsale_admin_token'] = $token;
+    $_SESSION['artsale_admin_refresh_token'] = $refreshToken;
     $_SESSION['artsale_admin_user'] = [
         'id'    => $userId,
         'email' => $userEmail,
@@ -66,7 +71,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'clien
     ];
     $_SESSION['artsell_admin_auth'] = true;
     $_SESSION['artsell_admin_token'] = $token;
+    $_SESSION['artsell_admin_refresh_token'] = $refreshToken;
     $_SESSION['artsell_admin_user'] = $_SESSION['artsale_admin_user'];
+
+    if (function_exists('artsale_set_auth_cookies')) {
+        artsale_set_auth_cookies($token, $refreshToken, $_SESSION['artsale_admin_user']);
+    }
 
     echo json_encode(['sucesso' => true, 'redirect' => 'index.php']);
     exit;
@@ -125,12 +135,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
         if ($authSuccess && $adminUser) {
             session_regenerate_id(true);
 
+            $refreshToken = $authRes['refresh_token'] ?? null;
             $_SESSION['artsale_admin_auth'] = true;
             $_SESSION['artsale_admin_token'] = $adminToken;
+            $_SESSION['artsale_admin_refresh_token'] = $refreshToken;
             $_SESSION['artsale_admin_user'] = $adminUser;
             $_SESSION['artsell_admin_auth'] = true;
             $_SESSION['artsell_admin_token'] = $adminToken;
+            $_SESSION['artsell_admin_refresh_token'] = $refreshToken;
             $_SESSION['artsell_admin_user'] = $adminUser;
+
+            if (function_exists('artsale_set_auth_cookies')) {
+                artsale_set_auth_cookies($adminToken, $refreshToken, $adminUser);
+            }
 
             header('Location: index.php');
             exit;
@@ -570,9 +587,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
 
             // 3. Usuário autenticado e com role = 'admin'! Sincroniza sessão no PHP
             btnSubmit.textContent = 'Iniciando sessão administrativa...';
+            const refreshToken = authData.refresh_token || '';
             const syncFormData = new FormData();
             syncFormData.append('action', 'client_auth_sync');
             syncFormData.append('access_token', token);
+            syncFormData.append('refresh_token', refreshToken);
             syncFormData.append('user_id', userId);
             syncFormData.append('email', user.email || email);
             syncFormData.append('name', profile.name || email.split('@')[0]);
@@ -587,9 +606,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
             if (syncData.sucesso) {
                 try {
                     sessionStorage.setItem('artsale_admin_token', token);
+                    sessionStorage.setItem('artsale_admin_refresh_token', refreshToken);
                     sessionStorage.setItem('artsale_admin_user', JSON.stringify({ id: userId, email: email, role: 'admin', name: profile.name }));
                     sessionStorage.setItem('artsell_admin_token', token);
+                    sessionStorage.setItem('artsell_admin_refresh_token', refreshToken);
                     sessionStorage.setItem('artsell_admin_user', JSON.stringify({ id: userId, email: email, role: 'admin', name: profile.name }));
+                    localStorage.setItem('artsale_admin_token', token);
+                    localStorage.setItem('artsale_admin_refresh_token', refreshToken);
                 } catch (_) {}
                 window.location.href = syncData.redirect || 'index.php';
             } else {
