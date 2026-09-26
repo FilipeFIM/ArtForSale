@@ -72,6 +72,9 @@ html {
     font-size: 16px;
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 body {
@@ -81,6 +84,7 @@ body {
     font-size: 0.9375rem;
     line-height: 1.6;
     letter-spacing: -0.01em;
+    max-width: 100%;
     overflow-x: hidden;
     overflow-x: clip;
     -webkit-font-smoothing: antialiased;
@@ -381,20 +385,32 @@ ul, ol {
 .mobile-drawer {
     position: fixed;
     top: 0;
-    right: -320px;
-    width: 300px;
+    right: 0;
+    width: min(320px, 85vw);
+    max-width: 100vw;
     height: 100vh;
+    height: 100dvh;
     background-color: #ffffff;
     z-index: 1100;
-    box-shadow: -4px 0 25px rgba(0, 0, 0, 0.1);
+    box-shadow: -4px 0 25px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
     padding: 1.5rem;
-    transition: right var(--transition-smooth);
+    transform: translateX(100%);
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform var(--transition-smooth), visibility 0s linear 0.35s;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
 }
 
 .mobile-drawer.open {
-    right: 0;
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition: transform var(--transition-smooth), visibility 0s linear 0s;
 }
 
 .drawer-header {
@@ -448,21 +464,26 @@ ul, ol {
 
 .drawer-backdrop {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 1050;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity var(--transition-smooth);
+    transition: opacity var(--transition-smooth), visibility 0s linear 0.35s;
+    overscroll-behavior: contain;
 }
 
 .drawer-backdrop.open {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
+    transition: opacity var(--transition-smooth), visibility 0s linear 0s;
 }
 
 /* ==========================================================
@@ -1975,16 +1996,10 @@ ul, ol {
 /* Modal de Consulta */
 .inquiry-modal-backdrop {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    width: 100vw;
-    height: 100%;
-    height: 100vh;
-    height: 100dvh;
     inset: 0;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
     background: rgba(18, 17, 15, 0.78);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -3148,8 +3163,10 @@ ul, ol {
 }
 
 .zoom-modal-container {
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
 }

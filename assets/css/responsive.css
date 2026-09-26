@@ -594,6 +594,9 @@
     }
 
     .catalogo-filters-scroll {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
         flex-wrap: nowrap;
         overflow-x: auto;
         padding-bottom: 0.5rem;

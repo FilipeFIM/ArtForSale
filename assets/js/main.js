@@ -51,14 +51,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
 
     function openDrawer() {
+        if (!mobileDrawer) return;
         mobileDrawer.classList.add('open');
-        drawerBackdrop.classList.add('open');
+        if (drawerBackdrop) drawerBackdrop.classList.add('open');
+        if (btnMobileMenu) btnMobileMenu.setAttribute('aria-expanded', 'true');
         document.body.style.overflow = 'hidden';
     }
 
     function closeDrawer() {
+        if (!mobileDrawer) return;
         mobileDrawer.classList.remove('open');
-        drawerBackdrop.classList.remove('open');
+        if (drawerBackdrop) drawerBackdrop.classList.remove('open');
+        if (btnMobileMenu) btnMobileMenu.setAttribute('aria-expanded', 'false');
         document.body.style.overflow = '';
     }
 
@@ -262,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const consultBtn = e.target.closest('[data-modal="consultar"]');
         if (consultBtn) {
             e.preventDefault();
+            closeDrawer();
             openInquiryModal();
             return;
         }
