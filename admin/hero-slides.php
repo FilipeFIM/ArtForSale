@@ -220,6 +220,43 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 // Carrega os 3 slides atuais
 $slides = artsale_get_hero_slides();
 $currentTab = 'hero_slides';
+
+// Carrega obras ativas do catálogo do site para seleção no Hero
+$artworksList = [];
+if (function_exists('supabase_is_configured') && supabase_is_configured()) {
+    $artworksList = supabase_buscar_obras(null, null, 250, false, $adminToken);
+}
+if (empty($artworksList)) {
+    global $catalogoObras;
+    $artworksList = $catalogoObras ?? [];
+}
+$deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];
+if (!empty($deletedIds)) {
+    $artworksList = array_values(array_filter($artworksList, fn($item) => !in_array((string)($item['id'] ?? ''), $deletedIds, true)));
+}
+
+$siteArtworks = [];
+foreach ($artworksList as $item) {
+    $imgRaw = $item['imagem'] ?? $item['image_url'] ?? $item['foto'] ?? '';
+    if (empty($imgRaw)) continue;
+    $titulo = $item['titulo'] ?? $item['title'] ?? 'Sem título';
+    $artista = $item['artista'] ?? $item['artist'] ?? 'Artista não informado';
+    $categoria = $item['categoria'] ?? $item['category'] ?? '';
+    $id = (string)($item['id'] ?? '');
+
+    $previewUrl = artsale_resolve_image_url($imgRaw, '../');
+    $thumbUrl = artsale_get_thumbnail_url($imgRaw, 320, 240, 80, '../');
+
+    $siteArtworks[] = [
+        'id' => $id,
+        'titulo' => $titulo,
+        'artista' => $artista,
+        'categoria' => $categoria,
+        'raw_url' => $imgRaw,
+        'preview_url' => $previewUrl,
+        'thumb_url' => $thumbUrl
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -493,6 +530,241 @@ $currentTab = 'hero_slides';
             background: rgba(201, 59, 59, 0.1);
         }
 
+        .image-sources-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-top: 0.75rem;
+        }
+
+        .image-source-col {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .image-source-col.highlight-source {
+            border-color: rgba(179, 138, 84, 0.45);
+            background: linear-gradient(to bottom, var(--color-gold-subtle), var(--bg-card));
+        }
+
+        .source-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-gold);
+            margin-bottom: 0.65rem;
+        }
+
+        .btn-artwork-catalog {
+            width: 100%;
+            background: var(--bg-card-alt);
+            border: 1px solid var(--border-gold);
+            color: var(--color-gold);
+            padding: 0.6rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-artwork-catalog:hover {
+            background: var(--color-gold);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(179, 138, 84, 0.25);
+        }
+
+        .selected-artwork-indicator {
+            font-size: 0.78rem;
+            color: var(--color-gold);
+            margin-top: 0.5rem;
+            padding: 0.45rem 0.65rem;
+            background: var(--color-gold-subtle);
+            border-radius: 6px;
+            border: 1px solid rgba(179, 138, 84, 0.3);
+            line-height: 1.35;
+            word-break: break-word;
+        }
+
+        /* Modal Visual de Seleção de Obras */
+        .modal-artwork-picker-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-artwork-picker-backdrop.active {
+            display: flex;
+        }
+
+        .modal-artwork-picker-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-gold);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 960px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            animation: modalFadeIn 0.22s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-artwork-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            line-height: 1;
+            transition: all 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            border-color: var(--color-danger);
+            color: var(--color-danger);
+            transform: scale(1.05);
+        }
+
+        .modal-artwork-body {
+            padding: 1.25rem 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-artwork-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 1rem;
+        }
+
+        .artwork-pick-card {
+            background: var(--bg-card-alt);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .artwork-pick-card:hover {
+            border-color: var(--color-gold);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .artwork-pick-thumb {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            background: #111;
+            display: block;
+        }
+
+        .artwork-pick-badge {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .artwork-pick-info {
+            padding: 0.75rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .artwork-pick-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.3;
+            margin-bottom: 0.25rem;
+        }
+
+        .artwork-pick-artist {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .btn-use-artwork {
+            width: 100%;
+            background: var(--color-gold-subtle);
+            border: 1px solid var(--border-gold);
+            color: var(--color-gold);
+            padding: 0.45rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .artwork-pick-card:hover .btn-use-artwork {
+            background: var(--color-gold);
+            color: #ffffff;
+        }
+
+        @media (max-width: 1024px) {
+            .image-sources-grid { grid-template-columns: 1fr; }
+        }
+
         @media (max-width: 768px) {
             .grid-fields-2 { grid-template-columns: 1fr; }
             .banner-preview-box { height: 180px; }
@@ -631,40 +903,94 @@ $currentTab = 'hero_slides';
 
                     <!-- Configuração da Imagem do Banner -->
                     <div style="background-color: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
-                        <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
-                            <span>📷</span> Imagem de Fundo do Slide <?= $slideNum ?>
-                        </h4>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                            <h4 style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                                <span>📷</span> Imagem de Fundo do Slide <?= $slideNum ?>
+                            </h4>
+                            <span style="font-size: 0.78rem; color: var(--text-muted);">
+                                Escolha uma obra já publicada no site OU envie uma nova imagem
+                            </span>
+                        </div>
 
-                        <div class="grid-fields-2">
-                            <!-- Opção 1: Upload de Arquivo do Computador -->
-                            <div>
-                                <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.45rem; display: block;">
-                                    Enviar Nova Imagem (Computador / Celular):
-                                </label>
-                                <div class="file-upload-dropzone" onclick="document.getElementById('slide_file_<?= $slideNum ?>').click()">
-                                    <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">📁</div>
-                                    <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-gold);">
-                                        Clique para selecionar imagem
+                        <div class="image-sources-grid">
+                            <!-- Opção 1: Selecionar Obra do Acervo (Site) -->
+                            <div class="image-source-col highlight-source">
+                                <div>
+                                    <div class="source-badge">
+                                        <span>🏛️</span> Obra do Acervo (Site)
                                     </div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
-                                        JPG, JPEG, PNG ou WEBP até 10 MB
-                                    </div>
-                                    <div id="file-name-<?= $slideNum ?>" style="font-size: 0.8rem; color: var(--color-success); font-weight: 600; margin-top: 0.4rem; display: none;"></div>
+                                    <label for="artwork_select_<?= $slideNum ?>" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.45rem; display: block;">
+                                        Escolher Obra do Site:
+                                    </label>
+                                    <select id="artwork_select_<?= $slideNum ?>" class="form-control" onchange="handleArtworkSelect(this, <?= $slideNum ?>)" style="margin-bottom: 0.65rem;">
+                                        <option value="">-- Selecione uma obra existente --</option>
+                                        <?php 
+                                        $initialSelectedArt = null;
+                                        foreach ($siteArtworks as $art): 
+                                            $isArtSelected = !empty($slide['image']) && ($slide['image'] === $art['raw_url'] || $slide['image'] === $art['preview_url']);
+                                            if ($isArtSelected) $initialSelectedArt = $art;
+                                        ?>
+                                            <option value="<?= htmlspecialchars($art['raw_url']) ?>" 
+                                                    data-title="<?= htmlspecialchars($art['titulo']) ?>"
+                                                    data-artist="<?= htmlspecialchars($art['artista']) ?>"
+                                                    data-preview="<?= htmlspecialchars($art['preview_url']) ?>"
+                                                    <?= $isArtSelected ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($art['titulo']) ?> (<?= htmlspecialchars($art['artista']) ?>)
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
-                                <input type="file" name="slide_file_<?= $slideNum ?>" id="slide_file_<?= $slideNum ?>" accept="image/jpeg,image/png,image/webp" style="display: none;" onchange="handleFileSelected(this, <?= $slideNum ?>)">
+                                <div>
+                                    <button type="button" class="btn-artwork-catalog" onclick="openArtworkModal(<?= $slideNum ?>)">
+                                        <span>🖼️</span> Ver Catálogo Visual (Miniaturas)
+                                    </button>
+                                    <div id="artwork-badge-<?= $slideNum ?>" class="selected-artwork-indicator" style="<?= $initialSelectedArt ? '' : 'display: none;' ?>">
+                                        <?php if ($initialSelectedArt): ?>
+                                            ✓ Obra vinculada: <strong><?= htmlspecialchars($initialSelectedArt['titulo']) ?></strong> (<?= htmlspecialchars($initialSelectedArt['artista']) ?>)
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Opção 2: URL Direta ou Atalho da Galeria -->
-                            <div>
-                                <div class="form-group" style="margin-bottom: 0.75rem;">
-                                    <label for="image_url_<?= $slideNum ?>">Ou informe o Caminho / URL da Imagem:</label>
-                                    <input type="text" name="image_url_<?= $slideNum ?>" id="image_url_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['image'] ?? '') ?>" placeholder="assets/images/site/... ou https://..." oninput="handleUrlChanged(this.value, <?= $slideNum ?>)">
-                                    <div class="form-hint">Aceita fotos locais ou links públicos do Supabase Storage / CDN.</div>
+                            <!-- Opção 2: Upload de Arquivo do Computador -->
+                            <div class="image-source-col">
+                                <div>
+                                    <div class="source-badge">
+                                        <span>📤</span> Enviar Nova Imagem
+                                    </div>
+                                    <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.45rem; display: block;">
+                                        Do seu Computador ou Celular:
+                                    </label>
+                                    <div class="file-upload-dropzone" onclick="document.getElementById('slide_file_<?= $slideNum ?>').click()">
+                                        <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">📁</div>
+                                        <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-gold);">
+                                            Clique para selecionar arquivo
+                                        </div>
+                                        <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.2rem;">
+                                            JPG, JPEG, PNG ou WEBP até 10 MB
+                                        </div>
+                                        <div id="file-name-<?= $slideNum ?>" style="font-size: 0.8rem; color: var(--color-success); font-weight: 600; margin-top: 0.4rem; display: none;"></div>
+                                    </div>
+                                    <input type="file" name="slide_file_<?= $slideNum ?>" id="slide_file_<?= $slideNum ?>" accept="image/jpeg,image/png,image/webp" style="display: none;" onchange="handleFileSelected(this, <?= $slideNum ?>)">
+                                </div>
+                            </div>
+
+                            <!-- Opção 3: URL Direta ou Atalho da Galeria -->
+                            <div class="image-source-col">
+                                <div>
+                                    <div class="source-badge">
+                                        <span>🔗</span> URL ou Ambientes
+                                    </div>
+                                    <div class="form-group" style="margin-bottom: 0.65rem;">
+                                        <label for="image_url_<?= $slideNum ?>">Caminho / Link da Imagem:</label>
+                                        <input type="text" name="image_url_<?= $slideNum ?>" id="image_url_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['image'] ?? '') ?>" placeholder="assets/images/site/... ou https://..." oninput="handleUrlChanged(this.value, <?= $slideNum ?>)">
+                                        <div class="form-hint">Caminho relativo ou link do Supabase / CDN.</div>
+                                    </div>
                                 </div>
 
                                 <div>
-                                    <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">
-                                        Fotos clássicas da galeria para aplicar com 1 clique:
+                                    <label style="font-size: 0.72rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">
+                                        Fotos clássicas da galeria:
                                     </label>
                                     <div class="preset-buttons">
                                         <button type="button" class="btn-preset" onclick="setPresetImage(<?= $slideNum ?>, 'assets/images/site/hero-bg.jpg')">Sala Galeria</button>
@@ -746,9 +1072,186 @@ $currentTab = 'hero_slides';
             </div>
         </form>
 
+        <!-- Modal Visual de Seleção de Obras do Acervo -->
+        <div class="modal-artwork-picker-backdrop" id="modalArtworkPicker" onclick="if(event.target === this) closeArtworkModal();">
+            <div class="modal-artwork-picker-container" role="dialog" aria-modal="true" aria-labelledby="modalArtworkTitle">
+                <div class="modal-artwork-header">
+                    <div>
+                        <h3 id="modalArtworkTitle" style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.45rem; color: var(--text-main); margin: 0 0 0.25rem 0;">
+                            Selecionar Obra do Acervo para o Slide <span id="modalTargetSlideNum" style="color: var(--color-gold);">01</span>
+                        </h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">
+                            Clique em qualquer obra abaixo para aplicá-la como imagem de fundo deste banner do Hero.
+                        </p>
+                    </div>
+                    <button type="button" class="modal-close-btn" onclick="closeArtworkModal()" aria-label="Fechar modal" title="Fechar">✕</button>
+                </div>
+
+                <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); background: var(--bg-card-alt);">
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); font-size: 0.95rem; opacity: 0.6;">🔍</span>
+                        <input type="text" id="artworkSearchInput" class="form-control" style="padding-left: 2.3rem;" placeholder="Buscar obra por título, artista ou categoria..." oninput="filterModalArtworks(this.value)">
+                    </div>
+                </div>
+
+                <div class="modal-artwork-body">
+                    <?php if (empty($siteArtworks)): ?>
+                        <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                            <p style="font-size: 2rem; margin-bottom: 0.5rem;">🏛️</p>
+                            <p style="font-weight: 600;">Nenhuma obra ativa encontrada no momento.</p>
+                            <p style="font-size: 0.85rem;">Você pode cadastrar novas obras em <a href="obra-nova.php" style="color: var(--color-gold);">Obras > Nova Obra</a> ou fazer upload de imagem diretamente.</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="modal-artwork-grid" id="modalArtworksGrid">
+                            <?php foreach ($siteArtworks as $art): ?>
+                                <div class="artwork-pick-card" 
+                                     data-title="<?= htmlspecialchars(mb_strtolower($art['titulo'])) ?>" 
+                                     data-artist="<?= htmlspecialchars(mb_strtolower($art['artista'])) ?>"
+                                     data-cat="<?= htmlspecialchars(mb_strtolower($art['categoria'])) ?>"
+                                     onclick="applyArtworkPick(currentModalSlide, '<?= htmlspecialchars(addslashes($art['raw_url'])) ?>', '<?= htmlspecialchars(addslashes($art['titulo'])) ?>', '<?= htmlspecialchars(addslashes($art['artista'])) ?>', '<?= htmlspecialchars(addslashes($art['preview_url'])) ?>')">
+                                    <div style="position: relative;">
+                                        <img src="<?= htmlspecialchars($art['thumb_url']) ?>" alt="<?= htmlspecialchars($art['titulo']) ?>" class="artwork-pick-thumb" loading="lazy" onerror="this.src='../assets/images/obras/placeholder-obra.svg'">
+                                        <?php if (!empty($art['categoria'])): ?>
+                                            <span class="artwork-pick-badge"><?= htmlspecialchars($art['categoria']) ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="artwork-pick-info">
+                                        <div>
+                                            <div class="artwork-pick-title"><?= htmlspecialchars($art['titulo']) ?></div>
+                                            <div class="artwork-pick-artist"><?= htmlspecialchars($art['artista']) ?></div>
+                                        </div>
+                                        <button type="button" class="btn-use-artwork">
+                                            <span>✓ Usar esta Obra</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <div id="modalNoResults" style="display: none; text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+                            <p>Nenhuma obra corresponde aos termos pesquisados.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div style="padding: 0.85rem 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; background: var(--bg-card-alt);">
+                    <button type="button" class="btn-preset" style="padding: 0.5rem 1.25rem;" onclick="closeArtworkModal()">Fechar</button>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script>
+        let currentModalSlide = 1;
+
+        // Abre o modal de escolha de obras do site
+        function openArtworkModal(slideNum) {
+            currentModalSlide = slideNum;
+            const modal = document.getElementById('modalArtworkPicker');
+            const targetBadge = document.getElementById('modalTargetSlideNum');
+            if (targetBadge) {
+                targetBadge.textContent = '0' + slideNum;
+            }
+            const searchInput = document.getElementById('artworkSearchInput');
+            if (searchInput) {
+                searchInput.value = '';
+                filterModalArtworks('');
+            }
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Fecha o modal de escolha de obras
+        function closeArtworkModal() {
+            const modal = document.getElementById('modalArtworkPicker');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Filtro em tempo real no modal
+        function filterModalArtworks(query) {
+            const q = (query || '').toLowerCase().trim();
+            const cards = document.querySelectorAll('.artwork-pick-card');
+            let visibleCount = 0;
+            cards.forEach(card => {
+                const title = card.getAttribute('data-title') || '';
+                const artist = card.getAttribute('data-artist') || '';
+                const cat = card.getAttribute('data-cat') || '';
+                if (!q || title.includes(q) || artist.includes(q) || cat.includes(q)) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            const noResults = document.getElementById('modalNoResults');
+            if (noResults) {
+                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+            }
+        }
+
+        // Aplica a obra escolhida ao slide especificado
+        function applyArtworkPick(slideNum, rawUrl, title, artist, previewUrl) {
+            // 1. Atualiza campo de URL
+            const urlInput = document.getElementById('image_url_' + slideNum);
+            if (urlInput) {
+                urlInput.value = rawUrl;
+            }
+
+            // 2. Atualiza preview visual do Hero
+            const previewBox = document.getElementById('preview-box-' + slideNum);
+            if (previewBox) {
+                previewBox.style.backgroundImage = 'url(' + previewUrl + ')';
+            }
+
+            // 3. Atualiza o dropdown select do slide
+            const select = document.getElementById('artwork_select_' + slideNum);
+            if (select) {
+                select.value = rawUrl;
+            }
+
+            // 4. Limpa arquivo local caso tivesse selecionado no input file
+            const fileInput = document.getElementById('slide_file_' + slideNum);
+            if (fileInput) {
+                fileInput.value = '';
+            }
+            const fileNameDiv = document.getElementById('file-name-' + slideNum);
+            if (fileNameDiv) {
+                fileNameDiv.style.display = 'none';
+            }
+
+            // 5. Exibe indicador visual de obra selecionada
+            const badge = document.getElementById('artwork-badge-' + slideNum);
+            if (badge) {
+                badge.innerHTML = '✓ Obra vinculada: <strong>' + title + '</strong>' + (artist ? ' (' + artist + ')' : '');
+                badge.style.display = 'block';
+            }
+
+            // 6. Fecha o modal
+            closeArtworkModal();
+        }
+
+        // Trata a seleção direta pelo dropdown <select>
+        function handleArtworkSelect(selectEl, slideNum) {
+            const val = selectEl.value;
+            if (!val) {
+                const badge = document.getElementById('artwork-badge-' + slideNum);
+                if (badge) badge.style.display = 'none';
+                return;
+            }
+
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            const title = selectedOption.getAttribute('data-title') || '';
+            const artist = selectedOption.getAttribute('data-artist') || '';
+            const previewUrl = selectedOption.getAttribute('data-preview') || val;
+
+            applyArtworkPick(slideNum, val, title, artist, previewUrl);
+        }
+
         // Atualiza preview ao selecionar arquivo do disco
         function handleFileSelected(input, slideNum) {
             if (input.files && input.files[0]) {
@@ -758,6 +1261,12 @@ $currentTab = 'hero_slides';
                     fileNameDiv.textContent = '✓ Selecionado: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
                     fileNameDiv.style.display = 'block';
                 }
+
+                // Reseta dropdown de obra do site para evitar ambiguidade
+                const select = document.getElementById('artwork_select_' + slideNum);
+                if (select) select.value = '';
+                const badge = document.getElementById('artwork-badge-' + slideNum);
+                if (badge) badge.style.display = 'none';
 
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -778,9 +1287,16 @@ $currentTab = 'hero_slides';
                 const resolvedUrl = url.startsWith('http') || url.startsWith('data:') ? url : '../' + url.replace(/^\/+/, '');
                 previewBox.style.backgroundImage = 'url(' + resolvedUrl + ')';
             }
+            // Se a URL digitada não bater com o select, desmarca o select
+            const select = document.getElementById('artwork_select_' + slideNum);
+            if (select && select.value !== url) {
+                select.value = '';
+                const badge = document.getElementById('artwork-badge-' + slideNum);
+                if (badge) badge.style.display = 'none';
+            }
         }
 
-        // Aplica imagem pré-definida
+        // Aplica imagem pré-definida de ambiente
         function setPresetImage(slideNum, presetPath) {
             const inputUrl = document.getElementById('image_url_' + slideNum);
             if (inputUrl) {
@@ -795,7 +1311,18 @@ $currentTab = 'hero_slides';
             if (fileNameDiv) {
                 fileNameDiv.style.display = 'none';
             }
+            const select = document.getElementById('artwork_select_' + slideNum);
+            if (select) select.value = '';
+            const badge = document.getElementById('artwork-badge-' + slideNum);
+            if (badge) badge.style.display = 'none';
         }
+
+        // Fecha modal ao teclar ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeArtworkModal();
+            }
+        });
 
         // Funções para atualizar texto ao vivo no card
         function updateTextPreview(id, val) {
