@@ -163,6 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function openInquiryModal(artworkData = null) {
         if (!inquiryModal) return;
 
+        // Garante que o modal esteja anexado diretamente ao final do body (evita herança de transform/overflow)
+        if (inquiryModal.parentElement !== document.body) {
+            document.body.appendChild(inquiryModal);
+        }
+
         if (artworkData) {
             modalArtworkTitle.textContent = `Consultar: ${artworkData.title}`;
             modalArtworkSubtitle.textContent = `Informações exclusivas sobre procedência, valor e envio.`;
@@ -190,16 +195,40 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btnModalEmail) btnModalEmail.href = defaultEmailUrl;
         }
 
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+
         inquiryModal.classList.add('open');
         inquiryModal.scrollTop = 0;
         const modalContent = inquiryModal.querySelector('.inquiry-modal-content');
         if (modalContent) modalContent.scrollTop = 0;
-        document.body.style.overflow = 'hidden';
+
+        // No mobile, posiciona o modal no local exato onde o usuário está navegando
+        if (window.innerWidth <= 768) {
+            inquiryModal.style.position = 'absolute';
+            inquiryModal.style.top = scrollY + 'px';
+            inquiryModal.style.minHeight = window.innerHeight + 'px';
+            inquiryModal.style.height = window.innerHeight + 'px';
+        } else {
+            inquiryModal.style.position = '';
+            inquiryModal.style.top = '';
+            inquiryModal.style.minHeight = '';
+            inquiryModal.style.height = '';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Garante que o conteúdo fique visível no centro da tela
+        if (modalContent) {
+            modalContent.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+        }
     }
 
     function closeInquiryModal() {
         if (!inquiryModal) return;
         inquiryModal.classList.remove('open');
+        inquiryModal.style.position = '';
+        inquiryModal.style.top = '';
+        inquiryModal.style.minHeight = '';
+        inquiryModal.style.height = '';
         document.body.style.overflow = '';
     }
 
@@ -208,7 +237,24 @@ document.addEventListener('DOMContentLoaded', () => {
         inquiryModal.addEventListener('click', (e) => {
             if (e.target === inquiryModal) closeInquiryModal();
         });
+
+        // Previne que rolagem de toque no fundo feche ou mova a página atrás no mobile
+        inquiryModal.addEventListener('touchmove', (e) => {
+            if (!e.target.closest('.inquiry-modal-content')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
     }
+
+    // Atualiza posição do modal caso o dispositivo seja rotacionado
+    window.addEventListener('resize', () => {
+        if (inquiryModal && inquiryModal.classList.contains('open') && window.innerWidth <= 768) {
+            const curScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+            inquiryModal.style.top = curScrollY + 'px';
+            inquiryModal.style.minHeight = window.innerHeight + 'px';
+            inquiryModal.style.height = window.innerHeight + 'px';
+        }
+    });
 
     // Gatilhos para "Consultar obra" e abertura da obra ao clicar em qualquer parte do card (Desktop e Mobile)
     document.addEventListener('click', (e) => {
