@@ -355,6 +355,21 @@
         justify-content: space-between;
     }
 
+    /* Modal de Consulta / Atendimento (768px) */
+    .inquiry-modal-backdrop {
+        padding: 1.25rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .inquiry-modal-content {
+        width: 100%;
+        max-width: min(500px, calc(100vw - 2.5rem));
+        margin: auto;
+        padding: 2rem 1.5rem;
+        max-height: calc(100dvh - 2.5rem);
+    }
+
     /* Detalhe da Obra (768px) */
     .obra-breadcrumb-bar {
         padding: 0.85rem 0;
@@ -456,8 +471,119 @@
         padding: 1.5rem 1.15rem;
     }
 
+    /* Modal de Atendimento / Tenho Interesse no Celular (576px) */
+    .inquiry-modal-backdrop {
+        padding: 0.75rem;
+        align-items: center;
+        justify-content: center;
+    }
+
     .inquiry-modal-content {
-        padding: 1.75rem 1.15rem;
+        width: 100% !important;
+        max-width: calc(100vw - 1.5rem) !important;
+        margin: auto !important;
+        padding: 1.65rem 1.1rem !important;
+        border-radius: var(--radius-md);
+        box-sizing: border-box !important;
+        max-height: calc(100dvh - 1.5rem);
+        overflow-y: auto;
+    }
+
+    .inquiry-modal-close {
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 32px;
+        height: 32px;
+        font-size: 1.1rem;
+    }
+
+    .inquiry-modal-header {
+        margin-bottom: 1.15rem;
+        padding-right: 2rem;
+    }
+
+    .modal-eyebrow {
+        font-size: 0.625rem;
+        letter-spacing: 0.18em;
+    }
+
+    .modal-title {
+        font-size: 1.35rem;
+        line-height: 1.25;
+        word-break: break-word;
+    }
+
+    .modal-subtitle {
+        font-size: 0.75rem;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+    .inquiry-preview-box {
+        padding: 0.65rem;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        min-width: 0;
+    }
+
+    .inquiry-preview-img {
+        width: 60px;
+        height: 48px;
+        flex-shrink: 0;
+    }
+
+    .inquiry-preview-meta {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .inquiry-meta-title {
+        font-size: 0.8125rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .inquiry-meta-artist,
+    .inquiry-meta-dim {
+        font-size: 0.6875rem;
+    }
+
+    .inquiry-meta-price {
+        font-size: 0.6875rem;
+    }
+
+    .inquiry-instruction {
+        font-size: 0.75rem;
+        margin-bottom: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .inquiry-options-grid {
+        gap: 0.65rem;
+    }
+
+    .inquiry-channel-btn {
+        padding: 0.75rem 0.95rem;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .channel-info {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .channel-info strong {
+        font-size: 0.8125rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .channel-info span {
+        font-size: 0.6875rem;
+        word-break: break-all;
     }
 
     /* Catálogo de Obras: 1 por linha no Celular */
@@ -867,6 +993,24 @@
 
     .obra-page-title {
         font-size: 1.75rem;
+    }
+
+    /* Modal de Atendimento em Telas Ultra Estreitas (360px) */
+    .inquiry-modal-backdrop {
+        padding: 0.5rem;
+    }
+
+    .inquiry-modal-content {
+        max-width: calc(100vw - 1rem) !important;
+        padding: 1.35rem 0.85rem !important;
+    }
+
+    .modal-title {
+        font-size: 1.2rem;
+    }
+
+    .inquiry-channel-btn {
+        padding: 0.65rem 0.75rem;
     }
 }
 

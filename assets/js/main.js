@@ -191,6 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         inquiryModal.classList.add('open');
+        inquiryModal.scrollTop = 0;
+        const modalContent = inquiryModal.querySelector('.inquiry-modal-content');
+        if (modalContent) modalContent.scrollTop = 0;
         document.body.style.overflow = 'hidden';
     }
 
@@ -207,8 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Gatilhos para "Consultar obra" e "Ver detalhes" via delegação de eventos
+    // Gatilhos para "Consultar obra" e abertura da obra ao clicar em qualquer parte do card (Desktop e Mobile)
     document.addEventListener('click', (e) => {
+        // Se clicou no botão "Consultar obra" (header, banner, etc.)
         const consultBtn = e.target.closest('[data-modal="consultar"]');
         if (consultBtn) {
             e.preventDefault();
@@ -216,24 +220,39 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const detailBtn = e.target.closest('.btn-ver-detalhes');
-        if (detailBtn) {
-            // Se for um link (<a>) com href válido, permite a navegação natural para /pages/obra.php
-            if (detailBtn.tagName === 'A' && detailBtn.getAttribute('href')) {
+        // Se clicou no botão de favoritos, deixa o evento de favoritos tratar sem abrir a obra
+        if (e.target.closest('.btn-favorite')) {
+            return;
+        }
+
+        // Se clicou em qualquer botão de ação ou controle interativo específico (exceto ver detalhes)
+        if (e.target.closest('button:not(.btn-ver-detalhes)')) {
+            return;
+        }
+
+        // Verifica se clicou dentro de um card de obra
+        const card = e.target.closest('.artwork-card');
+        if (card) {
+            // Se o clique foi diretamente no link <a> com href válido para a obra
+            const clickedLink = e.target.closest('a');
+            if (clickedLink && clickedLink.getAttribute('href') && !clickedLink.getAttribute('href').startsWith('#')) {
+                return; // O navegador segue naturalmente o link
+            }
+
+            // Procura o link de detalhes da obra dentro do card
+            const detailLink = card.querySelector('a.btn-ver-detalhes, a.artwork-image-link, a[href*="obra.php"]');
+            if (detailLink && detailLink.getAttribute('href')) {
+                window.location.href = detailLink.getAttribute('href');
                 return;
             }
-            e.preventDefault();
-            const card = detailBtn.closest('.artwork-card');
-            if (card) {
-                const artworkData = {
-                    title: card.dataset.title,
-                    artist: card.dataset.artist,
-                    dimensions: card.dataset.dimensions,
-                    image: card.dataset.image
-                };
-                openInquiryModal(artworkData);
+
+            // Fallback usando data-id do card
+            const artworkId = card.dataset.id;
+            if (artworkId) {
+                const isPages = window.location.pathname.includes('/pages/');
+                const targetUrl = (isPages ? '' : 'pages/') + 'obra.php?id=' + encodeURIComponent(artworkId);
+                window.location.href = targetUrl;
             }
-            return;
         }
     });
 
