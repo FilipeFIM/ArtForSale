@@ -118,7 +118,10 @@ require_once __DIR__ . '/includes/header.php';
                     ? $sData['image']
                     : get_image_url($sData['image']);
             ?>
-                <div class="hero-bg-slide <?= $sIdx === 0 ? 'active' : '' ?>" style="background-image: url('<?= htmlspecialchars($bgImgUrl) ?>');" data-slide-index="<?= $sIdx ?>"></div>
+                <div class="hero-bg-slide <?= $sIdx === 0 ? 'active' : '' ?>" style="background-image: url('<?= htmlspecialchars($bgImgUrl) ?>');" data-slide-index="<?= $sIdx ?>">
+                    <div class="hero-slide-backdrop" style="background-image: url('<?= htmlspecialchars($bgImgUrl) ?>');"></div>
+                    <div class="hero-slide-artwork" style="background-image: url('<?= htmlspecialchars($bgImgUrl) ?>');"></div>
+                </div>
             <?php endforeach; ?>
             <div class="hero-overlay"></div>
         </div>

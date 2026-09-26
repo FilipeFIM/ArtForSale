@@ -492,31 +492,61 @@ ul, ol {
     position: absolute;
     inset: 0;
     background-size: cover;
-    background-position: center 30%;
+    background-position: center center;
     background-repeat: no-repeat;
     opacity: 0;
-    transform: scale(1.05);
-    transition: opacity 0.8s ease-in-out, transform 6s cubic-bezier(0.25, 1, 0.5, 1);
-    will-change: opacity, transform;
+    transition: opacity 0.8s ease-in-out;
+    will-change: opacity;
     pointer-events: none;
+    overflow: hidden;
 }
 
 .hero-bg-slide.active {
     opacity: 1;
-    transform: scale(1.0);
     z-index: 1;
+}
+
+/* Fundo ambiente imersivo (preenchimento total suave com as cores e iluminação da obra) */
+.hero-slide-backdrop {
+    position: absolute;
+    inset: -30px;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    filter: blur(35px) brightness(0.32) saturate(1.25);
+    transform: scale(1.1);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Obra de arte centralizada em escala reduzida / afastada (~82%) para enquadramento perfeito */
+.hero-slide-artwork {
+    position: absolute;
+    inset: 0;
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 2;
+    transform: scale(0.85);
+    transition: transform 6s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
+}
+
+.hero-bg-slide.active .hero-slide-artwork {
+    transform: scale(0.82);
 }
 
 .hero-overlay {
     position: absolute;
     inset: 0;
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
     background: linear-gradient(
         to right,
         rgba(10, 9, 8, 0.90) 0%,
         rgba(10, 9, 8, 0.75) 38%,
-        rgba(10, 9, 8, 0.35) 65%,
+        rgba(10, 9, 8, 0.30) 65%,
         rgba(10, 9, 8, 0.70) 100%
     );
 }
@@ -534,7 +564,7 @@ ul, ol {
 
 .hero-container {
     position: relative;
-    z-index: 3;
+    z-index: 4;
     width: 100%;
     max-width: var(--max-width);
     margin: 0 auto;

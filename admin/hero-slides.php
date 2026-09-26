@@ -345,9 +345,6 @@ foreach ($artworksList as $item) {
             border-radius: 8px;
             overflow: hidden;
             background-color: #12110f;
-            background-size: cover;
-            background-position: center 30%;
-            background-repeat: no-repeat;
             margin-bottom: 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
@@ -356,9 +353,33 @@ foreach ($artworksList as $item) {
             box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
         }
 
+        .banner-preview-backdrop {
+            position: absolute;
+            inset: -20px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(25px) brightness(0.32) saturate(1.2);
+            transform: scale(1.1);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .banner-preview-artwork {
+            position: absolute;
+            inset: 0;
+            background-size: contain;
+            background-position: center center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: 2;
+            transform: scale(0.85);
+        }
+
         .banner-preview-overlay {
             position: absolute;
             inset: 0;
+            z-index: 3;
             background: linear-gradient(
                 to right,
                 rgba(10, 9, 8, 0.90) 0%,
@@ -371,7 +392,7 @@ foreach ($artworksList as $item) {
 
         .banner-preview-content {
             position: relative;
-            z-index: 2;
+            z-index: 4;
             color: #ffffff;
             max-width: 60%;
         }
@@ -396,7 +417,7 @@ foreach ($artworksList as $item) {
         }
 
         .preview-desc {
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             line-height: 1.4;
             color: rgba(255, 255, 255, 0.8);
             display: -webkit-box;
@@ -416,7 +437,7 @@ foreach ($artworksList as $item) {
             color: #eae5dc;
             border-left: 2px solid #c8a96e;
             padding-left: 0.65rem;
-            z-index: 2;
+            z-index: 4;
         }
 
         .grid-fields-2 {
@@ -908,7 +929,9 @@ foreach ($artworksList as $item) {
                     </div>
 
                     <!-- Preview ao Vivo com Estilo do Hero -->
-                    <div class="banner-preview-box" id="preview-box-<?= $slideNum ?>" style="background-image: url('<?= htmlspecialchars($currentImageResolved) ?>');">
+                    <div class="banner-preview-box" id="preview-box-<?= $slideNum ?>">
+                        <div class="banner-preview-backdrop" id="preview-backdrop-<?= $slideNum ?>" style="background-image: url('<?= htmlspecialchars($currentImageResolved) ?>');"></div>
+                        <div class="banner-preview-artwork" id="preview-artwork-<?= $slideNum ?>" style="background-image: url('<?= htmlspecialchars($currentImageResolved) ?>');"></div>
                         <div class="banner-preview-overlay"></div>
                         <div class="banner-preview-content">
                             <span class="preview-eyebrow" id="preview-eyebrow-<?= $slideNum ?>"><?= htmlspecialchars($slide['eyebrow'] ?? 'GALERIA DE ARTE') ?></span>
@@ -1222,10 +1245,7 @@ foreach ($artworksList as $item) {
             }
 
             // 2. Atualiza preview visual do Hero
-            const previewBox = document.getElementById('preview-box-' + slideNum);
-            if (previewBox) {
-                previewBox.style.backgroundImage = 'url(' + previewUrl + ')';
-            }
+            updateSlidePreviewImages(slideNum, previewUrl);
 
             // 3. Atualiza o dropdown select do slide
             const select = document.getElementById('artwork_select_' + slideNum);
@@ -1252,6 +1272,16 @@ foreach ($artworksList as $item) {
 
             // 6. Fecha o modal
             closeArtworkModal();
+        }
+
+        // Atualiza as camadas do preview visual (fundo ambiente + obra centralizada)
+        function updateSlidePreviewImages(slideNum, imgUrl) {
+            const previewBox = document.getElementById('preview-box-' + slideNum);
+            if (previewBox) previewBox.style.backgroundImage = 'url(' + imgUrl + ')';
+            const backdrop = document.getElementById('preview-backdrop-' + slideNum);
+            if (backdrop) backdrop.style.backgroundImage = 'url(' + imgUrl + ')';
+            const artwork = document.getElementById('preview-artwork-' + slideNum);
+            if (artwork) artwork.style.backgroundImage = 'url(' + imgUrl + ')';
         }
 
         // Trata a seleção direta pelo dropdown <select>
@@ -1289,10 +1319,7 @@ foreach ($artworksList as $item) {
 
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const previewBox = document.getElementById('preview-box-' + slideNum);
-                    if (previewBox) {
-                        previewBox.style.backgroundImage = 'url(' + e.target.result + ')';
-                    }
+                    updateSlidePreviewImages(slideNum, e.target.result);
                 };
                 reader.readAsDataURL(file);
             }
@@ -1301,11 +1328,8 @@ foreach ($artworksList as $item) {
         // Atualiza preview ao digitar URL
         function handleUrlChanged(url, slideNum) {
             if (!url) return;
-            const previewBox = document.getElementById('preview-box-' + slideNum);
-            if (previewBox) {
-                const resolvedUrl = url.startsWith('http') || url.startsWith('data:') ? url : '../' + url.replace(/^\/+/, '');
-                previewBox.style.backgroundImage = 'url(' + resolvedUrl + ')';
-            }
+            const resolvedUrl = url.startsWith('http') || url.startsWith('data:') ? url : '../' + url.replace(/^\/+/, '');
+            updateSlidePreviewImages(slideNum, resolvedUrl);
             // Se a URL digitada não bater com o select, desmarca o select
             const select = document.getElementById('artwork_select_' + slideNum);
             if (select && select.value !== url) {

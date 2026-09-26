@@ -143,6 +143,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (heroSlides[idx] && heroSlides[idx].image) {
                     const resolved = resolveHeroImgUrl(heroSlides[idx].image);
                     slideEl.style.backgroundImage = `url('${resolved}')`;
+                    const backdrop = slideEl.querySelector('.hero-slide-backdrop');
+                    const artwork = slideEl.querySelector('.hero-slide-artwork');
+                    if (backdrop) backdrop.style.backgroundImage = `url('${resolved}')`;
+                    if (artwork) artwork.style.backgroundImage = `url('${resolved}')`;
                 }
             });
         }
