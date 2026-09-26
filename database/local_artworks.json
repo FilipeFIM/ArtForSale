@@ -6,7 +6,7 @@
         "artista": "Maria Fernandes",
         "artista_id": "a1000000-0000-0000-0000-000000000001",
         "artista_slug": "maria-fernandes",
-        "biografia_artista": "Pintora contemporânea reconhecida pelo lirismo visual e domínio das transições cromáticas entre tons ocres e profundidades noturnas.",
+        "biografia_artista": "",
         "dimensoes": "79 × 59 cm",
         "largura": 59,
         "altura": 79,
@@ -23,7 +23,7 @@
         "estado_conservacao": "Excelente",
         "procedencia": "Acervo Particular",
         "localizacao": "Brasil",
-        "descricao": "São Jerônimo como Cardeal Escritor",
+        "descricao": "",
         "disponibilidade": "available",
         "destaque": true,
         "ativo": true,
@@ -83,9 +83,9 @@
                 "id": "8a9d4aac-eeb9-48c4-bfeb-ad0d3f1027ab",
                 "imagem": "https:\/\/recmxyfocskxvzbbkoui.supabase.co\/storage\/v1\/object\/public\/artworks\/e605ee3d-e737-4f25-9191-a7be5a71e1ad\/principal\/1790297875_homem____beira_do_canal_em_paris.png",
                 "storage_path": "e605ee3d-e737-4f25-9191-a7be5a71e1ad\/principal\/1790297875_homem____beira_do_canal_em_paris.png",
-                "tipo": "outras",
-                "titulo": "Vista adicional",
-                "is_primary": false,
+                "tipo": "principal",
+                "titulo": "Imagem principal",
+                "is_primary": true,
                 "sort_order": 1
             },
             {
@@ -93,7 +93,7 @@
                 "imagem": "https:\/\/recmxyfocskxvzbbkoui.supabase.co\/storage\/v1\/object\/public\/artworks\/e605ee3d-e737-4f25-9191-a7be5a71e1ad\/gallery\/1790383714_chatgpt_image_25_de_set__de_2026__13_14_44.png",
                 "storage_path": "e605ee3d-e737-4f25-9191-a7be5a71e1ad\/gallery\/1790383714_chatgpt_image_25_de_set__de_2026__13_14_44.png",
                 "tipo": "outras",
-                "titulo": "Galeria",
+                "titulo": "Vista adicional",
                 "is_primary": false,
                 "sort_order": 2
             }
@@ -916,37 +916,6 @@
         ]
     },
     {
-        "id": "f81efaac-c65b-44b3-807b-110a0366c92f",
-        "slug": "natureza",
-        "titulo": "Natureza",
-        "artista": "Di Natureza",
-        "artista_id": "db78ff36-132e-433b-93b1-ffc6b04227c1",
-        "artista_slug": "di-natureza-637e",
-        "biografia_artista": "",
-        "dimensoes": "79 × 59 cm",
-        "largura": 59,
-        "altura": 79,
-        "profundidade": null,
-        "preco": "Preço sob consulta",
-        "categoria": "Arte Clássica",
-        "categoria_id": "c1000000-0000-0000-0000-000000000001",
-        "categoria_slug": "arte-classica",
-        "imagem": "assets\/images\/obras\/placeholder-obra.svg",
-        "imagem_storage_path": "",
-        "tecnica": "Óleo sobre tela",
-        "ano": 2026,
-        "codigo": "Nature",
-        "estado_conservacao": "Excelente",
-        "procedencia": "Acervo Particular",
-        "localizacao": "Brasil",
-        "descricao": "",
-        "disponibilidade": "available",
-        "destaque": true,
-        "ativo": false,
-        "ordem": 0,
-        "galeria": []
-    },
-    {
         "id": "d66cd1ea-35b1-424a-979c-cffa11f7e845",
         "slug": "x",
         "titulo": "x",
@@ -976,15 +945,6 @@
         "ativo": true,
         "ordem": 0,
         "galeria": [
-            {
-                "id": null,
-                "imagem": "assets\/images\/obras\/uploads\/d66cd1ea-35b1-424a-979c-cffa11f7e845_1790288133_natureza-morta_floral.png",
-                "storage_path": "assets\/images\/obras\/uploads\/d66cd1ea-35b1-424a-979c-cffa11f7e845_1790288133_natureza-morta_floral.png",
-                "tipo": "outras",
-                "titulo": "Imagem principal",
-                "is_primary": false,
-                "sort_order": 1
-            },
             {
                 "id": "f882da24-77f9-4c3e-8a73-9bee8b741df9",
                 "imagem": "https:\/\/recmxyfocskxvzbbkoui.supabase.co\/storage\/v1\/object\/public\/artworks\/d66cd1ea-35b1-424a-979c-cffa11f7e845\/principal\/1790383616_natureza-morta_floral.png",

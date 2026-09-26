@@ -604,27 +604,45 @@ function supabase_buscar_obras(?string $categoria = null, ?string $termo = null,
         }
     }
 
+    // Filtra $locais para remover qualquer obra excluída ou com ativo=false
+    $locais = array_values(array_filter($locais, function($item) use ($deletedIds, $somenteAtivas) {
+        $id = (string)($item['id'] ?? '');
+        if (empty($id) || in_array($id, $deletedIds, true)) return false;
+        if ($somenteAtivas && isset($item['ativo']) && $item['ativo'] === false) return false;
+        return true;
+    }));
+
     if ($somenteAtivas) {
-        $locais = array_values(array_filter($locais, fn($item) => !isset($item['ativo']) || $item['ativo'] !== false));
+        $obrasDb = array_values(array_filter($obrasDb, fn($item) => !isset($item['ativo']) || $item['ativo'] !== false));
     }
 
-    // Mescla obras do banco com a persistência local para garantir que nenhuma obra recém-criada seja omitida
+    // Mescla obras do banco com a persistência local (apenas obras válidas e não excluídas)
     $todasNovas = function_exists('artsale_merge_catalogo') 
         ? artsale_merge_catalogo($obrasDb, $locais) 
         : (!empty($obrasDb) ? $obrasDb : $locais);
+
+    // Garante remoção de qualquer obra excluída
+    $todasNovas = array_values(array_filter($todasNovas, fn($item) => !in_array((string)($item['id'] ?? ''), $deletedIds, true)));
 
     if ($somenteAtivas) {
         $todasNovas = array_values(array_filter($todasNovas, fn($item) => !isset($item['ativo']) || $item['ativo'] !== false));
     }
 
+    // Se já existem obras no acervo (do banco ou locais válidas), retorna APENAS elas.
+    // NUNCA anexa $fallback (duplicatas 101-112) por cima de um acervo já populado!
     if (!empty($todasNovas)) {
-        if (function_exists('artsale_merge_catalogo')) {
-            return artsale_merge_catalogo($todasNovas, $fallback);
-        }
         return $todasNovas;
     }
 
-    return array_values(array_filter($fallback, fn($item) => !in_array((string)$item['id'], $deletedIds, true)));
+    // Apenas se o acervo estiver completamente vazio em todas as fontes:
+    $fallbackValido = array_values(array_filter($fallback, function($item) use ($deletedIds, $somenteAtivas) {
+        $id = (string)($item['id'] ?? '');
+        if (empty($id) || in_array($id, $deletedIds, true)) return false;
+        if ($somenteAtivas && isset($item['ativo']) && $item['ativo'] === false) return false;
+        return true;
+    }));
+
+    return $fallbackValido;
 }
 
 /**
@@ -1377,6 +1395,14 @@ function supabase_criar_obra(array $dados, ?string $authToken = null): array {
 function supabase_excluir_obra(string $artworkId, bool $hardDelete = true, ?string $authToken = null): array {
     $token = $authToken ?: (defined('SUPABASE_SERVICE_ROLE_KEY') ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY);
 
+    // 0. Registra IMEDIATAMENTE como excluída em arquivo, sessão e cookie
+    if (function_exists('artsale_mark_artwork_deleted')) {
+        artsale_mark_artwork_deleted($artworkId);
+    }
+    if (function_exists('artsale_remove_local_artwork')) {
+        artsale_remove_local_artwork($artworkId);
+    }
+
     if ($hardDelete) {
         // 1. Busca imagens associadas para remover do Storage e do disco local
         $imgRes = supabase_request("artwork_images?artwork_id=eq." . urlencode($artworkId) . "&select=id,storage_path", 'GET', null, $token);
@@ -1424,15 +1450,18 @@ function supabase_excluir_obra(string $artworkId, bool $hardDelete = true, ?stri
             }
         }
 
-        // 6. Registra na lista persistente de obras excluídas para nunca mais reaparecer
+        // 6. Confirma marcação e purga cache
         if (function_exists('artsale_mark_artwork_deleted')) {
             artsale_mark_artwork_deleted($artworkId);
         }
+        supabase_purge_cache();
 
         return $delRes;
     }
 
-    return supabase_request("artworks?id=eq." . urlencode($artworkId), 'PATCH', ['active' => false], $token);
+    $patchRes = supabase_request("artworks?id=eq." . urlencode($artworkId), 'PATCH', ['active' => false], $token);
+    supabase_purge_cache();
+    return $patchRes;
 }
 
 /**

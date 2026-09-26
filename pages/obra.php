@@ -45,6 +45,9 @@ $deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_d
 if (!is_array($deletedIds)) {
     $deletedIds = [];
 }
+if ($obra && in_array((string)($obra['id'] ?? ''), $deletedIds, true)) {
+    $obra = null;
+}
 $catalogoObras = array_values(array_filter($catalogoObras, fn($item) => !in_array((string)($item['id'] ?? ''), $deletedIds, true)));
 
 if (!$obra) {

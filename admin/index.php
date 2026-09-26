@@ -295,9 +295,11 @@ if (supabase_is_configured()) {
 if (empty($obras)) {
     global $catalogoObras;
     $fallback = $catalogoObras ?? [];
-    $deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];
-    $obras = array_values(array_filter($fallback, fn($item) => !in_array((string)$item['id'], $deletedIds, true)));
+    $obras = $fallback;
 }
+
+$deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];
+$obras = array_values(array_filter($obras, fn($item) => !in_array((string)($item['id'] ?? ''), $deletedIds, true)));
 
 // Obra selecionada na aba de fotos
 $selectedArtworkId = $_GET['artwork_id'] ?? ($obras[0]['id'] ?? '101');

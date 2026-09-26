@@ -79,6 +79,11 @@ if (!function_exists('mb_substr')) {
  * Previne que obras excluídas reapareçam mesmo se houver fallback de catálogo seed.
  */
 function artsale_get_deleted_artwork_ids(): array {
+    static $memoryCache = null;
+    if ($memoryCache !== null) {
+        return $memoryCache;
+    }
+
     $file = BASE_PATH . '/database/deleted_artworks.json';
     $ids = [];
     if (file_exists($file)) {
@@ -88,33 +93,78 @@ function artsale_get_deleted_artwork_ids(): array {
             $ids = $decoded;
         }
     }
+
+    // Persistência em Sessão PHP
     if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['deleted_artworks']) && is_array($_SESSION['deleted_artworks'])) {
-        $ids = array_unique(array_merge($ids, $_SESSION['deleted_artworks']));
+        $ids = array_merge($ids, $_SESSION['deleted_artworks']);
     }
-    return array_values(array_map('strval', $ids));
+
+    // Persistência em Cookies HTTP (resiliente para ambientes serverless como Vercel)
+    if (!empty($_COOKIE['artsale_deleted_ids'])) {
+        $cookieRaw = trim($_COOKIE['artsale_deleted_ids']);
+        $cookieDecoded = @json_decode($cookieRaw, true);
+        if (is_array($cookieDecoded)) {
+            $ids = array_merge($ids, $cookieDecoded);
+        } else {
+            $parts = explode(',', $cookieRaw);
+            $ids = array_merge($ids, array_map('trim', $parts));
+        }
+    }
+
+    $unique = array_values(array_unique(array_filter(array_map('strval', $ids))));
+    $memoryCache = $unique;
+    return $unique;
 }
 
 /**
- * Marca uma obra como permanentemente excluída em arquivo e sessão
+ * Marca uma obra como permanentemente excluída em arquivo, cookie e sessão
  */
 function artsale_mark_artwork_deleted(string $artworkId): void {
     if (empty($artworkId)) return;
+    $idStr = (string)$artworkId;
+
+    $current = artsale_get_deleted_artwork_ids();
+    if (!in_array($idStr, $current, true)) {
+        $current[] = $idStr;
+    }
+
+    // 1. Persistência em arquivo físico (quando diretório tem permissão de escrita)
     $dir = BASE_PATH . '/database';
     if (!is_dir($dir)) {
         @mkdir($dir, 0777, true);
     }
     $file = $dir . '/deleted_artworks.json';
-    $current = artsale_get_deleted_artwork_ids();
-    $idStr = (string)$artworkId;
-    if (!in_array($idStr, $current, true)) {
-        $current[] = $idStr;
-        @file_put_contents($file, json_encode(array_values($current), JSON_PRETTY_PRINT));
-    }
+    @file_put_contents($file, json_encode(array_values($current), JSON_PRETTY_PRINT));
+
+    // 2. Persistência em sessão PHP ativa
     if (session_status() === PHP_SESSION_ACTIVE) {
         $_SESSION['deleted_artworks'] = $current;
     }
+
+    // 3. Persistência em cookie HTTP (365 dias) - fundamental para Vercel Serverless
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+               (!empty($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443) ||
+               (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+
+    $jsonCurrent = json_encode(array_values($current));
+    @setcookie('artsale_deleted_ids', $jsonCurrent, [
+        'expires'  => time() + (365 * 24 * 60 * 60),
+        'path'     => '/',
+        'domain'   => '',
+        'secure'   => $isHttps,
+        'httponly' => false,
+        'samesite' => 'Lax'
+    ]);
+    $_COOKIE['artsale_deleted_ids'] = $jsonCurrent;
+
+    // 4. Remove da persistência local
     if (function_exists('artsale_remove_local_artwork')) {
         artsale_remove_local_artwork($artworkId);
+    }
+
+    // 5. Purga o cache de consultas
+    if (function_exists('supabase_purge_cache')) {
+        supabase_purge_cache();
     }
 }
 
@@ -128,7 +178,13 @@ function artsale_get_local_artworks(): array {
     $data = json_decode($content ?: '[]', true);
     if (!is_array($data)) return [];
     $deletedIds = artsale_get_deleted_artwork_ids();
-    return array_values(array_filter($data, fn($item) => !empty($item['id']) && !in_array((string)$item['id'], $deletedIds, true)));
+    return array_values(array_filter($data, function($item) use ($deletedIds) {
+        $id = (string)($item['id'] ?? '');
+        if (empty($id)) return false;
+        if (in_array($id, $deletedIds, true)) return false;
+        if (isset($item['ativo']) && $item['ativo'] === false) return false;
+        return true;
+    }));
 }
 
 /**

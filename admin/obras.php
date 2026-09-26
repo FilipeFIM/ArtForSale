@@ -89,7 +89,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 5. Excluir Obra Permanentemente (Limpa Storage, registros vinculados e dados)
         elseif ($action === 'delete_artwork') {
             $res = supabase_excluir_obra($artworkId, true, $adminToken);
-            if (empty($res['error'])) {
+            if (function_exists('artsale_mark_artwork_deleted')) {
+                artsale_mark_artwork_deleted($artworkId);
+            }
+            if (empty($res['error']) || stripos($res['error'] ?? '', '0 rows') !== false || stripos($res['error'] ?? '', 'not found') !== false) {
                 header('Location: obras.php?msg=deleted');
                 exit;
             } else {
@@ -136,6 +139,10 @@ if (empty($obras)) {
     $deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];
     $obras = array_values(array_filter($fallback, fn($item) => !in_array((string)$item['id'], $deletedIds, true)));
 }
+
+// Filtra estritamente por deletedIds para garantir que nenhuma obra excluída seja renderizada
+$deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];
+$obras = array_values(array_filter($obras, fn($item) => !in_array((string)($item['id'] ?? ''), $deletedIds, true)));
 
 $totalCategorias = count(supabase_buscar_categorias(false, $adminToken));
 $totalArtistas = count(supabase_buscar_artistas(false, $adminToken));
