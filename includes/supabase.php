@@ -554,13 +554,27 @@ function supabase_buscar_obras(?string $categoria = null, ?string $termo = null,
     $deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];
     $token = $authToken ?: (function_exists('get_admin_token') ? get_admin_token() : null);
 
-    global $catalogoObras;
-    $fallback = $catalogoObras ?? [];
     $locais = function_exists('artsale_get_local_artworks') ? artsale_get_local_artworks() : [];
 
     if (!supabase_is_configured()) {
-        $mesclado = function_exists('artsale_merge_catalogo') ? artsale_merge_catalogo($locais, $fallback) : array_merge($locais, $fallback);
-        return array_values(array_filter($mesclado, fn($item) => !in_array((string)$item['id'], $deletedIds, true)));
+        $filtradas = array_values(array_filter($locais, function($item) use ($deletedIds, $somenteAtivas, $categoria, $termo) {
+            $id = (string)($item['id'] ?? '');
+            if (empty($id) || in_array($id, $deletedIds, true)) return false;
+            if (str_starts_with($id, 'b1000') || (is_numeric($id) && (int)$id >= 101 && (int)$id <= 112)) return false;
+            if ($somenteAtivas && isset($item['ativo']) && $item['ativo'] === false) return false;
+            if ($categoria && $categoria !== 'all' && $categoria !== 'todas') {
+                if (($item['categoria_slug'] ?? '') !== $categoria) return false;
+            }
+            if ($termo && trim($termo) !== '') {
+                $t = mb_strtolower(trim($termo));
+                $match = str_contains(mb_strtolower($item['titulo'] ?? ''), $t)
+                    || str_contains(mb_strtolower($item['artista'] ?? ''), $t)
+                    || str_contains(mb_strtolower($item['codigo'] ?? ''), $t);
+                if (!$match) return false;
+            }
+            return true;
+        }));
+        return $filtradas;
     }
 
     // Filtro: se somenteAtivas for true, exclui apenas as obras explicitamente marcadas com active = false
@@ -593,7 +607,8 @@ function supabase_buscar_obras(?string $categoria = null, ?string $termo = null,
     $obrasDb = [];
     if (!empty($res['data']) && is_array($res['data'])) {
         foreach ($res['data'] as $raw) {
-            if (in_array((string)$raw['id'], $deletedIds, true)) {
+            $id = (string)($raw['id'] ?? '');
+            if (in_array($id, $deletedIds, true) || str_starts_with($id, 'b1000') || (is_numeric($id) && (int)$id >= 101 && (int)$id <= 112)) {
                 continue;
             }
             $norm = supabase_normalizar_obra($raw);
@@ -604,45 +619,25 @@ function supabase_buscar_obras(?string $categoria = null, ?string $termo = null,
         }
     }
 
-    // Filtra $locais para remover qualquer obra excluída ou com ativo=false
-    $locais = array_values(array_filter($locais, function($item) use ($deletedIds, $somenteAtivas) {
+    // Se a API Supabase respondeu com sucesso (sem erro), o banco é a FONTE ÚNICA DA VERDADE.
+    // Retorna exatamente as obras do banco, sem mesclar com itens inexistentes locais.
+    if (empty($res['error'])) {
+        $resultado = $obrasDb;
+    } else {
+        // Fallback local somente se a consulta ao Supabase falhou por erro de rede/servidor
+        $resultado = $locais;
+    }
+
+    // Filtra estritamente por deletedIds e IDs fictícios
+    $resultadoFinal = array_values(array_filter($resultado, function($item) use ($deletedIds, $somenteAtivas) {
         $id = (string)($item['id'] ?? '');
         if (empty($id) || in_array($id, $deletedIds, true)) return false;
+        if (str_starts_with($id, 'b1000') || (is_numeric($id) && (int)$id >= 101 && (int)$id <= 112)) return false;
         if ($somenteAtivas && isset($item['ativo']) && $item['ativo'] === false) return false;
         return true;
     }));
 
-    if ($somenteAtivas) {
-        $obrasDb = array_values(array_filter($obrasDb, fn($item) => !isset($item['ativo']) || $item['ativo'] !== false));
-    }
-
-    // Mescla obras do banco com a persistência local (apenas obras válidas e não excluídas)
-    $todasNovas = function_exists('artsale_merge_catalogo') 
-        ? artsale_merge_catalogo($obrasDb, $locais) 
-        : (!empty($obrasDb) ? $obrasDb : $locais);
-
-    // Garante remoção de qualquer obra excluída
-    $todasNovas = array_values(array_filter($todasNovas, fn($item) => !in_array((string)($item['id'] ?? ''), $deletedIds, true)));
-
-    if ($somenteAtivas) {
-        $todasNovas = array_values(array_filter($todasNovas, fn($item) => !isset($item['ativo']) || $item['ativo'] !== false));
-    }
-
-    // Se já existem obras no acervo (do banco ou locais válidas), retorna APENAS elas.
-    // NUNCA anexa $fallback (duplicatas 101-112) por cima de um acervo já populado!
-    if (!empty($todasNovas)) {
-        return $todasNovas;
-    }
-
-    // Apenas se o acervo estiver completamente vazio em todas as fontes:
-    $fallbackValido = array_values(array_filter($fallback, function($item) use ($deletedIds, $somenteAtivas) {
-        $id = (string)($item['id'] ?? '');
-        if (empty($id) || in_array($id, $deletedIds, true)) return false;
-        if ($somenteAtivas && isset($item['ativo']) && $item['ativo'] === false) return false;
-        return true;
-    }));
-
-    return $fallbackValido;
+    return $resultadoFinal;
 }
 
 /**
@@ -650,7 +645,8 @@ function supabase_buscar_obras(?string $categoria = null, ?string $termo = null,
  */
 function supabase_buscar_obra(string $slugOrId, ?string $authToken = null): ?array {
     $deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];
-    if (in_array((string)$slugOrId, $deletedIds, true)) {
+    $idStr = (string)$slugOrId;
+    if (empty($idStr) || in_array($idStr, $deletedIds, true) || str_starts_with($idStr, 'b1000') || (is_numeric($idStr) && (int)$idStr >= 101 && (int)$idStr <= 112)) {
         return null;
     }
 
@@ -669,7 +665,8 @@ function supabase_buscar_obra(string $slugOrId, ?string $authToken = null): ?arr
 
         if (!empty($res['data']) && is_array($res['data']) && count($res['data']) > 0) {
             $raw = $res['data'][0];
-            if (!in_array((string)$raw['id'], $deletedIds, true)) {
+            $rid = (string)($raw['id'] ?? '');
+            if (!in_array($rid, $deletedIds, true) && !str_starts_with($rid, 'b1000') && !(is_numeric($rid) && (int)$rid >= 101 && (int)$rid <= 112)) {
                 $norm = supabase_normalizar_obra($raw);
                 if (function_exists('artsale_save_local_artwork')) {
                     artsale_save_local_artwork($norm);
@@ -683,13 +680,17 @@ function supabase_buscar_obra(string $slugOrId, ?string $authToken = null): ?arr
     if (function_exists('artsale_get_local_artworks')) {
         $locais = artsale_get_local_artworks();
         foreach ($locais as $loc) {
-            if ((string)($loc['id'] ?? '') === (string)$slugOrId || (string)($loc['slug'] ?? '') === (string)$slugOrId) {
+            $lid = (string)($loc['id'] ?? '');
+            if (in_array($lid, $deletedIds, true) || str_starts_with($lid, 'b1000') || (is_numeric($lid) && (int)$lid >= 101 && (int)$lid <= 112)) {
+                continue;
+            }
+            if ($lid === $idStr || (string)($loc['slug'] ?? '') === $idStr) {
                 return $loc;
             }
         }
     }
 
-    return get_obra_by_id((int)$slugOrId);
+    return null;
 }
 
 /**

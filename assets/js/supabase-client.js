@@ -305,7 +305,7 @@
         } else if (raw.image_url) {
             primaryImgUrl = raw.image_url;
         } else {
-            primaryImgUrl = 'assets/images/obras/obra-horizontes-dourados.svg';
+            primaryImgUrl = 'assets/images/obras/placeholder-obra.svg';
         }
 
         // Formatação das dimensões da obra

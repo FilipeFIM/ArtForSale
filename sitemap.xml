@@ -5,7 +5,7 @@
     <!-- 1. Página Inicial (Home) -->
     <url>
         <loc>http://localhost:8000/index.php</loc>
-        <lastmod>2026-09-25</lastmod>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
         <image:image>
@@ -18,7 +18,7 @@
     <!-- 2. Catálogo Geral de Obras -->
     <url>
         <loc>http://localhost:8000/pages/obras.php</loc>
-        <lastmod>2026-09-25</lastmod>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url>
@@ -26,216 +26,117 @@
     <!-- 3. Categorias Ativas do Supabase -->
         <url>
         <loc>http://localhost:8000/pages/categorias.php?slug=arte-classica</loc>
-        <lastmod>2026-09-25</lastmod>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
                 <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-arte-classica.jpg</image:loc>
+            <image:loc>http://localhost:8000/assets/images/obras/cat-arte-classica.svg</image:loc>
             <image:title>Arte Clássica | Art For Sale</image:title>
         </image:image>
             </url>
         <url>
         <loc>http://localhost:8000/pages/categorias.php?slug=arte-moderna</loc>
-        <lastmod>2026-09-25</lastmod>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
                 <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-arte-moderna.jpg</image:loc>
+            <image:loc>http://localhost:8000/assets/images/obras/cat-arte-moderna.svg</image:loc>
             <image:title>Arte Moderna | Art For Sale</image:title>
         </image:image>
             </url>
         <url>
         <loc>http://localhost:8000/pages/categorias.php?slug=arte-contemporanea</loc>
-        <lastmod>2026-09-25</lastmod>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
                 <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-arte-contemporanea.jpg</image:loc>
+            <image:loc>http://localhost:8000/assets/images/obras/cat-arte-contemporanea.svg</image:loc>
             <image:title>Arte Contemporânea | Art For Sale</image:title>
         </image:image>
             </url>
         <url>
         <loc>http://localhost:8000/pages/categorias.php?slug=paisagens</loc>
-        <lastmod>2026-09-25</lastmod>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
                 <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-paisagens.jpg</image:loc>
+            <image:loc>http://localhost:8000/assets/images/obras/cat-paisagens.svg</image:loc>
             <image:title>Paisagens | Art For Sale</image:title>
         </image:image>
             </url>
         <url>
         <loc>http://localhost:8000/pages/categorias.php?slug=retratos</loc>
-        <lastmod>2026-09-25</lastmod>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
                 <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-retratos.jpg</image:loc>
+            <image:loc>http://localhost:8000/assets/images/obras/cat-retratos.svg</image:loc>
             <image:title>Retratos | Art For Sale</image:title>
         </image:image>
             </url>
         <url>
         <loc>http://localhost:8000/pages/categorias.php?slug=abstrato</loc>
-        <lastmod>2026-09-25</lastmod>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
                 <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-abstrato.jpg</image:loc>
+            <image:loc>http://localhost:8000/assets/images/obras/cat-abstrato.svg</image:loc>
             <image:title>Abstrato | Art For Sale</image:title>
         </image:image>
             </url>
         <url>
         <loc>http://localhost:8000/pages/categorias.php?slug=gravuras</loc>
-        <lastmod>2026-09-25</lastmod>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
                 <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-gravuras.jpg</image:loc>
+            <image:loc>http://localhost:8000/assets/images/obras/cat-gravuras.svg</image:loc>
             <image:title>Gravuras | Art For Sale</image:title>
         </image:image>
             </url>
         <url>
         <loc>http://localhost:8000/pages/categorias.php?slug=esculturas</loc>
-        <lastmod>2026-09-25</lastmod>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
                 <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-esculturas.jpg</image:loc>
+            <image:loc>http://localhost:8000/assets/images/obras/cat-esculturas.svg</image:loc>
             <image:title>Esculturas | Art For Sale</image:title>
         </image:image>
             </url>
     
     <!-- 4. Obras Ativas do Catálogo com Fotos do Supabase Storage -->
         <url>
-        <loc>http://localhost:8000/pages/obra.php?id=101</loc>
-        <lastmod>2026-09-25</lastmod>
+        <loc>http://localhost:8000/pages/obra.php?id=43be6378-7be6-4ddc-86d0-748008d002fc</loc>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.85</priority>
                 <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/obra-horizontes-dourados.jpg</image:loc>
-            <image:title>Horizontes Dourados - Maria Fernandes | Art For Sale</image:title>
-            <image:caption>Horizontes Dourados, de Maria Fernandes. Conheça esta obra na Art For Sale.</image:caption>
+            <image:loc>https://recmxyfocskxvzbbkoui.supabase.co/storage/v1/object/public/artworks/43be6378-7be6-4ddc-86d0-748008d002fc/principal/1790356578_chatgpt_image_23_de_set__de_2026__18_09_54.png</image:loc>
+            <image:title>São Jerônimo - Maria Fernandes | Art For Sale</image:title>
+            <image:caption>São Jerônimo, de Maria Fernandes. Conheça esta obra na Art For Sale.</image:caption>
         </image:image>
             </url>
         <url>
-        <loc>http://localhost:8000/pages/obra.php?id=102</loc>
-        <lastmod>2026-09-25</lastmod>
+        <loc>http://localhost:8000/pages/obra.php?id=e605ee3d-e737-4f25-9191-a7be5a71e1ad</loc>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.85</priority>
                 <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/obra-silencio-urbano.jpg</image:loc>
-            <image:title>Silêncio Urbano - Carlos Menezes | Art For Sale</image:title>
-            <image:caption>Silêncio Urbano, de Carlos Menezes. Conheça esta obra na Art For Sale.</image:caption>
+            <image:loc>https://recmxyfocskxvzbbkoui.supabase.co/storage/v1/object/public/artworks/e605ee3d-e737-4f25-9191-a7be5a71e1ad/principal/1790297875_homem____beira_do_canal_em_paris.png</image:loc>
+            <image:title>y - Maria Fernandes | Art For Sale</image:title>
+            <image:caption>y, de Maria Fernandes. Conheça esta obra na Art For Sale.</image:caption>
         </image:image>
             </url>
         <url>
-        <loc>http://localhost:8000/pages/obra.php?id=103</loc>
-        <lastmod>2026-09-25</lastmod>
+        <loc>http://localhost:8000/pages/obra.php?id=d66cd1ea-35b1-424a-979c-cffa11f7e845</loc>
+        <lastmod>2026-09-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.85</priority>
                 <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/obra-essencia.jpg</image:loc>
-            <image:title>Essência - Juliana Costa | Art For Sale</image:title>
-            <image:caption>Essência, de Juliana Costa. Conheça esta obra na Art For Sale.</image:caption>
-        </image:image>
-            </url>
-        <url>
-        <loc>http://localhost:8000/pages/obra.php?id=104</loc>
-        <lastmod>2026-09-25</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.85</priority>
-                <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/obra-azul-profundo.jpg</image:loc>
-            <image:title>Azul Profundo - Rafael Almeida | Art For Sale</image:title>
-            <image:caption>Azul Profundo, de Rafael Almeida. Conheça esta obra na Art For Sale.</image:caption>
-        </image:image>
-            </url>
-        <url>
-        <loc>http://localhost:8000/pages/obra.php?id=105</loc>
-        <lastmod>2026-09-25</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.85</priority>
-                <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-arte-classica.jpg</image:loc>
-            <image:title>Aura Clássica - Helena Vianna | Art For Sale</image:title>
-            <image:caption>Aura Clássica, de Helena Vianna. Conheça esta obra na Art For Sale.</image:caption>
-        </image:image>
-            </url>
-        <url>
-        <loc>http://localhost:8000/pages/obra.php?id=106</loc>
-        <lastmod>2026-09-25</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.85</priority>
-                <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-arte-moderna.jpg</image:loc>
-            <image:title>Ritmo Cromático - Beatriz Drummond | Art For Sale</image:title>
-            <image:caption>Ritmo Cromático, de Beatriz Drummond. Conheça esta obra na Art For Sale.</image:caption>
-        </image:image>
-            </url>
-        <url>
-        <loc>http://localhost:8000/pages/obra.php?id=107</loc>
-        <lastmod>2026-09-25</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.85</priority>
-                <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-arte-contemporanea.jpg</image:loc>
-            <image:title>Terra e Memória - Eduardo Fontes | Art For Sale</image:title>
-            <image:caption>Terra e Memória, de Eduardo Fontes. Conheça esta obra na Art For Sale.</image:caption>
-        </image:image>
-            </url>
-        <url>
-        <loc>http://localhost:8000/pages/obra.php?id=108</loc>
-        <lastmod>2026-09-25</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.85</priority>
-                <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-paisagens.jpg</image:loc>
-            <image:title>Crepúsculo Sereno - André Valente | Art For Sale</image:title>
-            <image:caption>Crepúsculo Sereno, de André Valente. Conheça esta obra na Art For Sale.</image:caption>
-        </image:image>
-            </url>
-        <url>
-        <loc>http://localhost:8000/pages/obra.php?id=109</loc>
-        <lastmod>2026-09-25</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.85</priority>
-                <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-retratos.jpg</image:loc>
-            <image:title>Olhar Silencioso - Gabriela Siqueira | Art For Sale</image:title>
-            <image:caption>Olhar Silencioso, de Gabriela Siqueira. Conheça esta obra na Art For Sale.</image:caption>
-        </image:image>
-            </url>
-        <url>
-        <loc>http://localhost:8000/pages/obra.php?id=110</loc>
-        <lastmod>2026-09-25</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.85</priority>
-                <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-abstrato.jpg</image:loc>
-            <image:title>Harmonia Geométrica - Lucas Brandão | Art For Sale</image:title>
-            <image:caption>Harmonia Geométrica, de Lucas Brandão. Conheça esta obra na Art For Sale.</image:caption>
-        </image:image>
-            </url>
-        <url>
-        <loc>http://localhost:8000/pages/obra.php?id=111</loc>
-        <lastmod>2026-09-25</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.85</priority>
-                <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-gravuras.jpg</image:loc>
-            <image:title>Atelier Histórico - Rodrigo Vasconcelos | Art For Sale</image:title>
-            <image:caption>Atelier Histórico, de Rodrigo Vasconcelos. Conheça esta obra na Art For Sale.</image:caption>
-        </image:image>
-            </url>
-        <url>
-        <loc>http://localhost:8000/pages/obra.php?id=112</loc>
-        <lastmod>2026-09-25</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.85</priority>
-                <image:image>
-            <image:loc>http://localhost:8000/assets/images/obras/cat-esculturas.jpg</image:loc>
-            <image:title>Busto Imperial - Marcelo Duarte | Art For Sale</image:title>
-            <image:caption>Busto Imperial, de Marcelo Duarte. Conheça esta obra na Art For Sale.</image:caption>
+            <image:loc>https://recmxyfocskxvzbbkoui.supabase.co/storage/v1/object/public/artworks/d66cd1ea-35b1-424a-979c-cffa11f7e845/principal/1790383616_natureza-morta_floral.png</image:loc>
+            <image:title>x - Maria Fernandes | Art For Sale</image:title>
+            <image:caption>x, de Maria Fernandes. Conheça esta obra na Art For Sale.</image:caption>
         </image:image>
             </url>
     

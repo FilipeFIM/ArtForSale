@@ -12,11 +12,11 @@ $currentPage = 'obras';
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/supabase.php';
 
-// Resgata obra solicitada via ?id=... ou ?slug=... (padrão: 101 - Horizontes Dourados)
-$obraId = isset($_GET['id']) ? trim($_GET['id']) : (isset($_GET['slug']) ? trim($_GET['slug']) : '101');
+// Resgata obra solicitada via ?id=... ou ?slug=...
+$obraId = isset($_GET['id']) ? trim($_GET['id']) : (isset($_GET['slug']) ? trim($_GET['slug']) : '');
 $obra = null;
 
-if (function_exists('supabase_buscar_obra')) {
+if (!empty($obraId) && function_exists('supabase_buscar_obra')) {
     $obra = supabase_buscar_obra($obraId);
 }
 $catalogoObras = [];
@@ -37,8 +37,8 @@ if (!$obra && function_exists('artsale_get_local_artworks')) {
     }
 }
 
-if (!$obra) {
-    $obra = get_obra_by_id((int)$obraId);
+if (!$obra && !empty($obraId)) {
+    $obra = get_obra_by_id($obraId);
 }
 
 $deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_deleted_artwork_ids() : [];

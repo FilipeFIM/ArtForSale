@@ -158,10 +158,10 @@ if (isset($seoMeta) && is_array($seoMeta) && function_exists('artsale_render_seo
             </div>
             <div class="search-quick-tags">
                 <span class="quick-tag-label">Sugestões:</span>
-                <button type="button" class="quick-tag" data-tag="Horizontes Dourados">Horizontes Dourados</button>
-                <button type="button" class="quick-tag" data-tag="Silêncio Urbano">Silêncio Urbano</button>
-                <button type="button" class="quick-tag" data-tag="Paisagens">Paisagens</button>
-                <button type="button" class="quick-tag" data-tag="Abstrato">Abstrato</button>
+                <button type="button" class="quick-tag" data-tag="São Jerônimo">São Jerônimo</button>
+                <button type="button" class="quick-tag" data-tag="Arte Clássica">Arte Clássica</button>
+                <button type="button" class="quick-tag" data-tag="Maria Fernandes">Maria Fernandes</button>
+                <button type="button" class="quick-tag" data-tag="Óleo sobre tela">Óleo sobre tela</button>
             </div>
             <div class="search-results" id="searchResults"></div>
         </div>

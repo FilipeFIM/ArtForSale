@@ -122,10 +122,10 @@
             </div>
             <div class="search-quick-tags">
                 <span class="quick-tag-label">Sugestões:</span>
-                <button type="button" class="quick-tag" data-tag="Horizontes Dourados">Horizontes Dourados</button>
-                <button type="button" class="quick-tag" data-tag="Silêncio Urbano">Silêncio Urbano</button>
-                <button type="button" class="quick-tag" data-tag="Paisagens">Paisagens</button>
-                <button type="button" class="quick-tag" data-tag="Abstrato">Abstrato</button>
+                <button type="button" class="quick-tag" data-tag="São Jerônimo">São Jerônimo</button>
+                <button type="button" class="quick-tag" data-tag="Arte Clássica">Arte Clássica</button>
+                <button type="button" class="quick-tag" data-tag="Maria Fernandes">Maria Fernandes</button>
+                <button type="button" class="quick-tag" data-tag="Óleo sobre tela">Óleo sobre tela</button>
             </div>
             <div class="search-results" id="searchResults"></div>
         </div>
@@ -224,7 +224,7 @@
                     <div class="catalogo-meta-bar">
                         <div class="catalogo-count-box">
                             <span id="catalogoCount" class="catalogo-count-text">
-                                Mostrando <strong>12</strong> obras
+                                Mostrando <strong>3</strong> obras
                             </span>
                             <span id="catalogoActiveBadge" class="catalogo-active-badge" style="display: none;"></span>
                         </div>
@@ -308,266 +308,68 @@
                      ==================================================== -->
                 <div class="catalogo-grid" id="catalogoGrid">
 
-                    <!-- Obra 1: Horizontes Dourados -->
-                    <article class="artwork-card" data-id="101" data-title="Horizontes Dourados" data-artist="Maria Fernandes" data-dimensions="80 × 120 cm" data-price="Preço sob consulta" data-category="paisagens" data-category-name="Paisagens" data-image="../assets/images/obras/obra-horizontes-dourados.svg" data-year="2024" data-order="1">
+                    <!-- Obra 1: São Jerônimo -->
+                    <article class="artwork-card" data-id="43be6378-7be6-4ddc-86d0-748008d002fc" data-title="São Jerônimo" data-artist="Maria Fernandes" data-dimensions="79 × 59 cm" data-price="Preço sob consulta" data-category="arte-classica" data-category-name="Arte Clássica" data-image="https://recmxyfocskxvzbbkoui.supabase.co/storage/v1/object/public/artworks/43be6378-7be6-4ddc-86d0-748008d002fc/principal/1790356578_chatgpt_image_23_de_set__de_2026__18_09_54.png" data-year="2026" data-order="1">
                         <div class="artwork-image-container">
-                            <img src="../assets/images/obras/obra-horizontes-dourados.svg" alt="Horizontes Dourados por Maria Fernandes" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
-                            <span class="artwork-category-tag">Paisagens</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Horizontes Dourados" data-id="101">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="artwork-details">
-                            <h3 class="artwork-title">Horizontes Dourados</h3>
-                            <p class="artwork-artist">Maria Fernandes</p>
-                            <p class="artwork-dimensions">80 × 120 cm</p>
-                            <div class="artwork-footer-row">
-                                <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=101" class="btn-ver-detalhes" data-id="101" data-title="Horizontes Dourados">Ver detalhes</a>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Obra 2: Silêncio Urbano -->
-                    <article class="artwork-card" data-id="102" data-title="Silêncio Urbano" data-artist="Carlos Menezes" data-dimensions="100 × 100 cm" data-price="Preço sob consulta" data-category="arte-moderna" data-category-name="Arte Moderna" data-image="../assets/images/obras/obra-silencio-urbano.svg" data-year="2024" data-order="2">
-                        <div class="artwork-image-container">
-                            <img src="../assets/images/obras/obra-silencio-urbano.svg" alt="Silêncio Urbano por Carlos Menezes" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
-                            <span class="artwork-category-tag">Arte Moderna</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Silêncio Urbano" data-id="102">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="artwork-details">
-                            <h3 class="artwork-title">Silêncio Urbano</h3>
-                            <p class="artwork-artist">Carlos Menezes</p>
-                            <p class="artwork-dimensions">100 × 100 cm</p>
-                            <div class="artwork-footer-row">
-                                <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=102" class="btn-ver-detalhes" data-id="102" data-title="Silêncio Urbano">Ver detalhes</a>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Obra 3: Essência -->
-                    <article class="artwork-card" data-id="103" data-title="Essência" data-artist="Juliana Costa" data-dimensions="60 × 90 cm" data-price="Preço sob consulta" data-category="retratos" data-category-name="Retratos" data-image="../assets/images/obras/obra-essencia.svg" data-year="2024" data-order="3">
-                        <div class="artwork-image-container">
-                            <img src="../assets/images/obras/obra-essencia.svg" alt="Essência por Juliana Costa" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
-                            <span class="artwork-category-tag">Retratos</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Essência" data-id="103">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="artwork-details">
-                            <h3 class="artwork-title">Essência</h3>
-                            <p class="artwork-artist">Juliana Costa</p>
-                            <p class="artwork-dimensions">60 × 90 cm</p>
-                            <div class="artwork-footer-row">
-                                <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=103" class="btn-ver-detalhes" data-id="103" data-title="Essência">Ver detalhes</a>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Obra 4: Azul Profundo -->
-                    <article class="artwork-card" data-id="104" data-title="Azul Profundo" data-artist="Rafael Almeida" data-dimensions="120 × 150 cm" data-price="Preço sob consulta" data-category="arte-contemporanea" data-category-name="Arte Contemporânea" data-image="../assets/images/obras/obra-azul-profundo.svg" data-year="2024" data-order="4">
-                        <div class="artwork-image-container">
-                            <img src="../assets/images/obras/obra-azul-profundo.svg" alt="Azul Profundo por Rafael Almeida" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
-                            <span class="artwork-category-tag">Arte Contemporânea</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Azul Profundo" data-id="104">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="artwork-details">
-                            <h3 class="artwork-title">Azul Profundo</h3>
-                            <p class="artwork-artist">Rafael Almeida</p>
-                            <p class="artwork-dimensions">120 × 150 cm</p>
-                            <div class="artwork-footer-row">
-                                <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=104" class="btn-ver-detalhes" data-id="104" data-title="Azul Profundo">Ver detalhes</a>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Obra 5: Aura Clássica -->
-                    <article class="artwork-card" data-id="105" data-title="Aura Clássica" data-artist="Helena Vianna" data-dimensions="70 × 100 cm" data-price="Preço sob consulta" data-category="arte-classica" data-category-name="Arte Clássica" data-image="../assets/images/obras/cat-arte-classica.svg" data-year="2023" data-order="5">
-                        <div class="artwork-image-container">
-                            <img src="../assets/images/obras/cat-arte-classica.svg" alt="Aura Clássica por Helena Vianna" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
+                            <img src="https://recmxyfocskxvzbbkoui.supabase.co/storage/v1/object/public/artworks/43be6378-7be6-4ddc-86d0-748008d002fc/principal/1790356578_chatgpt_image_23_de_set__de_2026__18_09_54.png" alt="São Jerônimo por Maria Fernandes" class="artwork-image" loading="lazy" onerror="this.src='../assets/images/obras/placeholder-obra.svg';">
                             <span class="artwork-category-tag">Arte Clássica</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Aura Clássica" data-id="105">
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar São Jerônimo" data-id="43be6378-7be6-4ddc-86d0-748008d002fc">
                                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                 </svg>
                             </button>
                         </div>
                         <div class="artwork-details">
-                            <h3 class="artwork-title">Aura Clássica</h3>
-                            <p class="artwork-artist">Helena Vianna</p>
-                            <p class="artwork-dimensions">70 × 100 cm</p>
+                            <h3 class="artwork-title">São Jerônimo</h3>
+                            <p class="artwork-artist">Maria Fernandes</p>
+                            <p class="artwork-dimensions">79 × 59 cm</p>
                             <div class="artwork-footer-row">
                                 <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=105" class="btn-ver-detalhes" data-id="105" data-title="Aura Clássica">Ver detalhes</a>
+                                <a href="obra.html?id=43be6378-7be6-4ddc-86d0-748008d002fc" class="btn-ver-detalhes" data-id="43be6378-7be6-4ddc-86d0-748008d002fc" data-title="São Jerônimo">Ver detalhes</a>
                             </div>
                         </div>
                     </article>
 
-                    <!-- Obra 6: Ritmo Cromático -->
-                    <article class="artwork-card" data-id="106" data-title="Ritmo Cromático" data-artist="Beatriz Drummond" data-dimensions="90 × 90 cm" data-price="Preço sob consulta" data-category="arte-moderna" data-category-name="Arte Moderna" data-image="../assets/images/obras/cat-arte-moderna.svg" data-year="2024" data-order="6">
+                    <!-- Obra 2: y -->
+                    <article class="artwork-card" data-id="e605ee3d-e737-4f25-9191-a7be5a71e1ad" data-title="y" data-artist="Maria Fernandes" data-dimensions="70 × 50 cm" data-price="Preço sob consulta" data-category="arte-classica" data-category-name="Arte Clássica" data-image="https://recmxyfocskxvzbbkoui.supabase.co/storage/v1/object/public/artworks/e605ee3d-e737-4f25-9191-a7be5a71e1ad/principal/1790297875_homem____beira_do_canal_em_paris.png" data-year="2026" data-order="2">
                         <div class="artwork-image-container">
-                            <img src="../assets/images/obras/cat-arte-moderna.svg" alt="Ritmo Cromático por Beatriz Drummond" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
-                            <span class="artwork-category-tag">Arte Moderna</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Ritmo Cromático" data-id="106">
+                            <img src="https://recmxyfocskxvzbbkoui.supabase.co/storage/v1/object/public/artworks/e605ee3d-e737-4f25-9191-a7be5a71e1ad/principal/1790297875_homem____beira_do_canal_em_paris.png" alt="y por Maria Fernandes" class="artwork-image" loading="lazy" onerror="this.src='../assets/images/obras/placeholder-obra.svg';">
+                            <span class="artwork-category-tag">Arte Clássica</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar y" data-id="e605ee3d-e737-4f25-9191-a7be5a71e1ad">
                                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                 </svg>
                             </button>
                         </div>
                         <div class="artwork-details">
-                            <h3 class="artwork-title">Ritmo Cromático</h3>
-                            <p class="artwork-artist">Beatriz Drummond</p>
-                            <p class="artwork-dimensions">90 × 90 cm</p>
+                            <h3 class="artwork-title">y</h3>
+                            <p class="artwork-artist">Maria Fernandes</p>
+                            <p class="artwork-dimensions">70 × 50 cm</p>
                             <div class="artwork-footer-row">
                                 <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=106" class="btn-ver-detalhes" data-id="106" data-title="Ritmo Cromático">Ver detalhes</a>
+                                <a href="obra.html?id=e605ee3d-e737-4f25-9191-a7be5a71e1ad" class="btn-ver-detalhes" data-id="e605ee3d-e737-4f25-9191-a7be5a71e1ad" data-title="y">Ver detalhes</a>
                             </div>
                         </div>
                     </article>
 
-                    <!-- Obra 7: Terra e Memória -->
-                    <article class="artwork-card" data-id="107" data-title="Terra e Memória" data-artist="Eduardo Fontes" data-dimensions="110 × 140 cm" data-price="Preço sob consulta" data-category="arte-contemporanea" data-category-name="Arte Contemporânea" data-image="../assets/images/obras/cat-arte-contemporanea.svg" data-year="2023" data-order="7">
+                    <!-- Obra 3: x -->
+                    <article class="artwork-card" data-id="d66cd1ea-35b1-424a-979c-cffa11f7e845" data-title="x" data-artist="Maria Fernandes" data-dimensions="70 × 50 cm" data-price="Preço sob consulta" data-category="arte-classica" data-category-name="Arte Clássica" data-image="https://recmxyfocskxvzbbkoui.supabase.co/storage/v1/object/public/artworks/d66cd1ea-35b1-424a-979c-cffa11f7e845/principal/1790383616_natureza-morta_floral.png" data-year="2026" data-order="3">
                         <div class="artwork-image-container">
-                            <img src="../assets/images/obras/cat-arte-contemporanea.svg" alt="Terra e Memória por Eduardo Fontes" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
-                            <span class="artwork-category-tag">Arte Contemporânea</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Terra e Memória" data-id="107">
+                            <img src="https://recmxyfocskxvzbbkoui.supabase.co/storage/v1/object/public/artworks/d66cd1ea-35b1-424a-979c-cffa11f7e845/principal/1790383616_natureza-morta_floral.png" alt="x por Maria Fernandes" class="artwork-image" loading="lazy" onerror="this.src='../assets/images/obras/placeholder-obra.svg';">
+                            <span class="artwork-category-tag">Arte Clássica</span>
+                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar x" data-id="d66cd1ea-35b1-424a-979c-cffa11f7e845">
                                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                 </svg>
                             </button>
                         </div>
                         <div class="artwork-details">
-                            <h3 class="artwork-title">Terra e Memória</h3>
-                            <p class="artwork-artist">Eduardo Fontes</p>
-                            <p class="artwork-dimensions">110 × 140 cm</p>
+                            <h3 class="artwork-title">x</h3>
+                            <p class="artwork-artist">Maria Fernandes</p>
+                            <p class="artwork-dimensions">70 × 50 cm</p>
                             <div class="artwork-footer-row">
                                 <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=107" class="btn-ver-detalhes" data-id="107" data-title="Terra e Memória">Ver detalhes</a>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Obra 8: Crepúsculo Sereno -->
-                    <article class="artwork-card" data-id="108" data-title="Crepúsculo Sereno" data-artist="André Valente" data-dimensions="75 × 110 cm" data-price="Preço sob consulta" data-category="paisagens" data-category-name="Paisagens" data-image="../assets/images/obras/cat-paisagens.svg" data-year="2024" data-order="8">
-                        <div class="artwork-image-container">
-                            <img src="../assets/images/obras/cat-paisagens.svg" alt="Crepúsculo Sereno por André Valente" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
-                            <span class="artwork-category-tag">Paisagens</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Crepúsculo Sereno" data-id="108">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="artwork-details">
-                            <h3 class="artwork-title">Crepúsculo Sereno</h3>
-                            <p class="artwork-artist">André Valente</p>
-                            <p class="artwork-dimensions">75 × 110 cm</p>
-                            <div class="artwork-footer-row">
-                                <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=108" class="btn-ver-detalhes" data-id="108" data-title="Crepúsculo Sereno">Ver detalhes</a>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Obra 9: Olhar Silencioso -->
-                    <article class="artwork-card" data-id="109" data-title="Olhar Silencioso" data-artist="Gabriela Siqueira" data-dimensions="50 × 75 cm" data-price="Preço sob consulta" data-category="retratos" data-category-name="Retratos" data-image="../assets/images/obras/cat-retratos.svg" data-year="2023" data-order="9">
-                        <div class="artwork-image-container">
-                            <img src="../assets/images/obras/cat-retratos.svg" alt="Olhar Silencioso por Gabriela Siqueira" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
-                            <span class="artwork-category-tag">Retratos</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Olhar Silencioso" data-id="109">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="artwork-details">
-                            <h3 class="artwork-title">Olhar Silencioso</h3>
-                            <p class="artwork-artist">Gabriela Siqueira</p>
-                            <p class="artwork-dimensions">50 × 75 cm</p>
-                            <div class="artwork-footer-row">
-                                <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=109" class="btn-ver-detalhes" data-id="109" data-title="Olhar Silencioso">Ver detalhes</a>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Obra 10: Harmonia Geométrica -->
-                    <article class="artwork-card" data-id="110" data-title="Harmonia Geométrica" data-artist="Lucas Brandão" data-dimensions="100 × 120 cm" data-price="Preço sob consulta" data-category="abstrato" data-category-name="Abstrato" data-image="../assets/images/obras/cat-abstrato.svg" data-year="2024" data-order="10">
-                        <div class="artwork-image-container">
-                            <img src="../assets/images/obras/cat-abstrato.svg" alt="Harmonia Geométrica por Lucas Brandão" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
-                            <span class="artwork-category-tag">Abstrato</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Harmonia Geométrica" data-id="110">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="artwork-details">
-                            <h3 class="artwork-title">Harmonia Geométrica</h3>
-                            <p class="artwork-artist">Lucas Brandão</p>
-                            <p class="artwork-dimensions">100 × 120 cm</p>
-                            <div class="artwork-footer-row">
-                                <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=110" class="btn-ver-detalhes" data-id="110" data-title="Harmonia Geométrica">Ver detalhes</a>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Obra 11: Atelier Histórico -->
-                    <article class="artwork-card" data-id="111" data-title="Atelier Histórico" data-artist="Rodrigo Vasconcelos" data-dimensions="45 × 65 cm" data-price="Preço sob consulta" data-category="gravuras" data-category-name="Gravuras" data-image="../assets/images/obras/cat-gravuras.svg" data-year="2022" data-order="11">
-                        <div class="artwork-image-container">
-                            <img src="../assets/images/obras/cat-gravuras.svg" alt="Atelier Histórico por Rodrigo Vasconcelos" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
-                            <span class="artwork-category-tag">Gravuras</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Atelier Histórico" data-id="111">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="artwork-details">
-                            <h3 class="artwork-title">Atelier Histórico</h3>
-                            <p class="artwork-artist">Rodrigo Vasconcelos</p>
-                            <p class="artwork-dimensions">45 × 65 cm</p>
-                            <div class="artwork-footer-row">
-                                <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=111" class="btn-ver-detalhes" data-id="111" data-title="Atelier Histórico">Ver detalhes</a>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Obra 12: Busto Imperial -->
-                    <article class="artwork-card" data-id="112" data-title="Busto Imperial" data-artist="Marcelo Duarte" data-dimensions="55 × 35 × 30 cm" data-price="Preço sob consulta" data-category="esculturas" data-category-name="Esculturas" data-image="../assets/images/obras/cat-esculturas.svg" data-year="2023" data-order="12">
-                        <div class="artwork-image-container">
-                            <img src="../assets/images/obras/cat-esculturas.svg" alt="Busto Imperial por Marcelo Duarte" class="artwork-image" loading="lazy" onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');">
-                            <span class="artwork-category-tag">Esculturas</span>
-                            <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar Busto Imperial" data-id="112">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="artwork-details">
-                            <h3 class="artwork-title">Busto Imperial</h3>
-                            <p class="artwork-artist">Marcelo Duarte</p>
-                            <p class="artwork-dimensions">55 × 35 × 30 cm</p>
-                            <div class="artwork-footer-row">
-                                <span class="artwork-price">Preço sob consulta</span>
-                                <a href="obra.html?id=112" class="btn-ver-detalhes" data-id="112" data-title="Busto Imperial">Ver detalhes</a>
+                                <a href="obra.html?id=d66cd1ea-35b1-424a-979c-cffa11f7e845" class="btn-ver-detalhes" data-id="d66cd1ea-35b1-424a-979c-cffa11f7e845" data-title="x">Ver detalhes</a>
                             </div>
                         </div>
                     </article>
