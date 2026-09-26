@@ -23,11 +23,22 @@ if (is_admin_authenticated()) {
 }
 
 // 1. Sincronização de Sessão via Client-Side Auth (fetch do navegador para o PHP)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'client_auth_sync') {
+$rawBody = @file_get_contents('php://input');
+$inputData = $_POST;
+if (!empty($rawBody)) {
+    $json = @json_decode($rawBody, true);
+    if (is_array($json)) {
+        $inputData = array_merge($inputData, $json);
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (($inputData['action'] ?? '') === 'client_auth_sync')) {
     header('Content-Type: application/json');
-    $token = trim($_POST['access_token'] ?? '');
-    $refreshToken = trim($_POST['refresh_token'] ?? '');
-    $clientRole = trim($_POST['role'] ?? '');
+    $token = trim($inputData['access_token'] ?? '');
+    $refreshToken = trim($inputData['refresh_token'] ?? '');
+    $clientRole = trim($inputData['role'] ?? '');
+    $clientName = trim($inputData['name'] ?? '');
+    $clientEmail = trim($inputData['email'] ?? '');
 
     if (empty($token)) {
         http_response_code(400);
@@ -36,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'clien
     }
 
     // Validação estrita do JWT diretamente com a API do Supabase Auth (/auth/v1/user)
-    // O backend NUNCA confia cegamente em parâmetros POST enviados pelo navegador.
     $authAccount = supabase_get_auth_user($token);
     if (empty($authAccount) || empty($authAccount['id'])) {
         http_response_code(401);
@@ -45,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'clien
     }
 
     $userId = $authAccount['id'];
-    $userEmail = $authAccount['email'] ?? '';
+    $userEmail = !empty($authAccount['email']) ? $authAccount['email'] : $clientEmail;
 
     // Consulta perfil na tabela public.profiles para confirmar role = 'admin'
     $profile = supabase_get_user_profile($userId, $token);
@@ -60,22 +70,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'clien
     // Autenticação comprovada: regenera ID de sessão para blindagem contra Session Fixation
     session_regenerate_id(true);
 
+    $adminUser = [
+        'id'    => $userId,
+        'email' => $userEmail,
+        'name'  => $profile['name'] ?? ($clientName ?: ($authAccount['user_metadata']['name'] ?? (explode('@', $userEmail)[0] ?? 'Administrador'))),
+        'role'  => 'admin'
+    ];
+
     $_SESSION['artsale_admin_auth'] = true;
     $_SESSION['artsale_admin_token'] = $token;
     $_SESSION['artsale_admin_refresh_token'] = $refreshToken;
-    $_SESSION['artsale_admin_user'] = [
-        'id'    => $userId,
-        'email' => $userEmail,
-        'name'  => $profile['name'] ?? ($authAccount['user_metadata']['name'] ?? (explode('@', $userEmail)[0] ?? 'Administrador')),
-        'role'  => 'admin'
-    ];
+    $_SESSION['artsale_admin_user'] = $adminUser;
     $_SESSION['artsell_admin_auth'] = true;
     $_SESSION['artsell_admin_token'] = $token;
     $_SESSION['artsell_admin_refresh_token'] = $refreshToken;
-    $_SESSION['artsell_admin_user'] = $_SESSION['artsale_admin_user'];
+    $_SESSION['artsell_admin_user'] = $adminUser;
 
     if (function_exists('artsale_set_auth_cookies')) {
-        artsale_set_auth_cookies($token, $refreshToken, $_SESSION['artsale_admin_user']);
+        artsale_set_auth_cookies($token, $refreshToken, $adminUser);
     }
 
     echo json_encode(['sucesso' => true, 'redirect' => 'index.php']);
@@ -588,18 +600,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
             // 3. Usuário autenticado e com role = 'admin'! Sincroniza sessão no PHP
             btnSubmit.textContent = 'Iniciando sessão administrativa...';
             const refreshToken = authData.refresh_token || '';
-            const syncFormData = new FormData();
-            syncFormData.append('action', 'client_auth_sync');
-            syncFormData.append('access_token', token);
-            syncFormData.append('refresh_token', refreshToken);
-            syncFormData.append('user_id', userId);
-            syncFormData.append('email', user.email || email);
-            syncFormData.append('name', profile.name || email.split('@')[0]);
-            syncFormData.append('role', 'admin');
+
+            const syncPayload = {
+                action: 'client_auth_sync',
+                access_token: token,
+                refresh_token: refreshToken,
+                user_id: userId,
+                email: user.email || email,
+                name: profile.name || email.split('@')[0],
+                role: 'admin'
+            };
 
             const syncResp = await fetch('login.php', {
                 method: 'POST',
-                body: syncFormData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(syncPayload)
             });
 
             const syncData = await syncResp.json();

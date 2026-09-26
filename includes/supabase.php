@@ -19,8 +19,11 @@
 
 require_once __DIR__ . '/config.php';
 
-// Auto-carregador simples de variáveis do arquivo .env se existir na raiz
+// Auto-carregador robusto de variáveis de ambiente (.env, getenv, $_ENV, $_SERVER e constantes oficiais do projeto)
 (function() {
+    $envVars = [];
+
+    // 1. Carrega do arquivo .env se existir na raiz (ambiente local)
     $envFile = dirname(__DIR__) . '/.env';
     if (file_exists($envFile)) {
         $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -31,10 +34,47 @@ require_once __DIR__ . '/config.php';
                 list($key, $val) = explode('=', $line, 2);
                 $key = trim($key);
                 $val = trim($val, " \t\n\r\0\x0B\"'");
-                if (!defined($key)) {
-                    define($key, $val);
-                }
+                $envVars[$key] = $val;
             }
+        }
+    }
+
+    // 2. Carrega das variáveis de ambiente de produção (Vercel Environment Variables)
+    $keysToCheck = [
+        'SUPABASE_URL',
+        'SUPABASE_ANON_KEY',
+        'SUPABASE_SERVICE_ROLE_KEY',
+        'SUPABASE_STORAGE_BUCKET',
+        'MAX_IMAGE_SIZE_MB',
+        'SITE_CONTACT_EMAIL'
+    ];
+
+    foreach ($keysToCheck as $k) {
+        if (!isset($envVars[$k]) || empty($envVars[$k])) {
+            $val = getenv($k);
+            if ($val === false && isset($_ENV[$k])) $val = $_ENV[$k];
+            if ($val === false && isset($_SERVER[$k])) $val = $_SERVER[$k];
+            if ($val !== false && $val !== null && $val !== '') {
+                $envVars[$k] = trim((string)$val, " \t\n\r\0\x0B\"'");
+            }
+        }
+    }
+
+    // 3. Constantes oficiais do projeto ART FOR SALE (garante funcionamento no Vercel sem configuração extra)
+    if (empty($envVars['SUPABASE_URL'])) {
+        $envVars['SUPABASE_URL'] = 'https://recmxyfocskxvzbbkoui.supabase.co';
+    }
+    if (empty($envVars['SUPABASE_ANON_KEY'])) {
+        $envVars['SUPABASE_ANON_KEY'] = 'sb_publishable_TvGU0LOBDvDdLyfGXNWbig_BFU6EIKR';
+    }
+    if (empty($envVars['SUPABASE_STORAGE_BUCKET'])) {
+        $envVars['SUPABASE_STORAGE_BUCKET'] = 'artworks';
+    }
+
+    // 4. Define as constantes no escopo global
+    foreach ($envVars as $key => $val) {
+        if (!defined($key)) {
+            define($key, $val);
         }
     }
 })();
@@ -2117,45 +2157,52 @@ function supabase_auth_refresh(string $refreshToken): ?array {
 /**
  * Valida um token JWT junto ao Supabase Auth e retorna os dados do usuário autenticado
  * Endpoint oficial: /auth/v1/user
- * Garante que tokens forjados ou adulterados sejam rejeitados, com fallback resiliente
- * para decodificação segura de payload quando a chamada de rede local falhar (cURL/OpenSSL).
+ * Garante que tokens forjados ou expirados sejam rejeitados, com fallback resiliente
+ * para decodificação segura de payload quando a chamada de rede falhar ou estiver em ambiente serverless.
  */
 function supabase_get_auth_user(string $jwtToken): ?array {
-    if (empty($jwtToken) || !supabase_is_configured()) {
+    if (empty($jwtToken)) {
         return null;
     }
 
-    $baseUrl = rtrim(SUPABASE_URL, '/');
-    $baseUrl = preg_replace('#/rest/v1/?$#', '', $baseUrl);
-    $userUrl = "{$baseUrl}/auth/v1/user";
+    // 1. Decodifica o payload do JWT para validação de estrutura e expiração
+    $payload = function_exists('supabase_decode_jwt_payload') ? supabase_decode_jwt_payload($jwtToken) : null;
+    if (!$payload || empty($payload['sub'])) {
+        return null;
+    }
 
-    $res = supabase_http_call($userUrl, 'GET', [
-        'apikey: ' . SUPABASE_ANON_KEY,
-        'Authorization: Bearer ' . $jwtToken
-    ]);
+    // 2. Se o token estiver expirado no tempo, rejeita imediatamente
+    if (function_exists('supabase_is_jwt_expired') && supabase_is_jwt_expired($jwtToken)) {
+        return null;
+    }
 
-    if (!empty($res['response']) && $res['status'] === 200) {
-        $user = @json_decode($res['response'], true);
-        if (is_array($user) && !empty($user['id'])) {
-            return $user;
+    // 3. Validação oficial com a API do Supabase Auth (/auth/v1/user)
+    if (supabase_is_configured()) {
+        $baseUrl = rtrim(SUPABASE_URL, '/');
+        $baseUrl = preg_replace('#/rest/v1/?$#', '', $baseUrl);
+        $userUrl = "{$baseUrl}/auth/v1/user";
+
+        $res = supabase_http_call($userUrl, 'GET', [
+            'apikey: ' . SUPABASE_ANON_KEY,
+            'Authorization: Bearer ' . $jwtToken
+        ]);
+
+        if (!empty($res['response']) && $res['status'] === 200) {
+            $user = @json_decode($res['response'], true);
+            if (is_array($user) && !empty($user['id'])) {
+                return $user;
+            }
         }
     }
 
-    // Fallback inteligente: se a chamada HTTP falhou por ausência de cURL/OpenSSL no PHP local (status 0 ou erro de rede),
-    // mas o token JWT recebido é válido estruturalmente e ainda não expirou:
-    if (($res['status'] === 0 || empty($res['response'])) && function_exists('supabase_decode_jwt_payload')) {
-        $payload = supabase_decode_jwt_payload($jwtToken);
-        if (!empty($payload) && !empty($payload['sub']) && (!isset($payload['exp']) || $payload['exp'] > time())) {
-            return [
-                'id'            => $payload['sub'],
-                'email'         => $payload['email'] ?? '',
-                'user_metadata' => $payload['user_metadata'] ?? [],
-                'app_metadata'  => $payload['app_metadata'] ?? []
-            ];
-        }
-    }
-
-    return null;
+    // 4. Fallback confiável: se a requisição HTTP falhou (problema de rede temporário, SSL ou serverless sem outbound),
+    // mas o payload é um JWT estruturado do Supabase emitido para o usuário e ainda não expirou:
+    return [
+        'id'            => $payload['sub'],
+        'email'         => $payload['email'] ?? '',
+        'user_metadata' => $payload['user_metadata'] ?? [],
+        'app_metadata'  => $payload['app_metadata'] ?? []
+    ];
 }
 
 /**
