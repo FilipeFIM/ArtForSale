@@ -50,8 +50,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const drawerBackdrop = document.getElementById('drawerBackdrop');
     const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
 
+    // Garante que o drawer e o backdrop estejam anexados diretamente ao body (evita herança de backdrop-filter e sticky do header)
+    if (mobileDrawer && mobileDrawer.parentElement !== document.body) {
+        if (drawerBackdrop) document.body.appendChild(drawerBackdrop);
+        document.body.appendChild(mobileDrawer);
+    }
+
     function openDrawer() {
         if (!mobileDrawer) return;
+        if (mobileDrawer.parentElement !== document.body) {
+            if (drawerBackdrop) document.body.appendChild(drawerBackdrop);
+            document.body.appendChild(mobileDrawer);
+        }
         mobileDrawer.classList.add('open');
         if (drawerBackdrop) drawerBackdrop.classList.add('open');
         if (btnMobileMenu) btnMobileMenu.setAttribute('aria-expanded', 'true');

@@ -119,28 +119,28 @@ if (isset($seoMeta) && is_array($seoMeta) && function_exists('artsale_render_seo
                 </button>
             </div>
         </div>
-
-        <!-- Menu Drawer Mobile -->
-        <div class="mobile-drawer" id="mobileDrawer">
-            <div class="drawer-header">
-                <img src="<?= $pathPrefix ?? '' ?>assets/images/site/logo.svg" alt="<?= SITE_NAME ?>" width="180">
-                <button type="button" class="drawer-close-btn" id="btnCloseDrawer" aria-label="Fechar menu">✕</button>
-            </div>
-            <nav class="mobile-nav">
-                <a href="<?= $pathPrefix ?? '' ?>index.php" class="mobile-nav-link <?= ($currentPage ?? '') === 'inicio' ? 'active' : '' ?>">Início</a>
-                <a href="<?= $pathPrefix ?? '' ?>pages/obras.php" class="mobile-nav-link <?= ($currentPage ?? '') === 'obras' ? 'active' : '' ?>">Obras</a>
-                <a href="<?= ($currentPage ?? '') === 'inicio' ? '#categorias' : ($pathPrefix ?? '') . 'pages/categorias.php' ?>" class="mobile-nav-link <?= ($currentPage ?? '') === 'categorias' ? 'active' : '' ?>">Categorias</a>
-                <a href="<?= ($currentPage ?? '') === 'inicio' ? '#sobre' : ($pathPrefix ?? '') . 'index.php#sobre' ?>" class="mobile-nav-link">Sobre</a>
-                <a href="<?= ($currentPage ?? '') === 'inicio' ? '#contato' : ($pathPrefix ?? '') . 'index.php#contato' ?>" class="mobile-nav-link">Contato</a>
-            </nav>
-            <div class="drawer-footer">
-                <a href="<?= ($currentPage ?? '') === 'inicio' ? '#contato' : ($pathPrefix ?? '') . 'index.php#contato' ?>" class="btn-consultar-obra btn-block" data-modal="consultar">
-                    Consultar obra
-                </a>
-            </div>
-        </div>
-        <div class="drawer-backdrop" id="drawerBackdrop"></div>
     </header>
+
+    <!-- Menu Drawer Mobile -->
+    <div class="mobile-drawer" id="mobileDrawer">
+        <div class="drawer-header">
+            <img src="<?= $pathPrefix ?? '' ?>assets/images/site/logo.svg" alt="<?= SITE_NAME ?>" width="180">
+            <button type="button" class="drawer-close-btn" id="btnCloseDrawer" aria-label="Fechar menu">✕</button>
+        </div>
+        <nav class="mobile-nav">
+            <a href="<?= $pathPrefix ?? '' ?>index.php" class="mobile-nav-link <?= ($currentPage ?? '') === 'inicio' ? 'active' : '' ?>">Início</a>
+            <a href="<?= $pathPrefix ?? '' ?>pages/obras.php" class="mobile-nav-link <?= ($currentPage ?? '') === 'obras' ? 'active' : '' ?>">Obras</a>
+            <a href="<?= ($currentPage ?? '') === 'inicio' ? '#categorias' : ($pathPrefix ?? '') . 'pages/categorias.php' ?>" class="mobile-nav-link <?= ($currentPage ?? '') === 'categorias' ? 'active' : '' ?>">Categorias</a>
+            <a href="<?= ($currentPage ?? '') === 'inicio' ? '#sobre' : ($pathPrefix ?? '') . 'index.php#sobre' ?>" class="mobile-nav-link">Sobre</a>
+            <a href="<?= ($currentPage ?? '') === 'inicio' ? '#contato' : ($pathPrefix ?? '') . 'index.php#contato' ?>" class="mobile-nav-link">Contato</a>
+        </nav>
+        <div class="drawer-footer">
+            <a href="<?= ($currentPage ?? '') === 'inicio' ? '#contato' : ($pathPrefix ?? '') . 'index.php#contato' ?>" class="btn-consultar-obra btn-block" data-modal="consultar">
+                Consultar obra
+            </a>
+        </div>
+    </div>
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
 
     <!-- Overlay de Pesquisa Rápida -->
     <div class="search-overlay" id="searchOverlay">
