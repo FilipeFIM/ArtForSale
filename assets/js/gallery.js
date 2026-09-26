@@ -154,8 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fallback assíncrono para ambientes estáticos (ex: Vercel estático / index.html)
     if (!window.HERO_SLIDES_CONFIG) {
         const fetchPrefix = window.location.pathname.includes('/pages/') ? '../' : '';
-        fetch(fetchPrefix + 'database/hero_slides.json')
-            .then(res => res.ok ? res.json() : null)
+        fetch(fetchPrefix + 'api/hero-slides.php')
+            .then(res => res.ok ? res.json() : fetch(fetchPrefix + 'database/hero_slides.json').then(r => r.ok ? r.json() : null))
             .then(data => {
                 if (Array.isArray(data) && data.length >= 3) {
                     heroSlides = data;

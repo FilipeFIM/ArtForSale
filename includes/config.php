@@ -346,9 +346,9 @@ function artsale_merge_catalogo(array $prioritarias, array $catalogoBase): array
  * 3. Cookie HTTP artsale_hero_slides (para ambientes serverless)
  * 4. Fallback padrão da curadoria Art For Sale
  */
-function artsale_get_hero_slides(): array {
+function artsale_get_hero_slides(bool $forceRefresh = false): array {
     static $slidesCache = null;
-    if ($slidesCache !== null) {
+    if (!$forceRefresh && $slidesCache !== null) {
         return $slidesCache;
     }
 
@@ -392,27 +392,79 @@ function artsale_get_hero_slides(): array {
     ];
 
     $loaded = null;
+    $loadedTimestamp = 0;
 
-    // 1. Arquivo database/hero_slides.json
-    $file = BASE_PATH . '/database/hero_slides.json';
-    if (file_exists($file)) {
-        $content = @file_get_contents($file);
-        $decoded = @json_decode($content ?: '[]', true);
-        if (is_array($decoded) && count($decoded) >= 3) {
-            $loaded = $decoded;
+    // 1. Cookie HTTP (resposta instantânea para o curador/administrador que salvou no navegador)
+    if (!empty($_COOKIE['artsale_hero_slides'])) {
+        $cookieDecoded = @json_decode($_COOKIE['artsale_hero_slides'], true);
+        if (is_array($cookieDecoded) && count($cookieDecoded) >= 3) {
+            $loaded = $cookieDecoded;
+            $loadedTimestamp = (int)($cookieDecoded[0]['updated_at'] ?? 0);
         }
     }
 
     // 2. Sessão PHP
-    if (!$loaded && session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['hero_slides']) && is_array($_SESSION['hero_slides'])) {
+    if (!$loaded && session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['hero_slides']) && is_array($_SESSION['hero_slides']) && count($_SESSION['hero_slides']) >= 3) {
         $loaded = $_SESSION['hero_slides'];
+        $loadedTimestamp = (int)($_SESSION['hero_slides'][0]['updated_at'] ?? 0);
     }
 
-    // 3. Cookie HTTP
-    if (!$loaded && !empty($_COOKIE['artsale_hero_slides'])) {
-        $cookieDecoded = @json_decode($_COOKIE['artsale_hero_slides'], true);
-        if (is_array($cookieDecoded) && count($cookieDecoded) >= 3) {
-            $loaded = $cookieDecoded;
+    // 3. Cache em /tmp do servidor (instantâneo e compartilhado nas requisições)
+    $tempFile = sys_get_temp_dir() . '/artsale_hero_slides.json';
+    $tempSlides = null;
+    $tempTimestamp = 0;
+    if (file_exists($tempFile)) {
+        $tempContent = @file_get_contents($tempFile);
+        $tempDecoded = @json_decode($tempContent ?: '[]', true);
+        if (is_array($tempDecoded) && count($tempDecoded) >= 3) {
+            $tempSlides = $tempDecoded;
+            $tempTimestamp = (int)($tempDecoded[0]['updated_at'] ?? filemtime($tempFile));
+        }
+    }
+
+    if ($tempSlides && $tempTimestamp > $loadedTimestamp) {
+        $loaded = $tempSlides;
+        $loadedTimestamp = $tempTimestamp;
+    }
+
+    // 4. Supabase Storage na nuvem (sincronização global para qualquer visitante)
+    $shouldCheckCloud = $forceRefresh || !$loaded || ($tempSlides === null) || (time() - $tempTimestamp > 120);
+    if ($shouldCheckCloud) {
+        if (!function_exists('supabase_is_configured') && file_exists(__DIR__ . '/supabase.php')) {
+            @include_once __DIR__ . '/supabase.php';
+        }
+        if (function_exists('supabase_is_configured') && supabase_is_configured()) {
+            try {
+                $baseUrl = rtrim(SUPABASE_URL, '/');
+                $bucket = defined('SUPABASE_STORAGE_BUCKET') ? SUPABASE_STORAGE_BUCKET : 'artworks';
+                $cloudUrl = "{$baseUrl}/storage/v1/object/public/{$bucket}/site/hero_slides_config.png?t=" . time();
+                $res = supabase_http_call($cloudUrl, 'GET', [], null, 3);
+                if (!empty($res['response']) && in_array((int)($res['status'] ?? 0), [200, 201], true)) {
+                    $cloudDecoded = @json_decode($res['response'], true);
+                    if (is_array($cloudDecoded) && count($cloudDecoded) >= 3) {
+                        $cloudTimestamp = (int)($cloudDecoded[0]['updated_at'] ?? 0);
+                        @file_put_contents($tempFile, $res['response']);
+                        if ($cloudTimestamp >= $loadedTimestamp || empty($loaded)) {
+                            $loaded = $cloudDecoded;
+                            $loadedTimestamp = $cloudTimestamp;
+                        }
+                    }
+                }
+            } catch (Throwable $e) {
+                // Silencioso em caso de falha de conexão com a nuvem
+            }
+        }
+    }
+
+    // 5. Arquivo físico database/hero_slides.json
+    if (!$loaded) {
+        $file = BASE_PATH . '/database/hero_slides.json';
+        if (file_exists($file)) {
+            $content = @file_get_contents($file);
+            $decoded = @json_decode($content ?: '[]', true);
+            if (is_array($decoded) && count($decoded) >= 3) {
+                $loaded = $decoded;
+            }
         }
     }
 
@@ -436,6 +488,7 @@ function artsale_get_hero_slides(): array {
             'cta_primary_url' => !empty($curr['cta_primary_url']) ? $curr['cta_primary_url'] : $def['cta_primary_url'],
             'cta_secondary_text' => !empty($curr['cta_secondary_text']) ? $curr['cta_secondary_text'] : $def['cta_secondary_text'],
             'cta_secondary_url' => !empty($curr['cta_secondary_url']) ? $curr['cta_secondary_url'] : $def['cta_secondary_url'],
+            'updated_at' => $curr['updated_at'] ?? 0
         ];
     }
 
@@ -444,12 +497,12 @@ function artsale_get_hero_slides(): array {
 }
 
 /**
- * Salva a configuração dos 3 slides do Hero em arquivo, sessão e cookie
+ * Salva a configuração dos 3 slides do Hero em nuvem, arquivo, sessão e cookie
  */
 function artsale_save_hero_slides(array $slides): bool {
     if (count($slides) < 3) return false;
 
-    // Normaliza os 3 slides
+    $now = time();
     $normalized = [];
     for ($i = 0; $i < 3; $i++) {
         $s = $slides[$i] ?? [];
@@ -464,24 +517,52 @@ function artsale_save_hero_slides(array $slides): bool {
             'cta_primary_url' => trim($s['cta_primary_url'] ?? 'pages/obras.php'),
             'cta_secondary_text' => trim($s['cta_secondary_text'] ?? 'Ver categorias'),
             'cta_secondary_url' => trim($s['cta_secondary_url'] ?? '#categorias'),
+            'updated_at' => $now
         ];
     }
 
-    // 1. Arquivo físico
+    $json = json_encode($normalized, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+    // 1. Grava no cache /tmp (sempre gravável tanto em servidor Vercel serverless quanto local)
+    $tempFile = sys_get_temp_dir() . '/artsale_hero_slides.json';
+    @file_put_contents($tempFile, $json);
+
+    // 2. Arquivo físico local database/hero_slides.json (se diretório for gravável)
     $dir = BASE_PATH . '/database';
     if (!is_dir($dir)) {
         @mkdir($dir, 0777, true);
     }
     $file = $dir . '/hero_slides.json';
-    $json = json_encode($normalized, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     @file_put_contents($file, $json);
 
-    // 2. Sessão PHP
+    // 3. Sincroniza com Supabase Storage na nuvem (persiste para todos os usuários no Vercel)
+    if (!function_exists('supabase_is_configured') && file_exists(__DIR__ . '/supabase.php')) {
+        @include_once __DIR__ . '/supabase.php';
+    }
+    if (function_exists('supabase_is_configured') && supabase_is_configured()) {
+        try {
+            $baseUrl = rtrim(SUPABASE_URL, '/');
+            $bucket = defined('SUPABASE_STORAGE_BUCKET') ? SUPABASE_STORAGE_BUCKET : 'artworks';
+            $token = defined('SUPABASE_SERVICE_ROLE_KEY') && !empty(SUPABASE_SERVICE_ROLE_KEY) ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY;
+            $cloudUrl = "{$baseUrl}/storage/v1/object/{$bucket}/site/hero_slides_config.png";
+            $headers = [
+                'apikey: ' . SUPABASE_ANON_KEY,
+                'Authorization: Bearer ' . $token,
+                'Content-Type: image/png',
+                'x-upsert: true'
+            ];
+            supabase_http_call($cloudUrl, 'POST', $headers, $json, 5);
+        } catch (Throwable $e) {
+            // Silencioso se houver falha temporária de rede
+        }
+    }
+
+    // 4. Sessão PHP
     if (session_status() === PHP_SESSION_ACTIVE) {
         $_SESSION['hero_slides'] = $normalized;
     }
 
-    // 3. Cookie HTTP (365 dias)
+    // 5. Cookie HTTP (365 dias)
     $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
                (!empty($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443) ||
                (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
@@ -496,6 +577,9 @@ function artsale_save_hero_slides(array $slides): bool {
         'samesite' => 'Lax'
     ]);
     $_COOKIE['artsale_hero_slides'] = $cookieJson;
+
+    // Invalida cache estático em memória
+    artsale_get_hero_slides(true);
 
     return true;
 }

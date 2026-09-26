@@ -64,7 +64,51 @@ function admin_upload_hero_banner(array $file, int $slideId, ?string $token = nu
     $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($rawName));
     $finalFilename = "hero-slide-{$slideId}_{$timestamp}_{$cleanName}.{$ext}";
 
-    // 1. Salva localmente em assets/images/site/
+    // Lê os dados do arquivo a partir de tmp_name
+    $fileData = @file_get_contents($file['tmp_name']);
+    if (empty($fileData)) {
+        return ['sucesso' => false, 'erro' => 'Não foi possível ler o arquivo temporário.'];
+    }
+
+    $mimeType = 'image/jpeg';
+    if ($ext === 'png') $mimeType = 'image/png';
+    elseif ($ext === 'webp') $mimeType = 'image/webp';
+
+    // 1. Se Supabase Storage estiver ativo, envia prioritariamente para a nuvem (persistente no Vercel)
+    if (function_exists('supabase_is_configured') && supabase_is_configured()) {
+        try {
+            $authToken = $token ?: (defined('SUPABASE_SERVICE_ROLE_KEY') && !empty(SUPABASE_SERVICE_ROLE_KEY) ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY);
+            $baseUrl = rtrim(SUPABASE_URL, '/');
+            $baseUrl = preg_replace('#/rest/v1/?$#', '', $baseUrl);
+            $bucket = defined('SUPABASE_STORAGE_BUCKET') ? SUPABASE_STORAGE_BUCKET : 'artworks';
+            $storagePath = "site/{$finalFilename}";
+            $uploadUrl = "{$baseUrl}/storage/v1/object/{$bucket}/{$storagePath}";
+
+            $headers = [
+                'apikey: ' . SUPABASE_ANON_KEY,
+                'Authorization: Bearer ' . $authToken,
+                'Content-Type: ' . $mimeType,
+                'x-upsert: true'
+            ];
+
+            $upRes = supabase_http_call($uploadUrl, 'POST', $headers, $fileData);
+
+            if (empty($upRes['error']) && in_array((int)($upRes['status'] ?? 0), [200, 201], true)) {
+                $publicUrl = "{$baseUrl}/storage/v1/object/public/{$bucket}/{$storagePath}";
+
+                // Tenta gravar também no disco local se houver permissão
+                $targetDir = BASE_PATH . '/assets/images/site';
+                if (!is_dir($targetDir)) @mkdir($targetDir, 0777, true);
+                @file_put_contents($targetDir . '/' . $finalFilename, $fileData);
+
+                return ['sucesso' => true, 'url' => $publicUrl, 'local_path' => 'assets/images/site/' . $finalFilename];
+            }
+        } catch (Throwable $e) {
+            // Continua para gravação local
+        }
+    }
+
+    // 2. Gravação local como fallback (ambientes com disco gravável)
     $targetDir = BASE_PATH . '/assets/images/site';
     if (!is_dir($targetDir)) {
         @mkdir($targetDir, 0777, true);
@@ -73,49 +117,13 @@ function admin_upload_hero_banner(array $file, int $slideId, ?string $token = nu
 
     if (!@move_uploaded_file($file['tmp_name'], $targetPath)) {
         if (!@copy($file['tmp_name'], $targetPath)) {
-            return ['sucesso' => false, 'erro' => 'Falha ao gravar arquivo em assets/images/site.'];
-        }
-    }
-
-    $relativePath = 'assets/images/site/' . $finalFilename;
-
-    // 2. Se Supabase Storage estiver ativo, espelha no bucket de artworks
-    if (function_exists('supabase_is_configured') && supabase_is_configured()) {
-        try {
-            $authToken = $token ?: (defined('SUPABASE_SERVICE_ROLE_KEY') ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY);
-            $baseUrl = rtrim(SUPABASE_URL, '/');
-            $baseUrl = preg_replace('#/rest/v1/?$#', '', $baseUrl);
-            $bucket = defined('SUPABASE_STORAGE_BUCKET') ? SUPABASE_STORAGE_BUCKET : 'artworks';
-            $storagePath = "site/{$finalFilename}";
-            $uploadUrl = "{$baseUrl}/storage/v1/object/{$bucket}/{$storagePath}";
-
-            $mimeType = 'image/jpeg';
-            if ($ext === 'png') $mimeType = 'image/png';
-            elseif ($ext === 'webp') $mimeType = 'image/webp';
-
-            $fileData = @file_get_contents($targetPath);
-            if (!empty($fileData)) {
-                $upRes = supabase_http_call($uploadUrl, 'POST', [
-                    'headers' => [
-                        'apikey: ' . SUPABASE_ANON_KEY,
-                        'Authorization: Bearer ' . $authToken,
-                        'Content-Type: ' . $mimeType,
-                        'x-upsert: true'
-                    ],
-                    'body' => $fileData
-                ]);
-
-                if (empty($upRes['error'])) {
-                    $publicUrl = "{$baseUrl}/storage/v1/object/public/{$bucket}/{$storagePath}";
-                    return ['sucesso' => true, 'url' => $publicUrl, 'local_path' => $relativePath];
-                }
+            if (!@file_put_contents($targetPath, $fileData)) {
+                return ['sucesso' => false, 'erro' => 'Falha ao gravar arquivo em assets/images/site.'];
             }
-        } catch (Throwable $e) {
-            // Continua com o arquivo local
         }
     }
 
-    return ['sucesso' => true, 'url' => $relativePath, 'local_path' => $relativePath];
+    return ['sucesso' => true, 'url' => 'assets/images/site/' . $finalFilename, 'local_path' => 'assets/images/site/' . $finalFilename];
 }
 
 // Processamento de Ações POST
@@ -171,15 +179,26 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
     // Ação: Salvar Banners (todos ou individual)
     if ($action === 'save_slides') {
-        $currentSlides = artsale_get_hero_slides();
+        $currentSlides = artsale_get_hero_slides(true);
         $updatedSlides = [];
 
         for ($i = 0; $i < 3; $i++) {
             $slideNum = $i + 1;
             $oldSlide = $currentSlides[$i] ?? [];
 
-            // Imagem enviada via upload de arquivo
-            $finalImage = trim($_POST["image_url_{$slideNum}"] ?? ($oldSlide['image'] ?? ''));
+            // Resgata possíveis fontes de imagem (select de obra, url digitada ou upload)
+            $artworkSelectVal = trim($_POST["artwork_select_{$slideNum}"] ?? '');
+            $imageUrlVal = trim($_POST["image_url_{$slideNum}"] ?? '');
+
+            $finalImage = '';
+            // Se o usuário selecionou uma obra do acervo
+            if (!empty($artworkSelectVal)) {
+                $finalImage = $artworkSelectVal;
+            } elseif (!empty($imageUrlVal)) {
+                $finalImage = $imageUrlVal;
+            } else {
+                $finalImage = $oldSlide['image'] ?? 'assets/images/site/hero-bg.jpg';
+            }
 
             if (!empty($_FILES["slide_file_{$slideNum}"]) && !empty($_FILES["slide_file_{$slideNum}"]['tmp_name'])) {
                 $uploadRes = admin_upload_hero_banner($_FILES["slide_file_{$slideNum}"], $slideNum, $adminToken);
@@ -218,7 +237,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 }
 
 // Carrega os 3 slides atuais
-$slides = artsale_get_hero_slides();
+$slides = artsale_get_hero_slides(true);
 $currentTab = 'hero_slides';
 
 // Carrega obras ativas do catálogo do site para seleção no Hero
@@ -922,7 +941,7 @@ foreach ($artworksList as $item) {
                                     <label for="artwork_select_<?= $slideNum ?>" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.45rem; display: block;">
                                         Escolher Obra do Site:
                                     </label>
-                                    <select id="artwork_select_<?= $slideNum ?>" class="form-control" onchange="handleArtworkSelect(this, <?= $slideNum ?>)" style="margin-bottom: 0.65rem;">
+                                    <select name="artwork_select_<?= $slideNum ?>" id="artwork_select_<?= $slideNum ?>" class="form-control" onchange="handleArtworkSelect(this, <?= $slideNum ?>)" style="margin-bottom: 0.65rem;">
                                         <option value="">-- Selecione uma obra existente --</option>
                                         <?php 
                                         $initialSelectedArt = null;
