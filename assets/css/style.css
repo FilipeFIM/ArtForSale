@@ -1727,6 +1727,46 @@ ul, ol {
     color: #b98a45;
 }
 
+.admin-access-dot {
+    color: inherit;
+    text-decoration: none;
+    cursor: default;
+    opacity: 0.85;
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.admin-access-dot:hover {
+    color: #b98a45;
+    opacity: 1;
+}
+
+.dev-credit-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #7a756d;
+    text-decoration: none;
+    transition: color 0.25s ease;
+}
+
+.dev-credit-link:hover {
+    color: #1c1b18;
+}
+
+.dev-author-name {
+    color: #b98a45;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    display: inline-block;
+    transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), text-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dev-credit-link:hover .dev-author-name {
+    color: #d0a65a;
+    text-shadow: 0 0 10px rgba(185, 138, 69, 0.45);
+    transform: translateY(-1px);
+}
+
 .divider {
     color: rgba(185, 138, 69, 0.3);
 }

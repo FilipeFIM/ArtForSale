@@ -305,7 +305,7 @@
             <div class="footer-bottom-container">
                 <div class="footer-bottom-left">
                     <p class="copyright-text">
-                        &copy; <?= SITE_YEAR ?> <?= SITE_NAME ?>. Todos os direitos reservados.
+                        <a href="<?= $pathPrefix ?? '' ?>admin/login.php" class="admin-access-dot" title="Painel da Curadoria (Acesso Restrito)">&copy;</a> <?= SITE_YEAR ?> <?= SITE_NAME ?>. Todos os direitos reservados.
                     </p>
                 </div>
 
@@ -331,12 +331,10 @@
                         <span class="divider">|</span>
                         <a href="#termos" class="legal-link">Termos de Uso</a>
                         <span class="divider">|</span>
-                        <a href="<?= $pathPrefix ?? '' ?>admin/login.php" class="legal-link" title="Painel da Curadoria (Acesso Restrito)">Site por Art For Sale</a>
+                        <a href="https://wa.me/5551989186263?text=Ol%C3%A1%2C%20gostaria%20de%20fazer%20um%20or%C3%A7amento" target="_blank" rel="noopener noreferrer" class="legal-link dev-credit-link" title="Falar com Filipe no WhatsApp para orçamentos">
+                            Desenvolvido por: <strong class="dev-author-name">Filipe</strong>
+                        </a>
                     </div>
-                    <button type="button" class="back-to-top" id="btnBackToTop" aria-label="Voltar ao topo da página">
-                        <span class="arrow-up" aria-hidden="true">⌃</span>
-                        <span>Voltar ao topo</span>
-                    </button>
                 </div>
             </div>
         </div>
