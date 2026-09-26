@@ -74,39 +74,230 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ==========================================================
-       2. CONTROLES DE SLIDE DO HERO
+       2. CONTROLES DE SLIDE DO HERO (SLIDER REAL COM 3 SLIDES)
        ========================================================== */
+    /**
+     * CONFIGURAÇÃO DOS 3 SLIDES DO HERO:
+     * Onde trocar as imagens e conteúdos dos Slides 1, 2 e 3 futuramente:
+     * - Slide 1 (01): heroSlides[0].image
+     * - Slide 2 (02): heroSlides[1].image
+     * - Slide 3 (03): heroSlides[2].image
+     */
+    const heroSlides = [
+        {
+            // Slide 1
+            image: 'assets/images/site/hero-bg.jpg',
+            eyebrow: 'GALERIA DE ARTE',
+            title: 'Arte que<br>transforma<br>espaços.',
+            description: 'Descubra obras únicas e cuidadosamente selecionadas para colecionadores, apreciadores e ambientes que merecem personalidade.',
+            quote: 'Mais que quadros, histórias que ganham vida no seu espaço.'
+        },
+        {
+            // Slide 2
+            image: 'assets/images/site/about-art-gallery.jpg',
+            eyebrow: 'CURADORIA EXCLUSIVA',
+            title: 'Coleções<br>únicas com<br>personalidade.',
+            description: 'Pinturas a óleo, gravuras históricas e esculturas nobres selecionadas para elevar o design de interiores a outro patamar.',
+            quote: 'A beleza clássica e contemporânea em perfeita harmonia.'
+        },
+        {
+            // Slide 3
+            image: 'assets/images/site/about-art-sell.jpg',
+            eyebrow: 'ACERVO PRIVADO',
+            title: 'Obras de arte<br>que contam<br>histórias.',
+            description: 'Atendimento e consultoria especializada para encontrar a peça perfeita para sua residência, escritório ou coleção particular.',
+            quote: 'Cada pincelada carrega uma emoção eterna e autêntica.'
+        }
+    ];
+
+    const heroSection = document.getElementById('hero');
     const heroPrevBtn = document.getElementById('heroPrevBtn');
     const heroNextBtn = document.getElementById('heroNextBtn');
     const heroPageNumbers = document.querySelectorAll('.hero-pagination .page-number');
-    let currentHeroSlide = 1;
-    const totalHeroSlides = 3;
+    const heroBgSlides = document.querySelectorAll('.hero-background .hero-bg-slide');
+    const heroEyebrowEl = document.querySelector('.hero-content .hero-eyebrow');
+    const heroTitleEl = document.querySelector('.hero-content .hero-title');
+    const heroDescEl = document.querySelector('.hero-content .hero-description');
+    const heroQuoteEl = document.querySelector('.hero-quote-box .quote-text');
+    const heroTextElements = document.querySelectorAll('.hero-text-fade');
 
-    function updateHeroSlide(slideNum) {
-        if (slideNum < 1) slideNum = totalHeroSlides;
-        if (slideNum > totalHeroSlides) slideNum = 1;
-        currentHeroSlide = slideNum;
+    let currentHeroIndex = 0;
+    let isHeroTransitioning = false;
+    let heroAutoplayTimer = null;
+    const HERO_AUTOPLAY_DELAY = 6000; // Autoplay a cada 6 segundos
 
-        heroPageNumbers.forEach((el, idx) => {
-            if (idx + 1 === currentHeroSlide) {
-                el.classList.add('active');
-            } else {
-                el.classList.remove('active');
+    // Sincroniza dinamicamente as URLs das imagens definidas no array com as camadas do DOM
+    if (heroBgSlides.length > 0) {
+        heroBgSlides.forEach((slideEl, idx) => {
+            if (heroSlides[idx] && heroSlides[idx].image) {
+                const prefix = window.location.pathname.includes('/pages/') ? '../' : '';
+                slideEl.style.backgroundImage = `url('${prefix}${heroSlides[idx].image}')`;
             }
         });
     }
 
+    /**
+     * Transiciona suavemente para o slide indicado por targetIndex (0, 1 ou 2)
+     */
+    function goToHeroSlide(targetIndex) {
+        // Envolve circularmente: 0 -> 2, 2 -> 0
+        if (targetIndex < 0) {
+            targetIndex = heroSlides.length - 1;
+        } else if (targetIndex >= heroSlides.length) {
+            targetIndex = 0;
+        }
+
+        // Se já está no slide solicitado e não está em animação
+        if (targetIndex === currentHeroIndex && heroBgSlides.length > 0 && heroBgSlides[targetIndex].classList.contains('active')) {
+            return;
+        }
+
+        if (isHeroTransitioning) return;
+        isHeroTransitioning = true;
+
+        currentHeroIndex = targetIndex;
+        const currentData = heroSlides[currentHeroIndex];
+
+        // 1. Atualização imediata dos indicadores numéricos (01, 02, 03)
+        heroPageNumbers.forEach((el, idx) => {
+            if (idx === currentHeroIndex) {
+                el.classList.add('active');
+                el.setAttribute('aria-current', 'true');
+            } else {
+                el.classList.remove('active');
+                el.removeAttribute('aria-current');
+            }
+        });
+
+        // 2. Transição suave de fade e zoom cinemático nas camadas de fundo
+        if (heroBgSlides.length > 0) {
+            heroBgSlides.forEach((slideEl, idx) => {
+                if (idx === currentHeroIndex) {
+                    slideEl.classList.add('active');
+                } else {
+                    slideEl.classList.remove('active');
+                }
+            });
+        }
+
+        // 3. Transição suave dos textos (fade out -> substituição -> fade in)
+        heroTextElements.forEach(el => el.classList.add('is-transitioning'));
+
+        setTimeout(() => {
+            if (currentData) {
+                if (heroEyebrowEl && currentData.eyebrow) {
+                    heroEyebrowEl.innerHTML = currentData.eyebrow;
+                }
+                if (heroTitleEl && currentData.title) {
+                    heroTitleEl.innerHTML = currentData.title;
+                }
+                if (heroDescEl && currentData.description) {
+                    heroDescEl.innerHTML = currentData.description;
+                }
+                if (heroQuoteEl && currentData.quote) {
+                    heroQuoteEl.innerHTML = currentData.quote;
+                }
+            }
+            heroTextElements.forEach(el => el.classList.remove('is-transitioning'));
+        }, 280);
+
+        // Libera nova transição após 700ms
+        setTimeout(() => {
+            isHeroTransitioning = false;
+        }, 700);
+    }
+
+    function startHeroAutoplay() {
+        stopHeroAutoplay();
+        heroAutoplayTimer = setInterval(() => {
+            goToHeroSlide(currentHeroIndex + 1);
+        }, HERO_AUTOPLAY_DELAY);
+    }
+
+    function stopHeroAutoplay() {
+        if (heroAutoplayTimer) {
+            clearInterval(heroAutoplayTimer);
+            heroAutoplayTimer = null;
+        }
+    }
+
+    function restartHeroAutoplay() {
+        startHeroAutoplay();
+    }
+
+    // Setas de Navegação (← e →)
     if (heroPrevBtn) {
-        heroPrevBtn.addEventListener('click', () => {
-            updateHeroSlide(currentHeroSlide - 1);
+        heroPrevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            goToHeroSlide(currentHeroIndex - 1);
+            restartHeroAutoplay();
         });
     }
 
     if (heroNextBtn) {
-        heroNextBtn.addEventListener('click', () => {
-            updateHeroSlide(currentHeroSlide + 1);
+        heroNextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            goToHeroSlide(currentHeroIndex + 1);
+            restartHeroAutoplay();
         });
     }
+
+    // Indicadores 01, 02, 03 Clicáveis
+    heroPageNumbers.forEach((pageEl, idx) => {
+        pageEl.addEventListener('click', () => {
+            goToHeroSlide(idx);
+            restartHeroAutoplay();
+        });
+
+        pageEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                goToHeroSlide(idx);
+                restartHeroAutoplay();
+            }
+        });
+    });
+
+    // Suporte a swipe no mobile
+    if (heroSection) {
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        heroSection.addEventListener('touchstart', (e) => {
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                touchStartX = e.changedTouches[0].screenX;
+            }
+        }, { passive: true });
+
+        heroSection.addEventListener('touchend', (e) => {
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                touchEndX = e.changedTouches[0].screenX;
+                const diffX = touchStartX - touchEndX;
+                if (Math.abs(diffX) > 45) {
+                    if (diffX > 0) {
+                        // Swipe para a esquerda -> próximo slide
+                        goToHeroSlide(currentHeroIndex + 1);
+                    } else {
+                        // Swipe para a direita -> slide anterior
+                        goToHeroSlide(currentHeroIndex - 1);
+                    }
+                    restartHeroAutoplay();
+                }
+            }
+        }, { passive: true });
+    }
+
+    // Pausar autoplay quando aba não estiver ativa
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stopHeroAutoplay();
+        } else {
+            startHeroAutoplay();
+        }
+    });
+
+    // Inicia autoplay automático
+    startHeroAutoplay();
 
     /* ==========================================================
        3. FALLBACK INTELIGENTE DAS IMAGENS DO MOCKUP (CANVAS)
@@ -194,8 +385,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const sh = coords.h * baseImg.naturalHeight;
                         canvas.width = sw;
                         canvas.height = sh;
-                        canvas.getContext('2d').drawImage(baseImg, sx, sy, sw, sh, 0, 0, sw, sh);
-                        heroBg.style.backgroundImage = `url(${canvas.toDataURL('image/jpeg', 0.92)})`;
+                        const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                        heroBg.style.backgroundImage = `url(${croppedDataUrl})`;
+                        const firstBg = heroBg.querySelector('.hero-bg-slide');
+                        if (firstBg) firstBg.style.backgroundImage = `url(${croppedDataUrl})`;
                     } catch(e) {}
                 };
                 testImg.src = basePathPrefix + 'assets/images/site/hero-bg.jpg';

@@ -483,17 +483,35 @@ ul, ol {
 .hero-background {
     position: absolute;
     inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    background-color: var(--color-dark);
+}
+
+.hero-bg-slide {
+    position: absolute;
+    inset: 0;
     background-size: cover;
     background-position: center 30%;
     background-repeat: no-repeat;
+    opacity: 0;
+    transform: scale(1.05);
+    transition: opacity 0.8s ease-in-out, transform 6s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: opacity, transform;
+    pointer-events: none;
+}
+
+.hero-bg-slide.active {
+    opacity: 1;
+    transform: scale(1.0);
     z-index: 1;
-    transform: scale(1.02);
-    transition: transform 1.2s ease-out;
 }
 
 .hero-overlay {
     position: absolute;
     inset: 0;
+    z-index: 2;
+    pointer-events: none;
     background: linear-gradient(
         to right,
         rgba(10, 9, 8, 0.90) 0%,
@@ -503,9 +521,20 @@ ul, ol {
     );
 }
 
+/* Transição suave do conteúdo textual do Hero */
+.hero-text-fade {
+    transition: opacity 0.35s cubic-bezier(0.25, 1, 0.5, 1), transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: opacity, transform;
+}
+
+.hero-text-fade.is-transitioning {
+    opacity: 0;
+    transform: translateY(6px);
+}
+
 .hero-container {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     width: 100%;
     max-width: var(--max-width);
     margin: 0 auto;
@@ -569,6 +598,14 @@ ul, ol {
     font-weight: 600;
     color: rgba(255, 255, 255, 0.4);
     letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: color var(--transition-fast), transform var(--transition-fast);
+    user-select: none;
+    padding: 2px 4px;
+}
+
+.page-number:hover {
+    color: var(--color-gold-light);
 }
 
 .page-number.active {

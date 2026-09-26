@@ -97,37 +97,40 @@ require_once __DIR__ . '/includes/header.php';
          SEÇÃO HERO
          ======================================================== -->
     <section class="hero-section" id="hero">
-        <!-- Fundo com imagem da galeria de arte do mockup -->
-        <div class="hero-background" style="background-image: url('<?= get_image_url('assets/images/site/hero-bg.jpg') ?>');" data-mockup-fallback="hero">
+        <!-- Fundo com imagens em camadas para transição suave de slides -->
+        <div class="hero-background" id="heroBackground" data-mockup-fallback="hero">
+            <div class="hero-bg-slide active" style="background-image: url('<?= get_image_url('assets/images/site/hero-bg.jpg') ?>');" data-slide-index="0"></div>
+            <div class="hero-bg-slide" style="background-image: url('<?= get_image_url('assets/images/site/about-art-gallery.jpg') ?>');" data-slide-index="1"></div>
+            <div class="hero-bg-slide" style="background-image: url('<?= get_image_url('assets/images/site/about-art-sell.jpg') ?>');" data-slide-index="2"></div>
             <div class="hero-overlay"></div>
         </div>
 
         <div class="hero-container">
             <!-- Conteúdo Principal do Hero (Esquerda) -->
             <div class="hero-content">
-                <span class="hero-eyebrow">GALERIA DE ARTE</span>
-                <h1 class="hero-title">
+                <span class="hero-eyebrow hero-text-fade">GALERIA DE ARTE</span>
+                <h1 class="hero-title hero-text-fade">
                     Arte que<br>
                     transforma<br>
                     espaços.
                 </h1>
-                <p class="hero-description">
+                <p class="hero-description hero-text-fade">
                     Descubra obras únicas e cuidadosamente selecionadas para colecionadores, apreciadores e ambientes que merecem personalidade.
                 </p>
                 <div class="hero-cta-group">
-                    <a href="pages/obras.php" class="btn-primary">
+                    <a href="pages/obras.php" class="btn-primary" id="heroCtaPrimary">
                         Explorar obras <span class="arrow">→</span>
                     </a>
-                    <a href="#categorias" class="btn-outline-light">
+                    <a href="#categorias" class="btn-outline-light" id="heroCtaSecondary">
                         Ver categorias
                     </a>
                 </div>
 
                 <!-- Indicador de Slide do Hero -->
                 <div class="hero-pagination">
-                    <span class="page-number active">01</span>
-                    <span class="page-number">02</span>
-                    <span class="page-number">03</span>
+                    <span class="page-number active" role="button" tabindex="0" aria-label="Ir para o slide 1" data-slide="0">01</span>
+                    <span class="page-number" role="button" tabindex="0" aria-label="Ir para o slide 2" data-slide="1">02</span>
+                    <span class="page-number" role="button" tabindex="0" aria-label="Ir para o slide 3" data-slide="2">03</span>
                     <span class="page-line"></span>
                 </div>
             </div>
@@ -135,7 +138,7 @@ require_once __DIR__ . '/includes/header.php';
             <!-- Citação Editorial Sofisticada (Direita) -->
             <div class="hero-quote-box">
                 <div class="quote-mark">“</div>
-                <blockquote class="quote-text">
+                <blockquote class="quote-text hero-text-fade">
                     Mais que quadros, histórias que ganham vida no seu espaço.
                 </blockquote>
                 
