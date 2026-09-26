@@ -74,41 +74,41 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ==========================================================
-       2. CONTROLES DE SLIDE DO HERO (SLIDER REAL COM 3 SLIDES)
+       2. CONTROLES DE SLIDE DO HERO (SLIDER REAL COM 3 SLIDES & ADMIN)
        ========================================================== */
     /**
      * CONFIGURAÇÃO DOS 3 SLIDES DO HERO:
-     * Onde trocar as imagens e conteúdos dos Slides 1, 2 e 3 futuramente:
-     * - Slide 1 (01): heroSlides[0].image
-     * - Slide 2 (02): heroSlides[1].image
-     * - Slide 3 (03): heroSlides[2].image
+     * Carrega dinamicamente a configuração definida no Painel Administrativo (/admin/hero-slides.php).
+     * Fallback gracioso com imagens e textos padrão da curadoria Art For Sale.
      */
-    const heroSlides = [
-        {
-            // Slide 1
-            image: 'assets/images/site/hero-bg.jpg',
-            eyebrow: 'GALERIA DE ARTE',
-            title: 'Arte que<br>transforma<br>espaços.',
-            description: 'Descubra obras únicas e cuidadosamente selecionadas para colecionadores, apreciadores e ambientes que merecem personalidade.',
-            quote: 'Mais que quadros, histórias que ganham vida no seu espaço.'
-        },
-        {
-            // Slide 2
-            image: 'assets/images/site/about-art-gallery.jpg',
-            eyebrow: 'CURADORIA EXCLUSIVA',
-            title: 'Coleções<br>únicas com<br>personalidade.',
-            description: 'Pinturas a óleo, gravuras históricas e esculturas nobres selecionadas para elevar o design de interiores a outro patamar.',
-            quote: 'A beleza clássica e contemporânea em perfeita harmonia.'
-        },
-        {
-            // Slide 3
-            image: 'assets/images/site/about-art-sell.jpg',
-            eyebrow: 'ACERVO PRIVADO',
-            title: 'Obras de arte<br>que contam<br>histórias.',
-            description: 'Atendimento e consultoria especializada para encontrar a peça perfeita para sua residência, escritório ou coleção particular.',
-            quote: 'Cada pincelada carrega uma emoção eterna e autêntica.'
-        }
-    ];
+    let heroSlides = (window.HERO_SLIDES_CONFIG && Array.isArray(window.HERO_SLIDES_CONFIG) && window.HERO_SLIDES_CONFIG.length >= 3)
+        ? window.HERO_SLIDES_CONFIG
+        : [
+            {
+                // Slide 1
+                image: 'assets/images/site/hero-bg.jpg',
+                eyebrow: 'GALERIA DE ARTE',
+                title: 'Arte que<br>transforma<br>espaços.',
+                description: 'Descubra obras únicas e cuidadosamente selecionadas para colecionadores, apreciadores e ambientes que merecem personalidade.',
+                quote: 'Mais que quadros, histórias que ganham vida no seu espaço.'
+            },
+            {
+                // Slide 2
+                image: 'assets/images/site/about-art-gallery.jpg',
+                eyebrow: 'CURADORIA EXCLUSIVA',
+                title: 'Coleções<br>únicas com<br>personalidade.',
+                description: 'Pinturas a óleo, gravuras históricas e esculturas nobres selecionadas para elevar o design de interiores a outro patamar.',
+                quote: 'A beleza clássica e contemporânea em perfeita harmonia.'
+            },
+            {
+                // Slide 3
+                image: 'assets/images/site/about-art-sell.jpg',
+                eyebrow: 'ACERVO PRIVADO',
+                title: 'Obras de arte<br>que contam<br>histórias.',
+                description: 'Atendimento e consultoria especializada para encontrar a peça perfeita para sua residência, escritório ou coleção particular.',
+                quote: 'Cada pincelada carrega uma emoção eterna e autêntica.'
+            }
+        ];
 
     const heroSection = document.getElementById('hero');
     const heroPrevBtn = document.getElementById('heroPrevBtn');
@@ -119,6 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const heroTitleEl = document.querySelector('.hero-content .hero-title');
     const heroDescEl = document.querySelector('.hero-content .hero-description');
     const heroQuoteEl = document.querySelector('.hero-quote-box .quote-text');
+    const heroCtaPrimaryEl = document.getElementById('heroCtaPrimary');
+    const heroCtaSecondaryEl = document.getElementById('heroCtaSecondary');
     const heroTextElements = document.querySelectorAll('.hero-text-fade');
 
     let currentHeroIndex = 0;
@@ -126,14 +128,49 @@ document.addEventListener('DOMContentLoaded', () => {
     let heroAutoplayTimer = null;
     const HERO_AUTOPLAY_DELAY = 6000; // Autoplay a cada 6 segundos
 
-    // Sincroniza dinamicamente as URLs das imagens definidas no array com as camadas do DOM
-    if (heroBgSlides.length > 0) {
-        heroBgSlides.forEach((slideEl, idx) => {
-            if (heroSlides[idx] && heroSlides[idx].image) {
-                const prefix = window.location.pathname.includes('/pages/') ? '../' : '';
-                slideEl.style.backgroundImage = `url('${prefix}${heroSlides[idx].image}')`;
-            }
-        });
+    function resolveHeroImgUrl(imgPath) {
+        if (!imgPath) return '';
+        if (imgPath.startsWith('http://') || imgPath.startsWith('https://') || imgPath.startsWith('data:') || imgPath.startsWith('//')) {
+            return imgPath;
+        }
+        const prefix = window.location.pathname.includes('/pages/') ? '../' : '';
+        return prefix + imgPath.replace(/^(\.\.\/|\.\/|\/)+/, '');
+    }
+
+    function syncHeroBgLayers() {
+        if (heroBgSlides.length > 0) {
+            heroBgSlides.forEach((slideEl, idx) => {
+                if (heroSlides[idx] && heroSlides[idx].image) {
+                    const resolved = resolveHeroImgUrl(heroSlides[idx].image);
+                    slideEl.style.backgroundImage = `url('${resolved}')`;
+                }
+            });
+        }
+    }
+
+    // Sincroniza dinamicamente as URLs das imagens definidas com as camadas do DOM
+    syncHeroBgLayers();
+
+    // Fallback assíncrono para ambientes estáticos (ex: Vercel estático / index.html)
+    if (!window.HERO_SLIDES_CONFIG) {
+        const fetchPrefix = window.location.pathname.includes('/pages/') ? '../' : '';
+        fetch(fetchPrefix + 'database/hero_slides.json')
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+                if (Array.isArray(data) && data.length >= 3) {
+                    heroSlides = data;
+                    window.HERO_SLIDES_CONFIG = data;
+                    syncHeroBgLayers();
+                    // Atualiza textos do slide atual se estiver no primeiro
+                    if (currentHeroIndex === 0 && heroSlides[0]) {
+                        if (heroEyebrowEl && heroSlides[0].eyebrow) heroEyebrowEl.innerHTML = heroSlides[0].eyebrow;
+                        if (heroTitleEl && heroSlides[0].title) heroTitleEl.innerHTML = heroSlides[0].title;
+                        if (heroDescEl && heroSlides[0].description) heroDescEl.innerHTML = heroSlides[0].description;
+                        if (heroQuoteEl && heroSlides[0].quote) heroQuoteEl.innerHTML = heroSlides[0].quote;
+                    }
+                }
+            })
+            .catch(() => {});
     }
 
     /**
@@ -196,6 +233,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (heroQuoteEl && currentData.quote) {
                     heroQuoteEl.innerHTML = currentData.quote;
+                }
+                if (heroCtaPrimaryEl && currentData.cta_primary_text) {
+                    heroCtaPrimaryEl.innerHTML = currentData.cta_primary_text + ' <span class="arrow">→</span>';
+                    if (currentData.cta_primary_url) heroCtaPrimaryEl.href = currentData.cta_primary_url;
+                }
+                if (heroCtaSecondaryEl && currentData.cta_secondary_text) {
+                    heroCtaSecondaryEl.textContent = currentData.cta_secondary_text;
+                    if (currentData.cta_secondary_url) heroCtaSecondaryEl.href = currentData.cta_secondary_url;
                 }
             }
             heroTextElements.forEach(el => el.classList.remove('is-transitioning'));

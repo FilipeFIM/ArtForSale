@@ -1474,6 +1474,10 @@ $statusFilter = $_GET['status'] ?? 'all';
             <span>🖼️ Catálogo de Obras</span>
             <span class="tab-count"><?= $metrics['obras_total'] ?></span>
         </a>
+        <a href="hero-slides.php" class="tab-btn">
+            <span>✨ Banners do Hero</span>
+            <span class="tab-count">3</span>
+        </a>
         <a href="categorias.php" class="tab-btn">
             <span>📁 Categorias</span>
             <span class="tab-count"><?= $metrics['categorias_total'] ?></span>
@@ -1609,6 +1613,26 @@ $statusFilter = $_GET['status'] ?? 'all';
                     <span class="stat-description">Mensagens gerais de visitantes</span>
                 </a>
 
+            </div>
+
+            <!-- Painel Especial de Banners do Hero -->
+            <div style="background: linear-gradient(135deg, rgba(179, 138, 84, 0.12) 0%, rgba(200, 169, 110, 0.05) 100%); border: 1px solid var(--border-gold); border-radius: 10px; padding: 1.25rem 1.75rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="font-size: 2rem; background: var(--bg-card); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-gold);">
+                        ✨
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.25rem;">
+                            Banners & Slides da Página Inicial (Hero Section)
+                        </h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+                            Altere as 3 imagens em destaque, frases editoriais, títulos e citações exibidas no carrossel de entrada da galeria.
+                        </p>
+                    </div>
+                </div>
+                <a href="hero-slides.php" class="btn-preset" style="padding: 0.7rem 1.35rem; font-size: 0.875rem; font-weight: 600; background-color: var(--color-gold); color: #ffffff; border: none; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span>Gerenciar 3 Banners</span> <span>→</span>
+                </a>
             </div>
 
             <!-- Resumo das Atividades Recentes -->

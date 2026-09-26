@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "image": "assets/images/site/hero-bg.jpg",
+    "eyebrow": "GALERIA DE ARTE",
+    "title": "Arte que<br>transforma<br>espaços.",
+    "description": "Descubra obras únicas e cuidadosamente selecionadas para colecionadores, apreciadores e ambientes que merecem personalidade.",
+    "quote": "Mais que quadros, histórias que ganham vida no seu espaço.",
+    "cta_primary_text": "Explorar obras",
+    "cta_primary_url": "pages/obras.php",
+    "cta_secondary_text": "Ver categorias",
+    "cta_secondary_url": "#categorias"
+  },
+  {
+    "id": 2,
+    "image": "assets/images/site/about-art-gallery.jpg",
+    "eyebrow": "CURADORIA EXCLUSIVA",
+    "title": "Coleções<br>únicas com<br>personalidade.",
+    "description": "Pinturas a óleo, gravuras históricas e esculturas nobres selecionadas para elevar o design de interiores a outro patamar.",
+    "quote": "A beleza clássica e contemporânea em perfeita harmonia.",
+    "cta_primary_text": "Explorar obras",
+    "cta_primary_url": "pages/obras.php",
+    "cta_secondary_text": "Ver categorias",
+    "cta_secondary_url": "#categorias"
+  },
+  {
+    "id": 3,
+    "image": "assets/images/site/about-art-sell.jpg",
+    "eyebrow": "ACERVO PRIVADO",
+    "title": "Obras de arte<br>que contam<br>histórias.",
+    "description": "Atendimento e consultoria especializada para encontrar a peça perfeita para sua residência, escritório ou coleção particular.",
+    "quote": "Cada pincelada carrega uma emoção eterna e autêntica.",
+    "cta_primary_text": "Explorar obras",
+    "cta_primary_url": "pages/obras.php",
+    "cta_secondary_text": "Ver categorias",
+    "cta_secondary_url": "#categorias"
+  }
+]

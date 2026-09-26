@@ -400,6 +400,11 @@
     <script src="<?= $pathPrefix ?? '' ?>assets/js/supabase-config.js"></script>
     <script src="<?= $pathPrefix ?? '' ?>assets/js/supabase-client.js"></script>
     <script src="<?= $pathPrefix ?? '' ?>assets/js/main.js"></script>
+    <?php if (function_exists('artsale_get_hero_slides')): ?>
+    <script>
+        window.HERO_SLIDES_CONFIG = <?= json_encode(artsale_get_hero_slides(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
+    </script>
+    <?php endif; ?>
     <script src="<?= $pathPrefix ?? '' ?>assets/js/gallery.js"></script>
 </body>
 </html>

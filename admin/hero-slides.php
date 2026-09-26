@@ -1,0 +1,817 @@
+<?php
+/**
+ * ART FOR SALE - Gestão dos Banners do Hero (Painel Administrativo)
+ * Arquivo: /admin/hero-slides.php
+ * Slogan: "Arte que transforma espaços."
+ * 
+ * Permite ao curador/administrador:
+ * - Trocar as 3 imagens dos slides do Hero da página inicial
+ * - Fazer upload de novas imagens do computador (JPG, PNG, WEBP até 10 MB)
+ * - Informar URL de imagem externa ou Supabase Storage
+ * - Escolher imagens pré-existentes da galeria
+ * - Editar títulos, subtítulos (eyebrows), descrições e citações
+ * - Visualizar preview ao vivo com o gradiente do Hero
+ * - Restaurar os padrões originais com 1 clique
+ */
+
+$pathPrefix = '../';
+require_once __DIR__ . '/auth_check.php';
+require_admin_auth();
+
+$user = get_admin_user();
+$adminToken = get_admin_token();
+
+$msgSucesso = '';
+$msgErro = '';
+
+if (isset($_GET['msg'])) {
+    if ($_GET['msg'] === 'saved') {
+        $msgSucesso = 'Banners e conteúdos do Hero atualizados com sucesso!';
+    } elseif ($_GET['msg'] === 'reset') {
+        $msgSucesso = 'Banners do Hero restaurados para os padrões originais da galeria!';
+    }
+}
+
+/**
+ * Função de upload de imagem para o banner do Hero
+ */
+function admin_upload_hero_banner(array $file, int $slideId, ?string $token = null): array {
+    if (empty($file['tmp_name']) || !file_exists($file['tmp_name'])) {
+        return ['sucesso' => false, 'erro' => 'Nenhum arquivo enviado.'];
+    }
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return ['sucesso' => false, 'erro' => 'Erro no envio do arquivo: código ' . $file['error']];
+    }
+    if ($file['size'] > 10 * 1024 * 1024) {
+        return ['sucesso' => false, 'erro' => 'O arquivo excede o limite máximo permitido de 10 MB.'];
+    }
+
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $permitidas = ['jpg', 'jpeg', 'png', 'webp'];
+    if (!in_array($ext, $permitidas, true)) {
+        return ['sucesso' => false, 'erro' => 'Extensão não permitida. Use JPG, JPEG, PNG ou WEBP.'];
+    }
+
+    if (function_exists('getimagesize')) {
+        $imgInfo = @getimagesize($file['tmp_name']);
+        if ($imgInfo === false) {
+            return ['sucesso' => false, 'erro' => 'O arquivo enviado não é uma imagem válida.'];
+        }
+    }
+
+    $timestamp = time();
+    $rawName = pathinfo($file['name'], PATHINFO_FILENAME);
+    $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($rawName));
+    $finalFilename = "hero-slide-{$slideId}_{$timestamp}_{$cleanName}.{$ext}";
+
+    // 1. Salva localmente em assets/images/site/
+    $targetDir = BASE_PATH . '/assets/images/site';
+    if (!is_dir($targetDir)) {
+        @mkdir($targetDir, 0777, true);
+    }
+    $targetPath = $targetDir . '/' . $finalFilename;
+
+    if (!@move_uploaded_file($file['tmp_name'], $targetPath)) {
+        if (!@copy($file['tmp_name'], $targetPath)) {
+            return ['sucesso' => false, 'erro' => 'Falha ao gravar arquivo em assets/images/site.'];
+        }
+    }
+
+    $relativePath = 'assets/images/site/' . $finalFilename;
+
+    // 2. Se Supabase Storage estiver ativo, espelha no bucket de artworks
+    if (function_exists('supabase_is_configured') && supabase_is_configured()) {
+        try {
+            $authToken = $token ?: (defined('SUPABASE_SERVICE_ROLE_KEY') ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY);
+            $baseUrl = rtrim(SUPABASE_URL, '/');
+            $baseUrl = preg_replace('#/rest/v1/?$#', '', $baseUrl);
+            $bucket = defined('SUPABASE_STORAGE_BUCKET') ? SUPABASE_STORAGE_BUCKET : 'artworks';
+            $storagePath = "site/{$finalFilename}";
+            $uploadUrl = "{$baseUrl}/storage/v1/object/{$bucket}/{$storagePath}";
+
+            $mimeType = 'image/jpeg';
+            if ($ext === 'png') $mimeType = 'image/png';
+            elseif ($ext === 'webp') $mimeType = 'image/webp';
+
+            $fileData = @file_get_contents($targetPath);
+            if (!empty($fileData)) {
+                $upRes = supabase_http_call($uploadUrl, 'POST', [
+                    'headers' => [
+                        'apikey: ' . SUPABASE_ANON_KEY,
+                        'Authorization: Bearer ' . $authToken,
+                        'Content-Type: ' . $mimeType,
+                        'x-upsert: true'
+                    ],
+                    'body' => $fileData
+                ]);
+
+                if (empty($upRes['error'])) {
+                    $publicUrl = "{$baseUrl}/storage/v1/object/public/{$bucket}/{$storagePath}";
+                    return ['sucesso' => true, 'url' => $publicUrl, 'local_path' => $relativePath];
+                }
+            }
+        } catch (Throwable $e) {
+            // Continua com o arquivo local
+        }
+    }
+
+    return ['sucesso' => true, 'url' => $relativePath, 'local_path' => $relativePath];
+}
+
+// Processamento de Ações POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_csrf_token();
+    $action = $_POST['action'] ?? '';
+
+    // Ação: Restaurar Padrões
+    if ($action === 'reset_defaults') {
+        $defaultSlides = [
+            [
+                'id' => 1,
+                'image' => 'assets/images/site/hero-bg.jpg',
+                'eyebrow' => 'GALERIA DE ARTE',
+                'title' => 'Arte que<br>transforma<br>espaços.',
+                'description' => 'Descubra obras únicas e cuidadosamente selecionadas para colecionadores, apreciadores e ambientes que merecem personalidade.',
+                'quote' => 'Mais que quadros, histórias que ganham vida no seu espaço.',
+                'cta_primary_text' => 'Explorar obras',
+                'cta_primary_url' => 'pages/obras.php',
+                'cta_secondary_text' => 'Ver categorias',
+                'cta_secondary_url' => '#categorias'
+            ],
+            [
+                'id' => 2,
+                'image' => 'assets/images/site/about-art-gallery.jpg',
+                'eyebrow' => 'CURADORIA EXCLUSIVA',
+                'title' => 'Coleções<br>únicas com<br>personalidade.',
+                'description' => 'Pinturas a óleo, gravuras históricas e esculturas nobres selecionadas para elevar o design de interiores a outro patamar.',
+                'quote' => 'A beleza clássica e contemporânea em perfeita harmonia.',
+                'cta_primary_text' => 'Explorar obras',
+                'cta_primary_url' => 'pages/obras.php',
+                'cta_secondary_text' => 'Ver categorias',
+                'cta_secondary_url' => '#categorias'
+            ],
+            [
+                'id' => 3,
+                'image' => 'assets/images/site/about-art-sell.jpg',
+                'eyebrow' => 'ACERVO PRIVADO',
+                'title' => 'Obras de arte<br>que contam<br>histórias.',
+                'description' => 'Atendimento e consultoria especializada para encontrar a peça perfeita para sua residência, escritório ou coleção particular.',
+                'quote' => 'Cada pincelada carrega uma emoção eterna e autêntica.',
+                'cta_primary_text' => 'Explorar obras',
+                'cta_primary_url' => 'pages/obras.php',
+                'cta_secondary_text' => 'Ver categorias',
+                'cta_secondary_url' => '#categorias'
+            ]
+        ];
+
+        artsale_save_hero_slides($defaultSlides);
+        header('Location: hero-slides.php?msg=reset');
+        exit;
+    }
+
+    // Ação: Salvar Banners (todos ou individual)
+    if ($action === 'save_slides') {
+        $currentSlides = artsale_get_hero_slides();
+        $updatedSlides = [];
+
+        for ($i = 0; $i < 3; $i++) {
+            $slideNum = $i + 1;
+            $oldSlide = $currentSlides[$i] ?? [];
+
+            // Imagem enviada via upload de arquivo
+            $finalImage = trim($_POST["image_url_{$slideNum}"] ?? ($oldSlide['image'] ?? ''));
+
+            if (!empty($_FILES["slide_file_{$slideNum}"]) && !empty($_FILES["slide_file_{$slideNum}"]['tmp_name'])) {
+                $uploadRes = admin_upload_hero_banner($_FILES["slide_file_{$slideNum}"], $slideNum, $adminToken);
+                if (!empty($uploadRes['sucesso'])) {
+                    $finalImage = $uploadRes['url'];
+                } else {
+                    $msgErro .= "Slide {$slideNum}: " . ($uploadRes['erro'] ?? 'Erro no upload') . " | ";
+                }
+            }
+
+            // Fallback caso a imagem fique vazia
+            if (empty($finalImage)) {
+                $finalImage = $oldSlide['image'] ?? 'assets/images/site/hero-bg.jpg';
+            }
+
+            $updatedSlides[] = [
+                'id' => $slideNum,
+                'image' => $finalImage,
+                'eyebrow' => trim($_POST["eyebrow_{$slideNum}"] ?? ($oldSlide['eyebrow'] ?? 'GALERIA DE ARTE')),
+                'title' => trim($_POST["title_{$slideNum}"] ?? ($oldSlide['title'] ?? 'Arte que<br>transforma<br>espaços.')),
+                'description' => trim($_POST["description_{$slideNum}"] ?? ($oldSlide['description'] ?? '')),
+                'quote' => trim($_POST["quote_{$slideNum}"] ?? ($oldSlide['quote'] ?? '')),
+                'cta_primary_text' => trim($_POST["cta_primary_text_{$slideNum}"] ?? ($oldSlide['cta_primary_text'] ?? 'Explorar obras')),
+                'cta_primary_url' => trim($_POST["cta_primary_url_{$slideNum}"] ?? ($oldSlide['cta_primary_url'] ?? 'pages/obras.php')),
+                'cta_secondary_text' => trim($_POST["cta_secondary_text_{$slideNum}"] ?? ($oldSlide['cta_secondary_text'] ?? 'Ver categorias')),
+                'cta_secondary_url' => trim($_POST["cta_secondary_url_{$slideNum}"] ?? ($oldSlide['cta_secondary_url'] ?? '#categorias')),
+            ];
+        }
+
+        if (empty($msgErro)) {
+            artsale_save_hero_slides($updatedSlides);
+            header('Location: hero-slides.php?msg=saved');
+            exit;
+        }
+    }
+}
+
+// Carrega os 3 slides atuais
+$slides = artsale_get_hero_slides();
+$currentTab = 'hero_slides';
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banners do Hero (Carrossel) — Painel Art For Sale</title>
+    
+    <link rel="icon" type="image/svg+xml" href="../assets/images/site/logo-icon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Anti-flicker Theme Initialization -->
+    <script>
+        (function() {
+            const saved = localStorage.getItem('artforsale_admin_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+        })();
+    </script>
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="../assets/js/admin.js"></script>
+
+    <style>
+        .hero-banner-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s ease;
+        }
+
+        .hero-banner-card:hover {
+            border-color: var(--border-gold);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .banner-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .banner-num-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--color-gold);
+            background: var(--color-gold-subtle);
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            border: 1px solid rgba(179, 138, 84, 0.3);
+            letter-spacing: 0.05em;
+        }
+
+        .banner-preview-box {
+            position: relative;
+            width: 100%;
+            height: 240px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #12110f;
+            background-size: cover;
+            background-position: center 30%;
+            background-repeat: no-repeat;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+        }
+
+        .banner-preview-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to right,
+                rgba(10, 9, 8, 0.90) 0%,
+                rgba(10, 9, 8, 0.75) 45%,
+                rgba(10, 9, 8, 0.40) 75%,
+                rgba(10, 9, 8, 0.70) 100%
+            );
+            pointer-events: none;
+        }
+
+        .banner-preview-content {
+            position: relative;
+            z-index: 2;
+            color: #ffffff;
+            max-width: 60%;
+        }
+
+        .preview-eyebrow {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: #c8a96e;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 0.35rem;
+        }
+
+        .preview-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.65rem;
+            font-weight: 500;
+            line-height: 1.15;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-desc {
+            font-size: 0.78rem;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.8);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .banner-preview-quote {
+            position: absolute;
+            right: 2rem;
+            bottom: 1.5rem;
+            max-width: 200px;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 0.85rem;
+            font-style: italic;
+            color: #eae5dc;
+            border-left: 2px solid #c8a96e;
+            padding-left: 0.65rem;
+            z-index: 2;
+        }
+
+        .grid-fields-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.45rem;
+            color: var(--text-main);
+        }
+
+        .form-group .form-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-gold);
+            box-shadow: 0 0 0 3px var(--color-gold-subtle);
+        }
+
+        .file-upload-dropzone {
+            border: 2px dashed var(--border-gold);
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+            background-color: var(--bg-card-alt);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.75rem;
+        }
+
+        .file-upload-dropzone:hover {
+            border-color: var(--color-gold);
+            background-color: var(--color-gold-subtle);
+        }
+
+        .preset-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-preset {
+            background: var(--bg-card-alt);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.35rem 0.65rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-preset:hover {
+            border-color: var(--color-gold);
+            color: var(--color-gold);
+        }
+
+        .actions-bottom-bar {
+            position: sticky;
+            bottom: 0;
+            background-color: var(--bg-topbar);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            z-index: 50;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .btn-gold {
+            background-color: var(--color-gold);
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 1.75rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-gold:hover {
+            background-color: var(--color-gold-hover);
+        }
+
+        .btn-outline-danger {
+            background: transparent;
+            color: var(--color-danger);
+            border: 1px solid var(--color-danger);
+            padding: 0.65rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-outline-danger:hover {
+            background: rgba(201, 59, 59, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .grid-fields-2 { grid-template-columns: 1fr; }
+            .banner-preview-box { height: 180px; }
+            .banner-preview-content { max-width: 100%; }
+            .banner-preview-quote { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Topbar Oficial da Art For Sale -->
+    <header class="admin-topbar">
+        <div class="logo-area">
+            <a href="index.php" title="Voltar ao Dashboard">
+                <img src="../assets/images/site/logo.svg" alt="Art For Sale" class="admin-logo-light" width="160" height="36">
+                <img src="../assets/images/site/logo-white.svg" alt="Art For Sale" class="admin-logo-dark" width="160" height="36">
+            </a>
+            <span class="badge-role">Admin • Curadoria</span>
+        </div>
+
+        <nav class="user-nav">
+            <span class="user-email-label">
+                Curador: <strong><?= htmlspecialchars($user['email']) ?></strong>
+            </span>
+            <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleAdminTheme()" title="Alternar tema visual (Claro / Escuro)">
+                <span id="themeToggleIcon">🌙</span>
+                <span id="themeToggleLabel">Escuro</span>
+            </button>
+            <a href="../index.php" target="_blank" class="btn-link-site">Galeria Pública ↗</a>
+            <a href="logout.php" class="btn-logout-link">Sair</a>
+        </nav>
+    </header>
+
+    <!-- Barra de Abas do Painel -->
+    <nav class="admin-tabs-bar">
+        <a href="index.php?tab=dashboard" class="tab-btn">
+            <span>📊 Dashboard Geral</span>
+        </a>
+        <a href="obras.php" class="tab-btn">
+            <span>🖼️ Catálogo de Obras</span>
+        </a>
+        <a href="hero-slides.php" class="tab-btn active">
+            <span>✨ Banners do Hero</span>
+            <span class="tab-count">3</span>
+        </a>
+        <a href="categorias.php" class="tab-btn">
+            <span>📁 Categorias</span>
+        </a>
+        <a href="artistas.php" class="tab-btn">
+            <span>🎨 Artistas</span>
+        </a>
+        <a href="obra-nova.php" class="tab-btn">
+            <span>+ Cadastrar Obra</span>
+        </a>
+        <a href="index.php?tab=inquiries" class="tab-btn">
+            <span>📩 Consultas</span>
+        </a>
+        <a href="index.php?tab=contacts" class="tab-btn">
+            <span>💬 Contatos</span>
+        </a>
+    </nav>
+
+    <main class="admin-content" style="max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; width: 100%;">
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2.2rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
+                    Banners do Hero Section
+                </h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">
+                    Personalize as 3 imagens, títulos, frases e citações do carrossel principal da página inicial.
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <a href="../index.php#hero" target="_blank" class="btn-preset" style="padding: 0.65rem 1rem; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none;">
+                    Ver Hero no Site ↗
+                </a>
+                <form method="POST" onsubmit="return confirm('Deseja realmente restaurar os 3 banners para as fotos e textos originais da galeria?');" style="display: inline;">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="action" value="reset_defaults">
+                    <button type="submit" class="btn-outline-danger">Restaurar Padrões</button>
+                </form>
+            </div>
+        </div>
+
+        <?php if (!empty($msgSucesso)): ?>
+            <div class="alert alert-success" style="padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; background-color: rgba(46, 125, 50, 0.1); border: 1px solid rgba(46, 125, 50, 0.3); color: var(--color-success); display: flex; justify-content: space-between; align-items: center;">
+                <span>✓ <?= htmlspecialchars($msgSucesso) ?></span>
+                <button type="button" onclick="this.parentElement.style.display='none'" style="background:none;border:none;color:inherit;cursor:pointer;font-size:1.1rem;">✕</button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($msgErro)): ?>
+            <div class="alert alert-error" style="padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; background-color: rgba(201, 59, 59, 0.1); border: 1px solid rgba(201, 59, 59, 0.3); color: var(--color-danger); display: flex; justify-content: space-between; align-items: center;">
+                <span>✕ <?= htmlspecialchars($msgErro) ?></span>
+                <button type="button" onclick="this.parentElement.style.display='none'" style="background:none;border:none;color:inherit;cursor:pointer;font-size:1.1rem;">✕</button>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" enctype="multipart/form-data" id="heroBannersForm">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="save_slides">
+
+            <?php for ($i = 0; $i < 3; $i++): 
+                $slideNum = $i + 1;
+                $slide = $slides[$i] ?? [];
+                $currentImageResolved = artsale_resolve_image_url($slide['image'] ?? '', '../');
+            ?>
+                <section class="hero-banner-card" id="card-slide-<?= $slideNum ?>">
+                    <div class="banner-header">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span class="banner-num-badge">
+                                <span>✦</span> Slide 0<?= $slideNum ?> <?= $slideNum === 1 ? '— (Inicial)' : '' ?>
+                            </span>
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">
+                                Indicador: <strong>0<?= $slideNum ?></strong> no carrossel
+                            </span>
+                        </div>
+                        <span style="font-size: 0.8rem; color: var(--color-gold);">
+                            Transição suave com zoom cinemático
+                        </span>
+                    </div>
+
+                    <!-- Preview ao Vivo com Estilo do Hero -->
+                    <div class="banner-preview-box" id="preview-box-<?= $slideNum ?>" style="background-image: url('<?= htmlspecialchars($currentImageResolved) ?>');">
+                        <div class="banner-preview-overlay"></div>
+                        <div class="banner-preview-content">
+                            <span class="preview-eyebrow" id="preview-eyebrow-<?= $slideNum ?>"><?= htmlspecialchars($slide['eyebrow'] ?? 'GALERIA DE ARTE') ?></span>
+                            <h3 class="preview-title" id="preview-title-<?= $slideNum ?>"><?= $slide['title'] ?? 'Arte que<br>transforma<br>espaços.' ?></h3>
+                            <p class="preview-desc" id="preview-desc-<?= $slideNum ?>"><?= htmlspecialchars($slide['description'] ?? '') ?></p>
+                        </div>
+                        <div class="banner-preview-quote" id="preview-quote-<?= $slideNum ?>">
+                            “<?= htmlspecialchars($slide['quote'] ?? 'Mais que quadros, histórias que ganham vida no seu espaço.') ?>”
+                        </div>
+                    </div>
+
+                    <!-- Configuração da Imagem do Banner -->
+                    <div style="background-color: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                        <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                            <span>📷</span> Imagem de Fundo do Slide <?= $slideNum ?>
+                        </h4>
+
+                        <div class="grid-fields-2">
+                            <!-- Opção 1: Upload de Arquivo do Computador -->
+                            <div>
+                                <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.45rem; display: block;">
+                                    Enviar Nova Imagem (Computador / Celular):
+                                </label>
+                                <div class="file-upload-dropzone" onclick="document.getElementById('slide_file_<?= $slideNum ?>').click()">
+                                    <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">📁</div>
+                                    <div style="font-weight: 600; font-size: 0.85rem; color: var(--color-gold);">
+                                        Clique para selecionar imagem
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+                                        JPG, JPEG, PNG ou WEBP até 10 MB
+                                    </div>
+                                    <div id="file-name-<?= $slideNum ?>" style="font-size: 0.8rem; color: var(--color-success); font-weight: 600; margin-top: 0.4rem; display: none;"></div>
+                                </div>
+                                <input type="file" name="slide_file_<?= $slideNum ?>" id="slide_file_<?= $slideNum ?>" accept="image/jpeg,image/png,image/webp" style="display: none;" onchange="handleFileSelected(this, <?= $slideNum ?>)">
+                            </div>
+
+                            <!-- Opção 2: URL Direta ou Atalho da Galeria -->
+                            <div>
+                                <div class="form-group" style="margin-bottom: 0.75rem;">
+                                    <label for="image_url_<?= $slideNum ?>">Ou informe o Caminho / URL da Imagem:</label>
+                                    <input type="text" name="image_url_<?= $slideNum ?>" id="image_url_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['image'] ?? '') ?>" placeholder="assets/images/site/... ou https://..." oninput="handleUrlChanged(this.value, <?= $slideNum ?>)">
+                                    <div class="form-hint">Aceita fotos locais ou links públicos do Supabase Storage / CDN.</div>
+                                </div>
+
+                                <div>
+                                    <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">
+                                        Fotos clássicas da galeria para aplicar com 1 clique:
+                                    </label>
+                                    <div class="preset-buttons">
+                                        <button type="button" class="btn-preset" onclick="setPresetImage(<?= $slideNum ?>, 'assets/images/site/hero-bg.jpg')">Sala Galeria</button>
+                                        <button type="button" class="btn-preset" onclick="setPresetImage(<?= $slideNum ?>, 'assets/images/site/about-art-gallery.jpg')">Salão Exposição</button>
+                                        <button type="button" class="btn-preset" onclick="setPresetImage(<?= $slideNum ?>, 'assets/images/site/about-art-sell.jpg')">Ateliê Privado</button>
+                                        <button type="button" class="btn-preset" onclick="setPresetImage(<?= $slideNum ?>, 'assets/images/site/footer-sculpture.jpg')">Escultura Luxo</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configuração dos Textos Editoriais -->
+                    <div class="grid-fields-2">
+                        <div class="form-group">
+                            <label for="eyebrow_<?= $slideNum ?>">Subtítulo Superior (Eyebrow):</label>
+                            <input type="text" name="eyebrow_<?= $slideNum ?>" id="eyebrow_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['eyebrow'] ?? 'GALERIA DE ARTE') ?>" oninput="updateTextPreview('preview-eyebrow-<?= $slideNum ?>', this.value)">
+                            <div class="form-hint">Ex: GALERIA DE ARTE, CURADORIA EXCLUSIVA, ACERVO PRIVADO.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="title_<?= $slideNum ?>">Título Principal:</label>
+                            <input type="text" name="title_<?= $slideNum ?>" id="title_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['title'] ?? '') ?>" oninput="updateHtmlPreview('preview-title-<?= $slideNum ?>', this.value)">
+                            <div class="form-hint">Dica: Use <code>&lt;br&gt;</code> para quebras editoriais de linha harmoniosas.</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-fields-2">
+                        <div class="form-group">
+                            <label for="description_<?= $slideNum ?>">Descrição do Slide:</label>
+                            <textarea name="description_<?= $slideNum ?>" id="description_<?= $slideNum ?>" class="form-control" rows="2" oninput="updateTextPreview('preview-desc-<?= $slideNum ?>', this.value)"><?= htmlspecialchars($slide['description'] ?? '') ?></textarea>
+                            <div class="form-hint">Texto explicativo curto e acolhedor para colecionadores.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="quote_<?= $slideNum ?>">Citação Editorial (Lado Direito):</label>
+                            <textarea name="quote_<?= $slideNum ?>" id="quote_<?= $slideNum ?>" class="form-control" rows="2" oninput="updateQuotePreview('preview-quote-<?= $slideNum ?>', this.value)"><?= htmlspecialchars($slide['quote'] ?? '') ?></textarea>
+                            <div class="form-hint">Frase poética ou reflexiva exibida entre aspas no box lateral.</div>
+                        </div>
+                    </div>
+
+                    <!-- Links dos Botões (Opcional) -->
+                    <details style="margin-top: 0.5rem; font-size: 0.85rem;">
+                        <summary style="cursor: pointer; color: var(--color-gold); font-weight: 600; margin-bottom: 0.75rem;">
+                            ⚙️ Personalizar Botões de Ação (CTAs) deste Slide
+                        </summary>
+                        <div class="grid-fields-2" style="background-color: var(--bg-card-alt); padding: 1rem; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 0.5rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Botão Primário (Destaque):</label>
+                                <input type="text" name="cta_primary_text_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['cta_primary_text'] ?? 'Explorar obras') ?>" placeholder="Texto do botão" style="margin-bottom: 0.35rem;">
+                                <input type="text" name="cta_primary_url_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['cta_primary_url'] ?? 'pages/obras.php') ?>" placeholder="Link (ex: pages/obras.php)">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Botão Secundário (Borda):</label>
+                                <input type="text" name="cta_secondary_text_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['cta_secondary_text'] ?? 'Ver categorias') ?>" placeholder="Texto do botão" style="margin-bottom: 0.35rem;">
+                                <input type="text" name="cta_secondary_url_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['cta_secondary_url'] ?? '#categorias') ?>" placeholder="Link (ex: #categorias)">
+                            </div>
+                        </div>
+                    </details>
+                </section>
+            <?php endfor; ?>
+
+            <!-- Barra Fixa de Salvamento -->
+            <div class="actions-bottom-bar">
+                <div>
+                    <span style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">
+                        ✦ Configuração dos 3 Slides Pronta
+                    </span>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">
+                        Ao salvar, as imagens e textos entrarão no carrossel da página inicial imediatamente.
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <a href="index.php" class="btn-preset" style="padding: 0.75rem 1.25rem; font-size: 0.9rem; text-decoration: none;">Cancelar</a>
+                    <button type="submit" class="btn-gold">
+                        <span>💾 Salvar Todos os Banners</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    </main>
+
+    <script>
+        // Atualiza preview ao selecionar arquivo do disco
+        function handleFileSelected(input, slideNum) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileNameDiv = document.getElementById('file-name-' + slideNum);
+                if (fileNameDiv) {
+                    fileNameDiv.textContent = '✓ Selecionado: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
+                    fileNameDiv.style.display = 'block';
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewBox = document.getElementById('preview-box-' + slideNum);
+                    if (previewBox) {
+                        previewBox.style.backgroundImage = 'url(' + e.target.result + ')';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Atualiza preview ao digitar URL
+        function handleUrlChanged(url, slideNum) {
+            if (!url) return;
+            const previewBox = document.getElementById('preview-box-' + slideNum);
+            if (previewBox) {
+                const resolvedUrl = url.startsWith('http') || url.startsWith('data:') ? url : '../' + url.replace(/^\/+/, '');
+                previewBox.style.backgroundImage = 'url(' + resolvedUrl + ')';
+            }
+        }
+
+        // Aplica imagem pré-definida
+        function setPresetImage(slideNum, presetPath) {
+            const inputUrl = document.getElementById('image_url_' + slideNum);
+            if (inputUrl) {
+                inputUrl.value = presetPath;
+                handleUrlChanged(presetPath, slideNum);
+            }
+            const fileInput = document.getElementById('slide_file_' + slideNum);
+            if (fileInput) {
+                fileInput.value = '';
+            }
+            const fileNameDiv = document.getElementById('file-name-' + slideNum);
+            if (fileNameDiv) {
+                fileNameDiv.style.display = 'none';
+            }
+        }
+
+        // Funções para atualizar texto ao vivo no card
+        function updateTextPreview(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        }
+
+        function updateHtmlPreview(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = val;
+        }
+
+        function updateQuotePreview(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = '“' + val + '”';
+        }
+    </script>
+</body>
+</html>

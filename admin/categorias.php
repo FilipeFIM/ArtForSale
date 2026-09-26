@@ -581,6 +581,10 @@ $counts = [
             <span>🖼️ Catálogo de Obras</span>
             <span class="tab-count"><?= count($obras) ?></span>
         </a>
+        <a href="hero-slides.php" class="tab-btn">
+            <span>✨ Banners do Hero</span>
+            <span class="tab-count">3</span>
+        </a>
         <a href="categorias.php" class="tab-btn active">
             <span>📁 Categorias</span>
             <span class="tab-count"><?= count($categorias) ?></span>

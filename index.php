@@ -96,33 +96,49 @@ require_once __DIR__ . '/includes/header.php';
     <!-- ========================================================
          SEÇÃO HERO
          ======================================================== -->
+    <?php
+    $heroSlides = function_exists('artsale_get_hero_slides') ? artsale_get_hero_slides() : [];
+    $activeHeroSlide = $heroSlides[0] ?? [
+        'image' => 'assets/images/site/hero-bg.jpg',
+        'eyebrow' => 'GALERIA DE ARTE',
+        'title' => 'Arte que<br>transforma<br>espaços.',
+        'description' => 'Descubra obras únicas e cuidadosamente selecionadas para colecionadores, apreciadores e ambientes que merecem personalidade.',
+        'quote' => 'Mais que quadros, histórias que ganham vida no seu espaço.',
+        'cta_primary_text' => 'Explorar obras',
+        'cta_primary_url' => 'pages/obras.php',
+        'cta_secondary_text' => 'Ver categorias',
+        'cta_secondary_url' => '#categorias'
+    ];
+    ?>
     <section class="hero-section" id="hero">
-        <!-- Fundo com imagens em camadas para transição suave de slides -->
+        <!-- Fundo com imagens em camadas configuráveis via Painel Admin -->
         <div class="hero-background" id="heroBackground" data-mockup-fallback="hero">
-            <div class="hero-bg-slide active" style="background-image: url('<?= get_image_url('assets/images/site/hero-bg.jpg') ?>');" data-slide-index="0"></div>
-            <div class="hero-bg-slide" style="background-image: url('<?= get_image_url('assets/images/site/about-art-gallery.jpg') ?>');" data-slide-index="1"></div>
-            <div class="hero-bg-slide" style="background-image: url('<?= get_image_url('assets/images/site/about-art-sell.jpg') ?>');" data-slide-index="2"></div>
+            <?php foreach ($heroSlides as $sIdx => $sData): 
+                $bgImgUrl = (preg_match('#^(https?:)?//#i', $sData['image']) || str_starts_with($sData['image'], 'data:'))
+                    ? $sData['image']
+                    : get_image_url($sData['image']);
+            ?>
+                <div class="hero-bg-slide <?= $sIdx === 0 ? 'active' : '' ?>" style="background-image: url('<?= htmlspecialchars($bgImgUrl) ?>');" data-slide-index="<?= $sIdx ?>"></div>
+            <?php endforeach; ?>
             <div class="hero-overlay"></div>
         </div>
 
         <div class="hero-container">
             <!-- Conteúdo Principal do Hero (Esquerda) -->
             <div class="hero-content">
-                <span class="hero-eyebrow hero-text-fade">GALERIA DE ARTE</span>
+                <span class="hero-eyebrow hero-text-fade"><?= htmlspecialchars($activeHeroSlide['eyebrow'] ?? 'GALERIA DE ARTE') ?></span>
                 <h1 class="hero-title hero-text-fade">
-                    Arte que<br>
-                    transforma<br>
-                    espaços.
+                    <?= $activeHeroSlide['title'] ?? 'Arte que<br>transforma<br>espaços.' ?>
                 </h1>
                 <p class="hero-description hero-text-fade">
-                    Descubra obras únicas e cuidadosamente selecionadas para colecionadores, apreciadores e ambientes que merecem personalidade.
+                    <?= htmlspecialchars($activeHeroSlide['description'] ?? '') ?>
                 </p>
                 <div class="hero-cta-group">
-                    <a href="pages/obras.php" class="btn-primary" id="heroCtaPrimary">
-                        Explorar obras <span class="arrow">→</span>
+                    <a href="<?= htmlspecialchars($activeHeroSlide['cta_primary_url'] ?? 'pages/obras.php') ?>" class="btn-primary" id="heroCtaPrimary">
+                        <?= htmlspecialchars($activeHeroSlide['cta_primary_text'] ?? 'Explorar obras') ?> <span class="arrow">→</span>
                     </a>
-                    <a href="#categorias" class="btn-outline-light" id="heroCtaSecondary">
-                        Ver categorias
+                    <a href="<?= htmlspecialchars($activeHeroSlide['cta_secondary_url'] ?? '#categorias') ?>" class="btn-outline-light" id="heroCtaSecondary">
+                        <?= htmlspecialchars($activeHeroSlide['cta_secondary_text'] ?? 'Ver categorias') ?>
                     </a>
                 </div>
 
@@ -139,7 +155,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="hero-quote-box">
                 <div class="quote-mark">“</div>
                 <blockquote class="quote-text hero-text-fade">
-                    Mais que quadros, histórias que ganham vida no seu espaço.
+                    <?= htmlspecialchars($activeHeroSlide['quote'] ?? 'Mais que quadros, histórias que ganham vida no seu espaço.') ?>
                 </blockquote>
                 
                 <!-- Setas de Navegação do Hero -->

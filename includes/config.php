@@ -339,6 +339,168 @@ function artsale_merge_catalogo(array $prioritarias, array $catalogoBase): array
 }
 
 /**
+ * Retorna os 3 slides do Hero da página inicial.
+ * Prioridade:
+ * 1. Arquivo database/hero_slides.json
+ * 2. Sessão PHP ativa
+ * 3. Cookie HTTP artsale_hero_slides (para ambientes serverless)
+ * 4. Fallback padrão da curadoria Art For Sale
+ */
+function artsale_get_hero_slides(): array {
+    static $slidesCache = null;
+    if ($slidesCache !== null) {
+        return $slidesCache;
+    }
+
+    $defaultSlides = [
+        [
+            'id' => 1,
+            'image' => 'assets/images/site/hero-bg.jpg',
+            'eyebrow' => 'GALERIA DE ARTE',
+            'title' => 'Arte que<br>transforma<br>espaços.',
+            'description' => 'Descubra obras únicas e cuidadosamente selecionadas para colecionadores, apreciadores e ambientes que merecem personalidade.',
+            'quote' => 'Mais que quadros, histórias que ganham vida no seu espaço.',
+            'cta_primary_text' => 'Explorar obras',
+            'cta_primary_url' => 'pages/obras.php',
+            'cta_secondary_text' => 'Ver categorias',
+            'cta_secondary_url' => '#categorias'
+        ],
+        [
+            'id' => 2,
+            'image' => 'assets/images/site/about-art-gallery.jpg',
+            'eyebrow' => 'CURADORIA EXCLUSIVA',
+            'title' => 'Coleções<br>únicas com<br>personalidade.',
+            'description' => 'Pinturas a óleo, gravuras históricas e esculturas nobres selecionadas para elevar o design de interiores a outro patamar.',
+            'quote' => 'A beleza clássica e contemporânea em perfeita harmonia.',
+            'cta_primary_text' => 'Explorar obras',
+            'cta_primary_url' => 'pages/obras.php',
+            'cta_secondary_text' => 'Ver categorias',
+            'cta_secondary_url' => '#categorias'
+        ],
+        [
+            'id' => 3,
+            'image' => 'assets/images/site/about-art-sell.jpg',
+            'eyebrow' => 'ACERVO PRIVADO',
+            'title' => 'Obras de arte<br>que contam<br>histórias.',
+            'description' => 'Atendimento e consultoria especializada para encontrar a peça perfeita para sua residência, escritório ou coleção particular.',
+            'quote' => 'Cada pincelada carrega uma emoção eterna e autêntica.',
+            'cta_primary_text' => 'Explorar obras',
+            'cta_primary_url' => 'pages/obras.php',
+            'cta_secondary_text' => 'Ver categorias',
+            'cta_secondary_url' => '#categorias'
+        ]
+    ];
+
+    $loaded = null;
+
+    // 1. Arquivo database/hero_slides.json
+    $file = BASE_PATH . '/database/hero_slides.json';
+    if (file_exists($file)) {
+        $content = @file_get_contents($file);
+        $decoded = @json_decode($content ?: '[]', true);
+        if (is_array($decoded) && count($decoded) >= 3) {
+            $loaded = $decoded;
+        }
+    }
+
+    // 2. Sessão PHP
+    if (!$loaded && session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION['hero_slides']) && is_array($_SESSION['hero_slides'])) {
+        $loaded = $_SESSION['hero_slides'];
+    }
+
+    // 3. Cookie HTTP
+    if (!$loaded && !empty($_COOKIE['artsale_hero_slides'])) {
+        $cookieDecoded = @json_decode($_COOKIE['artsale_hero_slides'], true);
+        if (is_array($cookieDecoded) && count($cookieDecoded) >= 3) {
+            $loaded = $cookieDecoded;
+        }
+    }
+
+    if (!$loaded) {
+        $loaded = $defaultSlides;
+    }
+
+    // Garante que cada slide tenha todos os campos esperados
+    $result = [];
+    for ($i = 0; $i < 3; $i++) {
+        $def = $defaultSlides[$i];
+        $curr = $loaded[$i] ?? [];
+        $result[] = [
+            'id' => $i + 1,
+            'image' => !empty($curr['image']) ? $curr['image'] : $def['image'],
+            'eyebrow' => !empty($curr['eyebrow']) ? $curr['eyebrow'] : $def['eyebrow'],
+            'title' => !empty($curr['title']) ? $curr['title'] : $def['title'],
+            'description' => !empty($curr['description']) ? $curr['description'] : $def['description'],
+            'quote' => !empty($curr['quote']) ? $curr['quote'] : $def['quote'],
+            'cta_primary_text' => !empty($curr['cta_primary_text']) ? $curr['cta_primary_text'] : $def['cta_primary_text'],
+            'cta_primary_url' => !empty($curr['cta_primary_url']) ? $curr['cta_primary_url'] : $def['cta_primary_url'],
+            'cta_secondary_text' => !empty($curr['cta_secondary_text']) ? $curr['cta_secondary_text'] : $def['cta_secondary_text'],
+            'cta_secondary_url' => !empty($curr['cta_secondary_url']) ? $curr['cta_secondary_url'] : $def['cta_secondary_url'],
+        ];
+    }
+
+    $slidesCache = $result;
+    return $result;
+}
+
+/**
+ * Salva a configuração dos 3 slides do Hero em arquivo, sessão e cookie
+ */
+function artsale_save_hero_slides(array $slides): bool {
+    if (count($slides) < 3) return false;
+
+    // Normaliza os 3 slides
+    $normalized = [];
+    for ($i = 0; $i < 3; $i++) {
+        $s = $slides[$i] ?? [];
+        $normalized[] = [
+            'id' => $i + 1,
+            'image' => trim($s['image'] ?? ''),
+            'eyebrow' => trim($s['eyebrow'] ?? ''),
+            'title' => trim($s['title'] ?? ''),
+            'description' => trim($s['description'] ?? ''),
+            'quote' => trim($s['quote'] ?? ''),
+            'cta_primary_text' => trim($s['cta_primary_text'] ?? 'Explorar obras'),
+            'cta_primary_url' => trim($s['cta_primary_url'] ?? 'pages/obras.php'),
+            'cta_secondary_text' => trim($s['cta_secondary_text'] ?? 'Ver categorias'),
+            'cta_secondary_url' => trim($s['cta_secondary_url'] ?? '#categorias'),
+        ];
+    }
+
+    // 1. Arquivo físico
+    $dir = BASE_PATH . '/database';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+    $file = $dir . '/hero_slides.json';
+    $json = json_encode($normalized, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @file_put_contents($file, $json);
+
+    // 2. Sessão PHP
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        $_SESSION['hero_slides'] = $normalized;
+    }
+
+    // 3. Cookie HTTP (365 dias)
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+               (!empty($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443) ||
+               (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+
+    $cookieJson = json_encode($normalized, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @setcookie('artsale_hero_slides', $cookieJson, [
+        'expires'  => time() + (365 * 24 * 60 * 60),
+        'path'     => '/',
+        'domain'   => '',
+        'secure'   => $isHttps,
+        'httponly' => false,
+        'samesite' => 'Lax'
+    ]);
+    $_COOKIE['artsale_hero_slides'] = $cookieJson;
+
+    return true;
+}
+
+/**
  * Resolve com segurança a URL de exibição de qualquer imagem da galeria/acervo.
  * Suporta:
  * - URLs absolutas do Supabase Storage (https://...supabase.co/...)
