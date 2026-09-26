@@ -119,7 +119,7 @@ function admin_upload_hero_banner(array $file, int $slideId, ?string $token = nu
 }
 
 // Processamento de Ações POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     require_csrf_token();
     $action = $_POST['action'] ?? '';
 
@@ -571,7 +571,7 @@ $currentTab = 'hero_slides';
                     Ver Hero no Site ↗
                 </a>
                 <form method="POST" onsubmit="return confirm('Deseja realmente restaurar os 3 banners para as fotos e textos originais da galeria?');" style="display: inline;">
-                    <?= csrf_field() ?>
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(artsale_get_csrf_token()) ?>">
                     <input type="hidden" name="action" value="reset_defaults">
                     <button type="submit" class="btn-outline-danger">Restaurar Padrões</button>
                 </form>
@@ -593,7 +593,7 @@ $currentTab = 'hero_slides';
         <?php endif; ?>
 
         <form method="POST" enctype="multipart/form-data" id="heroBannersForm">
-            <?= csrf_field() ?>
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(artsale_get_csrf_token()) ?>">
             <input type="hidden" name="action" value="save_slides">
 
             <?php for ($i = 0; $i < 3; $i++): 

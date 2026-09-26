@@ -81,6 +81,16 @@ function require_csrf_token(): void {
 }
 
 /**
+ * Renderiza um campo input hidden com o token CSRF atual para formulários HTML
+ */
+if (!function_exists('csrf_field')) {
+    function csrf_field(): string {
+        $token = htmlspecialchars(artsale_get_csrf_token());
+        return '<input type="hidden" name="csrf_token" value="' . $token . '">';
+    }
+}
+
+/**
  * Grava cookies de autenticação criptograficamente seguros para garantir persistência
  * em ambientes serverless (Vercel) e evitar perdas de sessão entre requisições.
  */
