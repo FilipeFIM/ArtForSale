@@ -864,6 +864,11 @@ function supabase_upload_imagem_obra(
 
     // 3. Salva metadados na tabela public.artwork_images
     $isThisPrimary = $isPrimary || ($imageType === 'principal');
+    $validImageTypes = ['principal', 'frontal', 'lateral', 'detalhe', 'textura', 'ambiente', 'outras'];
+    $imageTypeSanitized = in_array(strtolower($imageType), $validImageTypes, true) ? strtolower($imageType) : 'outras';
+    if ($isThisPrimary) {
+        $imageTypeSanitized = 'principal';
+    }
 
     $tokenForDb = $authToken ?: (defined('SUPABASE_SERVICE_ROLE_KEY') && !empty(SUPABASE_SERVICE_ROLE_KEY) ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY);
     if (supabase_is_jwt_expired($tokenForDb)) {
@@ -884,7 +889,7 @@ function supabase_upload_imagem_obra(
         'artwork_id'   => $artworkId,
         'image_url'    => $finalImageUrl,
         'storage_path' => $storageSuccess ? $storagePath : $localRelativeUrl,
-        'image_type'   => $imageType,
+        'image_type'   => $imageTypeSanitized,
         'sort_order'   => $sortOrder,
         'is_primary'   => $isThisPrimary
     ];

@@ -87,6 +87,15 @@
                 "titulo": "Vista adicional",
                 "is_primary": false,
                 "sort_order": 1
+            },
+            {
+                "id": "5959b4cd-c748-4a47-b180-c0734fbad5a9",
+                "imagem": "https:\/\/recmxyfocskxvzbbkoui.supabase.co\/storage\/v1\/object\/public\/artworks\/e605ee3d-e737-4f25-9191-a7be5a71e1ad\/gallery\/1790383714_chatgpt_image_25_de_set__de_2026__13_14_44.png",
+                "storage_path": "e605ee3d-e737-4f25-9191-a7be5a71e1ad\/gallery\/1790383714_chatgpt_image_25_de_set__de_2026__13_14_44.png",
+                "tipo": "outras",
+                "titulo": "Galeria",
+                "is_primary": false,
+                "sort_order": 2
             }
         ]
     },
@@ -953,8 +962,8 @@
         "categoria": "Arte Clássica",
         "categoria_id": "c1000000-0000-0000-0000-000000000001",
         "categoria_slug": "arte-classica",
-        "imagem": "assets\/images\/obras\/uploads\/d66cd1ea-35b1-424a-979c-cffa11f7e845_1790288133_natureza-morta_floral.png",
-        "imagem_storage_path": "assets\/images\/obras\/uploads\/d66cd1ea-35b1-424a-979c-cffa11f7e845_1790288133_natureza-morta_floral.png",
+        "imagem": "https:\/\/recmxyfocskxvzbbkoui.supabase.co\/storage\/v1\/object\/public\/artworks\/d66cd1ea-35b1-424a-979c-cffa11f7e845\/principal\/1790383616_natureza-morta_floral.png",
+        "imagem_storage_path": "d66cd1ea-35b1-424a-979c-cffa11f7e845\/principal\/1790383616_natureza-morta_floral.png",
         "tecnica": "Óleo sobre tela",
         "ano": 2026,
         "codigo": "x",
@@ -971,10 +980,19 @@
                 "id": null,
                 "imagem": "assets\/images\/obras\/uploads\/d66cd1ea-35b1-424a-979c-cffa11f7e845_1790288133_natureza-morta_floral.png",
                 "storage_path": "assets\/images\/obras\/uploads\/d66cd1ea-35b1-424a-979c-cffa11f7e845_1790288133_natureza-morta_floral.png",
+                "tipo": "outras",
+                "titulo": "Imagem principal",
+                "is_primary": false,
+                "sort_order": 1
+            },
+            {
+                "id": "f882da24-77f9-4c3e-8a73-9bee8b741df9",
+                "imagem": "https:\/\/recmxyfocskxvzbbkoui.supabase.co\/storage\/v1\/object\/public\/artworks\/d66cd1ea-35b1-424a-979c-cffa11f7e845\/principal\/1790383616_natureza-morta_floral.png",
+                "storage_path": "d66cd1ea-35b1-424a-979c-cffa11f7e845\/principal\/1790383616_natureza-morta_floral.png",
                 "tipo": "principal",
                 "titulo": "Imagem principal",
                 "is_primary": true,
-                "sort_order": 1
+                "sort_order": 0
             }
         ]
     }
