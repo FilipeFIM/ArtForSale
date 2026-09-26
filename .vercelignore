@@ -1,0 +1,5 @@
+.git
+.env
+scratch
+*.ps1
+extract_mockup.html
