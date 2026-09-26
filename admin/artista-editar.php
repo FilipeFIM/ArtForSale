@@ -124,6 +124,7 @@ $currentImg = !empty($artista['image_url']) ? artsale_resolve_image_url($artista
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="../assets/js/admin.js"></script>
 
     <script>
         (function() {
@@ -663,6 +664,5 @@ $currentImg = !empty($artista['image_url']) ? artsale_resolve_image_url($artista
             });
         }
     </script>
-    <script src="../assets/js/admin.js"></script>
 </body>
 </html>

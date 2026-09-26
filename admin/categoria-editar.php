@@ -132,6 +132,7 @@ $currentImg = artsale_resolve_image_url($categoria['image_url'] ?? '', '../');
         })();
     </script>
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="../assets/js/admin.js"></script>
 
     <style>
         :root {
@@ -597,6 +598,5 @@ $currentImg = artsale_resolve_image_url($categoria['image_url'] ?? '', '../');
             });
         }
     </script>
-    <script src="../assets/js/admin.js"></script>
 </body>
 </html>

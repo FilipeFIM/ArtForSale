@@ -302,7 +302,7 @@ $deletedIds = function_exists('artsale_get_deleted_artwork_ids') ? artsale_get_d
 $obras = array_values(array_filter($obras, fn($item) => !in_array((string)($item['id'] ?? ''), $deletedIds, true)));
 
 // Obra selecionada na aba de fotos
-$selectedArtworkId = $_GET['artwork_id'] ?? ($obras[0]['id'] ?? '');
+$selectedArtworkId = $_GET['artwork_id'] ?? ($obras[0]['id'] ?? '101');
 $selectedArtwork = null;
 foreach ($obras as $item) {
     if ((string)$item['id'] === (string)$selectedArtworkId) {
@@ -335,6 +335,7 @@ $statusFilter = $_GET['status'] ?? 'all';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="../assets/js/admin.js"></script>
 
     <script>
         (function() {
@@ -1751,7 +1752,7 @@ $statusFilter = $_GET['status'] ?? 'all';
                                     src="<?= htmlspecialchars(artsale_resolve_image_url($item['imagem'] ?? '', '../')) ?>" 
                                     alt="<?= htmlspecialchars($item['titulo'] ?? 'Miniatura') ?>" 
                                     class="art-nav-thumb"
-                                    onerror="this.onerror=null; this.src='../assets/images/obras/placeholder-obra.svg';"
+                                    onerror="if(!this.src.endsWith('.svg')) this.src='../assets/images/obras/obra-horizontes-dourados.svg';"
                                 >
                                 <div style="overflow: hidden; flex: 1;">
                                     <div class="art-nav-name"><?= htmlspecialchars($item['titulo']) ?></div>
@@ -2592,6 +2593,5 @@ $statusFilter = $_GET['status'] ?? 'all';
         });
     }
     </script>
-    <script src="../assets/js/admin.js"></script>
 </body>
 </html>

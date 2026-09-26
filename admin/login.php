@@ -187,6 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
         })();
     </script>
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="../assets/js/admin.js"></script>
 
     <style>
         :root {
@@ -203,6 +204,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
             --shadow-card: 0 24px 60px rgba(28, 27, 24, 0.08), 0 4px 16px rgba(179, 138, 84, 0.06);
         }
 
+        :root[data-theme="dark"],
+        html[data-theme="dark"],
+        body[data-theme="dark"],
         [data-theme="dark"] {
             --bg-dark: #0e0d0b;
             --bg-card: #171513;
@@ -645,6 +649,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
         }
     });
     </script>
-    <script src="../assets/js/admin.js"></script>
 </body>
 </html>

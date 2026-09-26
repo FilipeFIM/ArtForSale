@@ -70,8 +70,10 @@ body[data-theme="light"] {
 /* ==========================================================
    2. TEMA ESCURO DE CURADORIA (OBSIDIAN NOIR - OPCIONAL VIA TOGGLE)
    ========================================================== */
+:root[data-theme="dark"],
 html[data-theme="dark"],
-body[data-theme="dark"] {
+body[data-theme="dark"],
+[data-theme="dark"] {
     --bg-dark: #0f0e0c;
     --bg-page: #0f0e0c;
     --bg-topbar: #161512;
