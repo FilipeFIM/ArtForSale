@@ -180,12 +180,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </section>
 
-    <!-- Transição Artística com Pinceladas Sutis -->
-    <div class="brush-transition-accent" aria-hidden="true"></div>
 
-    <!-- Pinceladas Artísticas Discretas de Fundo (Fidelidade ao Mockup Oficial) -->
-    <div class="artistic-flank-decor flank-left" aria-hidden="true"></div>
-    <div class="artistic-flank-decor flank-right" aria-hidden="true"></div>
 
     <!-- ========================================================
          SEÇÃO EXPLORE POR CATEGORIA
@@ -354,41 +349,23 @@ require_once __DIR__ . '/includes/header.php';
                     </a>
                 </div>
 
-                <!-- 4 Diferenciais em Destaque com Ícones Dourados -->
-                <div class="differentials-grid">
-                    <?php foreach ($diferenciais as $dif): ?>
-                        <div class="differential-item">
-                            <div class="differential-icon">
-                                <?php if ($dif['icone'] === 'shield'): ?>
-                                    <!-- Escudo / Curadoria -->
-                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                    </svg>
-                                <?php elseif ($dif['icone'] === 'award'): ?>
-                                    <!-- Selo / Procedência -->
-                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="8" r="6"></circle>
-                                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                    </svg>
-                                <?php elseif ($dif['icone'] === 'user-check'): ?>
-                                    <!-- Atendimento Personalizado -->
-                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="8.5" cy="7" r="4"></circle>
-                                        <polyline points="17 11 19 13 23 9"></polyline>
-                                    </svg>
-                                <?php else: ?>
-                                    <!-- Qualidade e Confiança (Diamante/Estrela) -->
-                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M6 3h12l4 6-10 13L2 9z"></path>
-                                        <line x1="12" y1="22" x2="12" y2="9"></line>
-                                        <line x1="2" y1="9" x2="22" y2="9"></line>
-                                    </svg>
-                                <?php endif; ?>
-                            </div>
-                            <h4 class="differential-title"><?= htmlspecialchars($dif['titulo']) ?></h4>
-                        </div>
-                    <?php endforeach; ?>
+                <!-- Pilares Curatoriais da Galeria (Editorial Contemporâneo) -->
+                <div class="curatorial-pillars-grid">
+                    <div class="pillar-item">
+                        <span class="pillar-number">01</span>
+                        <h4 class="pillar-title">Curadoria Autoral</h4>
+                        <p class="pillar-desc">Obras singulares selecionadas por artistas visuais contemporâneos, unindo sensibilidade estética à inteligência visual.</p>
+                    </div>
+                    <div class="pillar-item">
+                        <span class="pillar-number">02</span>
+                        <h4 class="pillar-title">Consultoria Dedicada</h4>
+                        <p class="pillar-desc">Atendimento particular conduzido diretamente por nossos curadores para arquitetos, colecionadores e ambientes residenciais.</p>
+                    </div>
+                    <div class="pillar-item">
+                        <span class="pillar-number">03</span>
+                        <h4 class="pillar-title">Procedência & Autenticidade</h4>
+                        <p class="pillar-desc">Cada peça conta com registro autoral, especificações técnicas detalhadas e tiragem rigorosamente controlada.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -518,7 +495,7 @@ require_once __DIR__ . '/includes/header.php';
         
         <div class="inquiry-modal-body">
             <div class="inquiry-preview-box" id="modalPreviewBox" style="display: none;">
-                <img id="modalArtworkImg" src="" alt="Obra selecionada" class="inquiry-preview-img">
+                <img id="modalArtworkImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Obra selecionada" class="inquiry-preview-img">
                 <div class="inquiry-preview-meta">
                     <h4 id="modalMetaTitle" class="inquiry-meta-title"></h4>
                     <p id="modalMetaArtist" class="inquiry-meta-artist"></p>

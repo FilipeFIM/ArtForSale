@@ -31,12 +31,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Limita o índice dentro do intervalo válido
         currentSlide = Math.max(0, Math.min(index, maxIndex));
 
+        // Rola o container suavemente para o card ativo
+        if (featuredTrack && artworkCards[currentSlide]) {
+            const cardOffset = artworkCards[currentSlide].offsetLeft;
+            featuredTrack.scrollTo({
+                left: cardOffset,
+                behavior: 'smooth'
+            });
+        }
+
         // Atualiza estado visual dos pontos (dots)
         carouselDots.forEach((dot, i) => {
             if (i === currentSlide % carouselDots.length) {
                 dot.classList.add('active');
+                dot.setAttribute('aria-current', 'true');
             } else {
                 dot.classList.remove('active');
+                dot.removeAttribute('aria-current');
             }
         });
 
@@ -51,23 +62,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (featuredPrevBtn) {
-        featuredPrevBtn.addEventListener('click', () => {
+        featuredPrevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             updateCarousel(currentSlide - 1);
         });
     }
 
     if (featuredNextBtn) {
-        featuredNextBtn.addEventListener('click', () => {
+        featuredNextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             updateCarousel(currentSlide + 1);
         });
     }
 
     carouselDots.forEach(dot => {
-        dot.addEventListener('click', () => {
+        dot.addEventListener('click', (e) => {
+            e.preventDefault();
             const targetIdx = parseInt(dot.dataset.index, 10);
             updateCarousel(targetIdx);
         });
     });
+
+    // Sincroniza os dots quando o usuário arrasta/rola o track manualmente (mobile / swipe)
+    if (featuredTrack) {
+        let scrollTimeout = null;
+        featuredTrack.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const scrollLeft = featuredTrack.scrollLeft;
+                let closestIndex = 0;
+                let minDiff = Infinity;
+                artworkCards.forEach((card, idx) => {
+                    const diff = Math.abs(card.offsetLeft - scrollLeft);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestIndex = idx;
+                    }
+                });
+                if (closestIndex !== currentSlide) {
+                    currentSlide = closestIndex;
+                    carouselDots.forEach((dot, i) => {
+                        if (i === currentSlide % carouselDots.length) {
+                            dot.classList.add('active');
+                            dot.setAttribute('aria-current', 'true');
+                        } else {
+                            dot.classList.remove('active');
+                            dot.removeAttribute('aria-current');
+                        }
+                    });
+                }
+            }, 80);
+        }, { passive: true });
+    }
 
     window.addEventListener('resize', () => {
         updateCarousel(currentSlide);

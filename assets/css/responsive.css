@@ -148,8 +148,9 @@
         aspect-ratio: 1.7 / 1;
     }
 
-    .differentials-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .differentials-grid,
+    .curatorial-pillars-grid {
+        grid-template-columns: repeat(3, 1fr);
         gap: 1.5rem;
     }
 
@@ -429,6 +430,20 @@
         gap: 0.65rem;
     }
 
+    .action-btn,
+    .mobile-toggle-btn {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .btn-ver-detalhes {
+        min-height: 44px;
+        padding: 0.65rem 1.15rem;
+        font-size: 0.8125rem;
+    }
+
     .hero-title {
         font-size: 2.25rem;
     }
@@ -453,10 +468,11 @@
         display: none; /* Em celular navega pelos dots e swipe */
     }
 
-    /* Diferenciais Sobre */
-    .differentials-grid {
+    /* Pilares Curatoriais Sobre */
+    .differentials-grid,
+    .curatorial-pillars-grid {
         grid-template-columns: 1fr;
-        gap: 1.25rem;
+        gap: 1.5rem;
     }
 
     .about-title {
@@ -493,8 +509,13 @@
     .inquiry-modal-close {
         top: 0.75rem;
         right: 0.75rem;
-        width: 32px;
-        height: 32px;
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 1.1rem;
     }
 

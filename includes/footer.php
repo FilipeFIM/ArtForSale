@@ -6,7 +6,7 @@
  */
 ?>
     <!-- Rodapé Principal de Alto Luxo - ART FOR SALE -->
-    <footer class="site-footer" id="contato">
+    <footer class="site-footer" id="rodape">
         <!-- Textura e Nuances Sutis de Mármore e Dourado -->
         <div class="footer-marble-texture" aria-hidden="true"></div>
         <div class="footer-gold-glow-left" aria-hidden="true"></div>
@@ -355,7 +355,7 @@
             
             <div class="inquiry-modal-body">
                 <div class="inquiry-preview-box" id="modalPreviewBox" style="display: none;">
-                    <img id="modalArtworkImg" src="" alt="Obra selecionada" class="inquiry-preview-img">
+                    <img id="modalArtworkImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Obra selecionada" class="inquiry-preview-img">
                     <div class="inquiry-preview-meta">
                         <h4 id="modalMetaTitle" class="inquiry-meta-title"></h4>
                         <p id="modalMetaArtist" class="inquiry-meta-artist"></p>

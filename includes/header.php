@@ -48,10 +48,10 @@ if (isset($seoMeta) && is_array($seoMeta) && function_exists('artsale_render_seo
     <link rel="preconnect" href="https://<?= parse_url(SUPABASE_URL, PHP_URL_HOST) ?? '' ?>" crossorigin>
     <?php endif; ?>
 
-    <!-- Tipografia Editorial Premium Google Fonts (Cormorant Garamond + Plus Jakarta Sans) -->
+    <!-- Tipografia Editorial Premium Google Fonts (Cormorant Garamond + Outfit) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Folhas de Estilo -->
     <link rel="stylesheet" href="<?= $pathPrefix ?? '' ?>assets/css/style.css">
