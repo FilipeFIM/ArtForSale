@@ -579,7 +579,7 @@ function supabase_buscar_obras(?string $categoria = null, ?string $termo = null,
 
     // Filtro: se somenteAtivas for true, exclui apenas as obras explicitamente marcadas com active = false
     // (não oculta obras cujo active seja true ou nulo)
-    $activeClause = $somenteAtivas ? '&not.active=eq.false' : '';
+    $activeClause = $somenteAtivas ? '&active=neq.false' : '';
     $endpoint = 'artworks?select=id,name,slug,technique,year,width,height,depth,code,availability,featured,active,artist_id,category_id,created_at,artists(id,name,slug),categories(id,name,slug),artwork_images(id,image_url,storage_path,image_type,sort_order,is_primary)' . $activeClause . '&order=created_at.desc';
 
     if ($categoria && $categoria !== 'all' && $categoria !== 'todas') {
@@ -1481,7 +1481,7 @@ function supabase_buscar_categorias(bool $somenteAtivas = false, ?string $token 
 
     $dbCats = [];
     if (supabase_is_configured()) {
-        $filter = $somenteAtivas ? '&not.active=eq.false' : '';
+        $filter = $somenteAtivas ? '&active=neq.false' : '';
         // 1. Tenta consulta completa incluindo description e image_url
         $endpoint = 'categories?select=id,name,slug,description,image_url,active,created_at' . $filter . '&order=name.asc';
         $res = supabase_request($endpoint, 'GET', null, $auth);
@@ -1780,7 +1780,7 @@ function supabase_buscar_artistas(bool $somenteAtivos = false, ?string $token = 
 
     $dbArts = [];
     if (supabase_is_configured()) {
-        $filter = $somenteAtivos ? '&not.active=eq.false' : '';
+        $filter = $somenteAtivos ? '&active=neq.false' : '';
         // 1. Tenta consulta completa incluindo image_url
         $endpoint = 'artists?select=id,name,slug,biography,image_url,active,created_at' . $filter . '&order=name.asc';
         $res = supabase_request($endpoint, 'GET', null, $auth);

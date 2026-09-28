@@ -4,7 +4,7 @@
         "name": "Arte Clássica",
         "slug": "arte-classica",
         "description": "Obras com rigor técnico, proporção harmônica e reverência à grande tradição acadêmica e renascentista.",
-        "image_url": "assets\/images\/obras\/cat-arte-classica.svg",
+        "image_url": "https:\/\/recmxyfocskxvzbbkoui.supabase.co\/storage\/v1\/object\/public\/artworks\/categories\/c1000000-0000-0000-0000-000000000001\/1790554469_imagem_do_chatgpt_27_de_set__de_2026__21_09_15.png",
         "active": true,
         "created_at": "2026-09-24T15:57:47.464326+00:00"
     },
@@ -49,7 +49,7 @@
         "name": "Abstrato",
         "slug": "abstrato",
         "description": "Campos ópticos hipnóticos, proporção áurea e harmonias visuais que despertam emoções e sensações puras.",
-        "image_url": "assets\/images\/obras\/cat-abstrato.svg",
+        "image_url": "https:\/\/recmxyfocskxvzbbkoui.supabase.co\/storage\/v1\/object\/public\/artworks\/categories\/c1000000-0000-0000-0000-000000000006\/1790554199_imagem_do_chatgpt_27_de_set__de_2026__21_09_15.png",
         "active": true,
         "created_at": "2026-09-24T15:57:47.464326+00:00"
     },

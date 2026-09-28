@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $newId = $createdRow['id'] ?? '';
 
                 if ($hasImage && !empty($newId) && !empty($tmpImagePath)) {
-                    supabase_upload_imagem_artista(
+                    $upRes = supabase_upload_imagem_artista(
                         $tmpImagePath,
                         $newId,
                         $imageOriginalName ?: 'artista.jpg',
@@ -102,10 +102,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($isTemporaryCreated && file_exists($tmpImagePath)) {
                         @unlink($tmpImagePath);
                     }
+
+                    if (empty($upRes['sucesso'])) {
+                        $msgErro = 'Erro no upload da fotografia do artista: ' . ($upRes['erro'] ?? 'Falha de envio.');
+                    }
                 }
 
-                header("Location: artistas.php?msg=created");
-                exit;
+                if (empty($msgErro)) {
+                    header("Location: artistas.php?msg=created");
+                    exit;
+                }
             } else {
                 $msgErro = 'Não foi possível confirmar o cadastro do artista.';
             }
@@ -616,25 +622,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const base64Data = document.getElementById('base64_image_data');
         const base64Name = document.getElementById('base64_image_name');
 
-        if (fileInput) {
-            fileInput.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
-                    const file = this.files[0];
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        previewImg.src = e.target.result;
-                        previewStage.style.display = 'block';
-                        fileNameTxt.textContent = `Selecionado: ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
-
-                        if (base64Data && base64Name) {
-                            base64Data.value = e.target.result;
-                            base64Name.value = file.name;
-                        }
-                    };
-
-                    reader.readAsDataURL(file);
-                }
+        if (fileInput && typeof window.artSaleAttachOptimizer === 'function') {
+            window.artSaleAttachOptimizer(fileInput, {
+                statusEl: fileNameTxt,
+                previewImg: previewImg,
+                b64Data: base64Data,
+                b64Name: base64Name
             });
         }
     </script>

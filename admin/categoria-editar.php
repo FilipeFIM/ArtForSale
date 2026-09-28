@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $res = supabase_atualizar_categoria($categoria['id'], $dados, $adminToken);
 
             if ($hasNewImage && !empty($tmpImagePath)) {
-                supabase_upload_imagem_categoria(
+                $upRes = supabase_upload_imagem_categoria(
                     $tmpImagePath,
                     $categoria['id'],
                     $imageOriginalName ?: 'categoria.jpg',
@@ -100,10 +100,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($isTemporaryCreated && file_exists($tmpImagePath)) {
                     @unlink($tmpImagePath);
                 }
+
+                if (empty($upRes['sucesso'])) {
+                    $msgErro = 'Erro no upload da imagem: ' . ($upRes['erro'] ?? 'Falha de envio.');
+                }
             }
 
-            header("Location: categorias.php?msg=updated");
-            exit;
+            if (empty($msgErro)) {
+                header("Location: categorias.php?msg=updated");
+                exit;
+            }
         }
     }
 }
@@ -524,7 +530,7 @@ $currentImg = artsale_resolve_image_url($categoria['image_url'] ?? '', '../');
                     
                     <?php if (!empty($categoria['image_url'])): ?>
                         <div class="current-image-preview-box">
-                            <img src="<?= htmlspecialchars($currentImg) ?>" alt="<?= htmlspecialchars($categoria['name']) ?>">
+                            <img src="<?= htmlspecialchars($currentImg) ?>" alt="<?= htmlspecialchars($categoria['name']) ?>" id="catCurrentImg">
                             <div>
                                 <strong style="font-size: 0.8125rem; color: var(--text-main);">Fotografia Atual</strong>
                                 <p style="font-size: 0.72rem; color: var(--text-muted); word-break: break-all;">
@@ -574,27 +580,16 @@ $currentImg = artsale_resolve_image_url($categoria['image_url'] ?? '', '../');
     <script>
         const fileInput = document.getElementById('category_image');
         const fileNameTxt = document.getElementById('fileNameTxt');
+        const previewImg = document.getElementById('catCurrentImg');
         const base64Data = document.getElementById('base64_image_data');
         const base64Name = document.getElementById('base64_image_name');
 
-        if (fileInput) {
-            fileInput.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
-                    const file = this.files[0];
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        fileNameTxt.textContent = `Nova imagem selecionada: ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
-                        fileNameTxt.style.display = 'block';
-
-                        if (base64Data && base64Name) {
-                            base64Data.value = e.target.result;
-                            base64Name.value = file.name;
-                        }
-                    };
-
-                    reader.readAsDataURL(file);
-                }
+        if (fileInput && typeof window.artSaleAttachOptimizer === 'function') {
+            window.artSaleAttachOptimizer(fileInput, {
+                statusEl: fileNameTxt,
+                previewImg: previewImg,
+                b64Data: base64Data,
+                b64Name: base64Name
             });
         }
     </script>

@@ -1514,31 +1514,12 @@ $allArtists = supabase_buscar_artistas_list($adminToken);
     const artFileImg = document.getElementById('editImagePreviewImg');
     const artFileName = document.getElementById('editImagePreviewName');
 
-    if (artFileInput) {
-        artFileInput.addEventListener('change', () => {
-            const file = artFileInput.files[0];
-            if (file) {
-                if (file.size > 15 * 1024 * 1024) {
-                    alert('A fotografia selecionada excede o limite de 15 MB.');
-                    artFileInput.value = '';
-                    if (artFileB64) artFileB64.value = '';
-                    if (artFileBox) artFileBox.style.display = 'none';
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    if (artFileB64) artFileB64.value = e.target.result;
-                    if (artFileFn) artFileFn.value = file.name;
-                    if (artFileImg) artFileImg.src = e.target.result;
-                    if (artFileName) artFileName.textContent = file.name + ' (' + (file.size / (1024*1024)).toFixed(2) + ' MB)';
-                    if (artFileBox) artFileBox.style.display = 'flex';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                if (artFileB64) artFileB64.value = '';
-                if (artFileBox) artFileBox.style.display = 'none';
-            }
+    if (artFileInput && typeof window.artSaleAttachOptimizer === 'function') {
+        window.artSaleAttachOptimizer(artFileInput, {
+            statusEl: artFileName,
+            previewImg: artFileImg,
+            b64Data: artFileB64,
+            b64Name: artFileFn
         });
     }
     </script>

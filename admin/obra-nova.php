@@ -1000,32 +1000,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     const prevImg = document.getElementById('imagePreviewThumb');
     const prevName = document.getElementById('imagePreviewName');
 
-    if (imgInput) {
-        imgInput.addEventListener('change', () => {
-            const file = imgInput.files[0];
-            if (file) {
-                if (file.size > 15 * 1024 * 1024) {
-                    alert('A fotografia selecionada excede o limite de 15 MB.');
-                    imgInput.value = '';
-                    if (b64Input) b64Input.value = '';
-                    if (prevCont) prevCont.style.display = 'none';
-                    return;
-                }
-
-                // Carrega em Base64 para garantir envio mesmo com upload_max_filesize restrito no PHP local
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    if (b64Input) b64Input.value = e.target.result;
-                    if (fnInput) fnInput.value = file.name;
-                    if (prevImg) prevImg.src = e.target.result;
-                    if (prevName) prevName.textContent = file.name + ' (' + (file.size / (1024*1024)).toFixed(2) + ' MB)';
-                    if (prevCont) prevCont.style.display = 'flex';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                if (b64Input) b64Input.value = '';
-                if (prevCont) prevCont.style.display = 'none';
-            }
+    if (imgInput && typeof window.artSaleAttachOptimizer === 'function') {
+        window.artSaleAttachOptimizer(imgInput, {
+            statusEl: prevName,
+            previewImg: prevImg,
+            b64Data: b64Input,
+            b64Name: fnInput
         });
     }
     </script>
