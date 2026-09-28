@@ -488,10 +488,62 @@
         });
     }
 
+    /**
+     * ==============================================================================
+     * HEARTBEAT CSRF & PRESERVAÇÃO DE SESSÃO ADMINISTRATIVA (30 DIAS)
+     * ==============================================================================
+     * - Garante que o curador pode manter a página aberta por horas ou dias editando.
+     * - Sincroniza em background o token CSRF a cada 5 minutos e quando a aba ganha foco.
+     * - Atualiza silenciosamente todos os campos hidden csrf_token do documento.
+     */
+    function initCsrfHeartbeat() {
+        let lastSyncTime = Date.now();
+
+        async function syncCsrfToken() {
+            try {
+                const endpoint = (window.location.pathname.includes('/admin/')) ? 'csrf-token.php' : 'admin/csrf-token.php';
+                const resp = await fetch(endpoint, {
+                    method: 'GET',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    cache: 'no-store'
+                });
+
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data && data.csrf_token) {
+                        lastSyncTime = Date.now();
+                        document.querySelectorAll('input[name="csrf_token"]').forEach(input => {
+                            input.value = data.csrf_token;
+                        });
+                    }
+                }
+            } catch (_) {
+                // Falha silenciosa de rede
+            }
+        }
+
+        // Sincroniza periodicamente a cada 5 minutos
+        setInterval(syncCsrfToken, 5 * 60 * 1000);
+
+        // Sincroniza ao retornar o foco para a aba caso tenham se passado mais de 3 minutos
+        window.addEventListener('focus', function() {
+            if (Date.now() - lastSyncTime > 3 * 60 * 1000) {
+                syncCsrfToken();
+            }
+        });
+
+        // Sincronização inicial
+        setTimeout(syncCsrfToken, 1000);
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initImageOptimizers);
+        document.addEventListener('DOMContentLoaded', function() {
+            initImageOptimizers();
+            initCsrfHeartbeat();
+        });
     } else {
         initImageOptimizers();
+        initCsrfHeartbeat();
     }
 
 })(window, document);

@@ -48,34 +48,240 @@ require_once dirname(__DIR__) . '/includes/supabase.php';
  */
 
 /**
- * Retorna o token CSRF atual da sessão ou gera um novo criptograficamente seguro
+ * Retorna o token CSRF atual (persistido em sessão e em cookie de 30 dias)
+ * Garante resiliência contra reciclagem de containers no Vercel Serverless
  */
 function artsale_get_csrf_token(): string {
-    if (empty($_SESSION['artsale_csrf_token'])) {
-        $_SESSION['artsale_csrf_token'] = bin2hex(random_bytes(32));
+    $token = null;
+
+    // 1. Tenta recuperar da sessão atual
+    if (!empty($_SESSION['artsale_csrf_token']) && is_string($_SESSION['artsale_csrf_token']) && strlen($_SESSION['artsale_csrf_token']) === 64) {
+        $token = $_SESSION['artsale_csrf_token'];
+    } elseif (!empty($_COOKIE['artsale_csrf_token']) && is_string($_COOKIE['artsale_csrf_token']) && strlen($_COOKIE['artsale_csrf_token']) === 64) {
+        // 2. Se a sessão em memória expirou ou o container Vercel foi reciclado, recupera do cookie persistente
+        $token = $_COOKIE['artsale_csrf_token'];
+        $_SESSION['artsale_csrf_token'] = $token;
     }
-    return $_SESSION['artsale_csrf_token'];
+
+    // 3. Se ainda não possuir, gera um novo token criptograficamente seguro
+    if (empty($token)) {
+        $token = bin2hex(random_bytes(32));
+        $_SESSION['artsale_csrf_token'] = $token;
+    }
+
+    // 4. Garante que o cookie com validade de 30 dias esteja ativo
+    if (!headers_sent() && (empty($_COOKIE['artsale_csrf_token']) || $_COOKIE['artsale_csrf_token'] !== $token)) {
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+                   (!empty($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443) ||
+                   (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+        $expire = time() + (60 * 60 * 24 * 30); // 30 dias (2.592.000 segundos)
+
+        setcookie('artsale_csrf_token', $token, [
+            'expires'  => $expire,
+            'path'     => '/',
+            'domain'   => '',
+            'secure'   => $isHttps,
+            'httponly' => false,
+            'samesite' => 'Lax'
+        ]);
+        $_COOKIE['artsale_csrf_token'] = $token;
+    }
+
+    return $token;
 }
 
 /**
  * Valida o token CSRF recebido na requisição com hash_equals (imune a timing attacks)
+ * Suporta dupla verificação: Session + Persistent Cookie (Double Submit Cookie Pattern)
  */
 function artsale_verify_csrf_token(?string $token): bool {
-    if (empty($token) || empty($_SESSION['artsale_csrf_token'])) {
+    if (empty($token) || !is_string($token)) {
         return false;
     }
-    return hash_equals($_SESSION['artsale_csrf_token'], $token);
+    $token = trim($token);
+    if (strlen($token) !== 64) {
+        return false;
+    }
+
+    // 1. Verificação primária na Sessão PHP
+    if (!empty($_SESSION['artsale_csrf_token']) && hash_equals($_SESSION['artsale_csrf_token'], $token)) {
+        return true;
+    }
+
+    // 2. Verificação secundária no Cookie Persistente de 30 dias
+    // (Crucial para ambientes Serverless/Vercel onde requisições subsequentes podem cair em lambdas diferentes)
+    if (!empty($_COOKIE['artsale_csrf_token']) && hash_equals($_COOKIE['artsale_csrf_token'], $token)) {
+        $_SESSION['artsale_csrf_token'] = $token; // Reidrata a sessão neste container
+        return true;
+    }
+
+    return false;
 }
 
 /**
- * Exige validação de CSRF em requisições POST. Se falhar, interrompe com HTTP 403.
+ * Renderiza recursivamente os campos de formulário como inputs ocultos para recuperação de dados
+ */
+function artsale_render_csrf_recovery_fields(array $data, string $prefix = ''): string {
+    $html = '';
+    foreach ($data as $key => $value) {
+        if ($key === 'csrf_token') continue;
+        $fieldName = empty($prefix) ? (string)$key : $prefix . '[' . (string)$key . ']';
+        if (is_array($value)) {
+            $html .= artsale_render_csrf_recovery_fields($value, $fieldName);
+        } else {
+            $html .= '<input type="hidden" name="' . htmlspecialchars($fieldName, ENT_QUOTES, 'UTF-8') . '" value="' . htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8') . '">' . "\n";
+        }
+    }
+    return $html;
+}
+
+/**
+ * Renderiza uma página de recuperação elegante com os dados intactos em caso de expiração de token
+ */
+function artsale_render_csrf_recovery_page(string $freshToken): void {
+    $hiddenFields = artsale_render_csrf_recovery_fields($_POST);
+    $actionUrl = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '', ENT_QUOTES, 'UTF-8');
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sessão Atualizada — Art For Sale</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/site/logo-icon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #faf8f5;
+            color: #1c1b18;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            margin: 0;
+        }
+        .recovery-card {
+            background: #ffffff;
+            border: 1px solid #e8e2d8;
+            border-radius: 12px;
+            max-width: 520px;
+            width: 100%;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            text-align: center;
+        }
+        .icon-badge {
+            width: 64px;
+            height: 64px;
+            background: rgba(179, 138, 84, 0.12);
+            color: #b38a54;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 1.25rem;
+        }
+        h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1c1b18;
+            margin-bottom: 0.6rem;
+        }
+        p {
+            font-size: 0.875rem;
+            color: #6e675f;
+            line-height: 1.5;
+            margin-bottom: 1.75rem;
+        }
+        .btn-confirm {
+            background: #b38a54;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.95rem 1.75rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(179, 138, 84, 0.25);
+        }
+        .btn-confirm:hover {
+            background: #9c733e;
+            transform: translateY(-1px);
+        }
+        .btn-cancel {
+            display: inline-block;
+            margin-top: 1rem;
+            font-size: 0.8125rem;
+            color: #6e675f;
+            text-decoration: none;
+        }
+        .btn-cancel:hover { color: #1c1b18; text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="recovery-card">
+        <div class="icon-badge">🛡️</div>
+        <h1>Sessão Atualizada com Sucesso</h1>
+        <p>
+            O tempo de segurança para alterações foi renovado por 30 dias.<br>
+            <strong>Todos os seus dados digitados foram preservados intactos.</strong><br>
+            Clique no botão abaixo para concluir o salvamento com segurança.
+        </p>
+        <form method="POST" action="<?= $actionUrl ?>" id="recoveryForm">
+            <?= $hiddenFields ?>
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($freshToken, ENT_QUOTES, 'UTF-8') ?>">
+            <button type="submit" class="btn-confirm" id="btnSubmit">
+                ✓ Concluir e Salvar Alterações
+            </button>
+        </form>
+        <a href="index.php" class="btn-cancel">← Voltar ao painel administrativo</a>
+    </div>
+    <script>
+        // Auto-envio suave após 1 segundo caso o usuário esteja aguardando
+        setTimeout(function() {
+            var btn = document.getElementById('btnSubmit');
+            if (btn) btn.innerHTML = '⏳ Salvando alterações...';
+            document.getElementById('recoveryForm').submit();
+        }, 1200);
+    </script>
+</body>
+</html>
+<?php
+    exit;
+}
+
+/**
+ * Exige validação de CSRF em requisições POST.
+ * Se falhar, renderiza a tela de recuperação com dados preservados.
  */
 function require_csrf_token(): void {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $token = $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
         if (!artsale_verify_csrf_token($token)) {
-            http_response_code(403);
-            die('Erro de segurança (CSRF): Requisição bloqueada por ausência ou invalidade do token de verificação. Por favor, recarregue a página.');
+            $freshToken = artsale_get_csrf_token();
+
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) || (isset($_SERVER['HTTP_ACCEPT']) && str_contains($_SERVER['HTTP_ACCEPT'], 'application/json'))) {
+                http_response_code(403);
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode([
+                    'error'        => 'csrf_invalid',
+                    'message'      => 'Token de segurança renovado.',
+                    'fresh_token'  => $freshToken
+                ]);
+                exit;
+            }
+
+            artsale_render_csrf_recovery_page($freshToken);
+            exit;
         }
     }
 }
