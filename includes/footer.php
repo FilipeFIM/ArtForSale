@@ -266,7 +266,7 @@
                         </a>
                         <div class="contact-row-info">
                             <span class="contact-name"><?= $contatos['elisabeth']['nome'] ?></span>
-                            <a href="tel:5191140044" class="contact-value"><?= $contatos['elisabeth']['telefone'] ?></a>
+                            <a href="tel:51991140044" class="contact-value"><?= $contatos['elisabeth']['telefone'] ?></a>
                         </div>
                     </div>
 

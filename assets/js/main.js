@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const textFelipe = encodeURIComponent(`Olá, Felipe. Gostaria de consultar a obra "${artworkData.title}" (${artworkData.artist}, ${artworkData.dimensions}) da Art For Sale.`);
             const mailSubject = encodeURIComponent(`Consulta: Obra ${artworkData.title} - Art For Sale`);
 
-            if (btnModalWhatsElisabeth) btnModalWhatsElisabeth.href = `https://wa.me/555191140044?text=${textElisabeth}`;
+            if (btnModalWhatsElisabeth) btnModalWhatsElisabeth.href = `https://wa.me/5551991140044?text=${textElisabeth}`;
             if (btnModalWhatsFelipe) btnModalWhatsFelipe.href = `https://wa.me/5551991266414?text=${textFelipe}`;
             if (btnModalEmail) btnModalEmail.href = `mailto:artforsale1944@gmail.com?subject=${mailSubject}`;
         } else {

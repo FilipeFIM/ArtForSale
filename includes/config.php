@@ -23,9 +23,9 @@ $contatos = [
     'elisabeth' => [
         'nome' => 'Sra. Elisabeth',
         'cargo' => 'Curadoria & Atendimento',
-        'telefone' => '(51) 9114-0044',
-        'whatsapp' => '555191140044',
-        'whatsapp_link' => 'https://wa.me/555191140044?text=' . urlencode('Olá, Sra. Elisabeth. Gostaria de mais informações sobre as obras da Art For Sale.')
+        'telefone' => '(51) 99114-0044',
+        'whatsapp' => '5551991140044',
+        'whatsapp_link' => 'https://wa.me/5551991140044?text=' . urlencode('Olá, Sra. Elisabeth. Gostaria de mais informações sobre as obras da Art For Sale.')
     ],
     'felipe' => [
         'nome' => 'Felipe C',

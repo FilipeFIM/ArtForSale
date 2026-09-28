@@ -44,7 +44,7 @@ Galeria de arte contemporânea unindo inteligência artificial e curadoria human
 
 - **Nome**: Art For Sale
 - **Slogan**: *"Arte que transforma espaços."*
-- **Curadoria & Atendimento**: Sra. Elisabeth (`(51) 9114-0044`), Felipe C (`(51) 99126-6414`) e e-mail `artforsale1944@gmail.com`.
+- **Curadoria & Atendimento**: Sra. Elisabeth (`(51) 99114-0044`), Felipe C (`(51) 99126-6414`) e e-mail `artforsale1944@gmail.com`.
 - **Diretriz de Design Mandatória**: Interface distinta, profissional e com personalidade autêntica. Banimento explícito de estética genérica de IA (gradientes clichês roxo/ciano, cards flutuantes padronizados, ilustrações impessoais e microtextos robóticos).
 
 ## Evidence on Hand
