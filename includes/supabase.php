@@ -1162,7 +1162,20 @@ function supabase_atualizar_dados_obra(string $artworkId, array $dados, ?string 
     if (isset($dados['provenance'])) $payload['provenance'] = trim($dados['provenance']);
     if (isset($dados['location'])) $payload['location'] = trim($dados['location']);
     if (isset($dados['description'])) $payload['description'] = trim($dados['description']);
-    if (isset($dados['code'])) $payload['code'] = trim($dados['code']);
+    if (isset($dados['code'])) {
+        $cleanCode = trim($dados['code']);
+        if ($cleanCode !== '' && supabase_is_code_in_use($cleanCode, $artworkId, $token)) {
+            return ['data' => null, 'error' => "O código de catálogo '{$cleanCode}' já pertence a outra obra cadastrada. Por favor, escolha um código exclusivo."];
+        }
+        $payload['code'] = $cleanCode;
+    }
+    if (isset($dados['slug'])) {
+        $cleanSlug = trim($dados['slug']);
+        if ($cleanSlug !== '' && supabase_is_slug_in_use($cleanSlug, $artworkId, $token)) {
+            return ['data' => null, 'error' => "O slug de URL '{$cleanSlug}' já pertence a outra obra cadastrada. Por favor, escolha outro identificador."];
+        }
+        $payload['slug'] = $cleanSlug;
+    }
     if (isset($dados['availability'])) {
         $validos = ['available', 'reserved', 'sold', 'unavailable'];
         $payload['availability'] = in_array(strtolower($dados['availability']), $validos, true) ? strtolower($dados['availability']) : 'available';
@@ -1192,6 +1205,14 @@ function supabase_atualizar_dados_obra(string $artworkId, array $dados, ?string 
     }
 
     $res = supabase_request("artworks?id=eq." . urlencode($artworkId), 'PATCH', $payload, $token);
+
+    if (!empty($res['error'])) {
+        if (str_contains($res['error'], 'artworks_code_key')) {
+            $res['error'] = 'O código de catálogo informado já está em uso por outra obra no acervo.';
+        } elseif (str_contains($res['error'], 'artworks_slug_key')) {
+            $res['error'] = 'O slug de URL informado já está em uso por outra obra no catálogo.';
+        }
+    }
 
     if (function_exists('artsale_get_local_artworks') && function_exists('artsale_save_local_artwork')) {
         $locais = artsale_get_local_artworks();
@@ -1324,24 +1345,119 @@ function supabase_obter_ou_criar_categoria(?string $categoryIdOrName, ?string $a
 }
 
 /**
- * Cadastra uma nova obra no acervo do Supabase
+ * Verifica se um código de catálogo já está cadastrado na tabela artworks
+ */
+function supabase_is_code_in_use(string $code, ?string $excludeId = null, ?string $authToken = null): bool {
+    $token = $authToken ?: (defined('SUPABASE_SERVICE_ROLE_KEY') ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY);
+    $cleanCode = trim($code);
+    if ($cleanCode === '') {
+        return false;
+    }
+    $url = "artworks?code=eq." . urlencode($cleanCode) . "&select=id";
+    if (!empty($excludeId)) {
+        $url .= "&id=neq." . urlencode($excludeId);
+    }
+    $res = supabase_request($url, 'GET', null, $token);
+    return !empty($res['data']) && is_array($res['data']) && count($res['data']) > 0;
+}
+
+/**
+ * Verifica se um slug já está em uso na tabela artworks
+ */
+function supabase_is_slug_in_use(string $slug, ?string $excludeId = null, ?string $authToken = null): bool {
+    $token = $authToken ?: (defined('SUPABASE_SERVICE_ROLE_KEY') ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY);
+    $cleanSlug = trim($slug);
+    if ($cleanSlug === '') {
+        return false;
+    }
+    $url = "artworks?slug=eq." . urlencode($cleanSlug) . "&select=id";
+    if (!empty($excludeId)) {
+        $url .= "&id=neq." . urlencode($excludeId);
+    }
+    $res = supabase_request($url, 'GET', null, $token);
+    return !empty($res['data']) && is_array($res['data']) && count($res['data']) > 0;
+}
+
+/**
+ * Gera um código de catálogo único no Supabase garantindo ausência de duplicidade.
+ * - Se fornecido e já existente, adiciona sufixo sequencial (-02, -03...)
+ * - Se não fornecido, gera formato institucional 'ASF-XXXX' livre de colisões
+ */
+function supabase_gerar_codigo_obra_unico(?string $baseCode = null, ?string $excludeId = null, ?string $authToken = null): string {
+    $token = $authToken ?: (defined('SUPABASE_SERVICE_ROLE_KEY') ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY);
+    $base = trim($baseCode ?? '');
+
+    // Se nenhum código foi informado, gera código padrão ASF-XXXX sem colisão
+    if ($base === '') {
+        for ($i = 0; $i < 20; $i++) {
+            $candidate = 'ASF-' . mt_rand(1000, 9999);
+            if (!supabase_is_code_in_use($candidate, $excludeId, $token)) {
+                return $candidate;
+            }
+        }
+        return 'ASF-' . date('ymd') . '-' . mt_rand(100, 999);
+    }
+
+    // Se o código informado já está livre, usa-o diretamente
+    if (!supabase_is_code_in_use($base, $excludeId, $token)) {
+        return $base;
+    }
+
+    // Se estiver em uso, gera sufixo inteligente sequencial (-02, -03...)
+    for ($seq = 2; $seq <= 50; $seq++) {
+        $suffix = ($seq < 10) ? sprintf('%02d', $seq) : (string)$seq;
+        $candidate = $base . '-' . $suffix;
+        if (!supabase_is_code_in_use($candidate, $excludeId, $token)) {
+            return $candidate;
+        }
+    }
+
+    // Fallback garantido
+    return $base . '-' . strtoupper(substr(uniqid(), -4));
+}
+
+/**
+ * Gera um slug de URL único no Supabase garantindo ausência de duplicidade
+ */
+function supabase_gerar_slug_obra_unico(string $baseSlug, ?string $excludeId = null, ?string $authToken = null): string {
+    $token = $authToken ?: (defined('SUPABASE_SERVICE_ROLE_KEY') ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY);
+    $clean = preg_replace('~[^\pL\d]+~u', '-', $baseSlug);
+    $clean = trim($clean, '-');
+    $clean = strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $clean) ?: $clean);
+    $clean = preg_replace('/[^a-z0-9\-]/', '', $clean);
+    if (empty($clean)) {
+        $clean = 'obra-' . substr(uniqid(), -4);
+    }
+
+    if (!supabase_is_slug_in_use($clean, $excludeId, $token)) {
+        return $clean;
+    }
+
+    for ($seq = 2; $seq <= 50; $seq++) {
+        $candidate = $clean . '-' . $seq;
+        if (!supabase_is_slug_in_use($candidate, $excludeId, $token)) {
+            return $candidate;
+        }
+    }
+
+    return $clean . '-' . substr(uniqid(), -4);
+}
+
+/**
+ * Cadastra uma nova obra no acervo do Supabase com proteção avançada contra duplicidade de código e slug
  */
 function supabase_criar_obra(array $dados, ?string $authToken = null): array {
     $token = $authToken ?: (defined('SUPABASE_SERVICE_ROLE_KEY') ? SUPABASE_SERVICE_ROLE_KEY : SUPABASE_ANON_KEY);
 
     $name = trim($dados['name'] ?? 'Nova Obra');
-    $slug = trim($dados['slug'] ?? '');
-    if (empty($slug)) {
-        $clean = preg_replace('~[^\pL\d]+~u', '-', $name);
-        $clean = trim($clean, '-');
-        $clean = strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $clean) ?: $clean);
-        $slug = $clean . '-' . substr(uniqid(), -4);
+    $rawSlug = trim($dados['slug'] ?? '');
+    if (empty($rawSlug)) {
+        $rawSlug = $name;
     }
+    $slug = supabase_gerar_slug_obra_unico($rawSlug, null, $token);
 
-    $code = trim($dados['code'] ?? '');
-    if (empty($code)) {
-        $code = 'ASF-' . rand(1000, 9999);
-    }
+    $rawCode = trim($dados['code'] ?? '');
+    $code = supabase_gerar_codigo_obra_unico($rawCode, null, $token);
 
     $payload = [
         'name'               => $name,
@@ -1376,6 +1492,38 @@ function supabase_criar_obra(array $dados, ?string $authToken = null): array {
     }
 
     $res = supabase_request('artworks', 'POST', $payload, $token);
+
+    // Auto-recuperação inteligente contra colisão de código em concorrência
+    if (!empty($res['error']) && (str_contains($res['error'], 'artworks_code_key') || str_contains($res['error'], '(code)='))) {
+        for ($retry = 0; $retry < 3; $retry++) {
+            $payload['code'] = 'ASF-' . date('ymd') . '-' . mt_rand(1000, 9999);
+            $res = supabase_request('artworks', 'POST', $payload, $token);
+            if (!empty($res['data'])) {
+                break;
+            }
+        }
+    }
+
+    // Auto-recuperação inteligente contra colisão de slug em concorrência
+    if (!empty($res['error']) && (str_contains($res['error'], 'artworks_slug_key') || str_contains($res['error'], '(slug)='))) {
+        for ($retry = 0; $retry < 3; $retry++) {
+            $payload['slug'] = $slug . '-' . substr(uniqid(), -4) . '-' . mt_rand(10, 99);
+            $res = supabase_request('artworks', 'POST', $payload, $token);
+            if (!empty($res['data'])) {
+                break;
+            }
+        }
+    }
+
+    // Tradução amigável se persistir algum erro de constraint
+    if (!empty($res['error'])) {
+        if (str_contains($res['error'], 'artworks_code_key')) {
+            $res['error'] = 'O código de catálogo informado já está em uso por outra obra no acervo. Um novo código exclusivo foi sugerido.';
+        } elseif (str_contains($res['error'], 'artworks_slug_key')) {
+            $res['error'] = 'O identificador (slug) informado já está em uso por outra obra.';
+        }
+    }
+
     if (!empty($res['data'])) {
         $created = is_array($res['data']) ? ($res['data'][0] ?? $res['data']) : $res['data'];
         if (function_exists('artsale_save_local_artwork') && !empty($created['id'])) {

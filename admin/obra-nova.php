@@ -679,7 +679,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             name="code" 
                             id="code" 
                             class="f-input" 
-                            placeholder="Ex: ASF-1048"
+                            placeholder="Ex: ASF-<?= mt_rand(1000, 9999) ?>"
                             value="<?= htmlspecialchars($_POST['code'] ?? '') ?>"
                         >
                         <span class="f-hint">Se deixado em branco, será gerado automaticamente (ex: ASF-XXXX).</span>
@@ -1006,6 +1006,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             previewImg: prevImg,
             b64Data: b64Input,
             b64Name: fnInput
+        });
+    }
+
+    // Prevenção de múltiplos envios (duplo clique / envio simultâneo)
+    const formNovaObra = document.getElementById('formNovaObra');
+    const btnSubmit = document.getElementById('btnSubmitForm');
+    let isSubmitting = false;
+
+    if (formNovaObra && btnSubmit) {
+        formNovaObra.addEventListener('submit', function(e) {
+            if (formNovaObra.checkValidity && !formNovaObra.checkValidity()) {
+                return;
+            }
+            if (isSubmitting) {
+                e.preventDefault();
+                return false;
+            }
+            isSubmitting = true;
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '⏳ Cadastrando Obra no Acervo...';
+            btnSubmit.style.opacity = '0.75';
+            btnSubmit.style.cursor = 'not-allowed';
         });
     }
     </script>

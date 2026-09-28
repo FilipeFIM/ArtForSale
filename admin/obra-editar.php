@@ -993,7 +993,7 @@ $allArtists = supabase_buscar_artistas_list($adminToken);
                     <strong>Política de Preço:</strong> Esta obra é apresentada publicamente com a indicação <em>"Preço sob consulta"</em>, sem valor numérico.
                 </div>
 
-                <form method="POST">
+                <form method="POST" id="formEditObra">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(artsale_get_csrf_token()) ?>">
                     <input type="hidden" name="action" value="update_details">
 
@@ -1227,7 +1227,7 @@ $allArtists = supabase_buscar_artistas_list($adminToken);
                         ><?= htmlspecialchars($obra['descricao'] ?? '') ?></textarea>
                     </div>
 
-                    <button type="submit" class="btn-submit-save">
+                    <button type="submit" class="btn-submit-save" id="btnSubmitEdit">
                         Salvar Alterações nos Metadados
                     </button>
                 </form>
@@ -1520,6 +1520,28 @@ $allArtists = supabase_buscar_artistas_list($adminToken);
             previewImg: artFileImg,
             b64Data: artFileB64,
             b64Name: artFileFn
+        });
+    }
+
+    // Prevenção de múltiplos envios (duplo clique / envio simultâneo)
+    const formEditObra = document.getElementById('formEditObra');
+    const btnSubmitEdit = document.getElementById('btnSubmitEdit');
+    let isSubmittingEdit = false;
+
+    if (formEditObra && btnSubmitEdit) {
+        formEditObra.addEventListener('submit', function(e) {
+            if (formEditObra.checkValidity && !formEditObra.checkValidity()) {
+                return;
+            }
+            if (isSubmittingEdit) {
+                e.preventDefault();
+                return false;
+            }
+            isSubmittingEdit = true;
+            btnSubmitEdit.disabled = true;
+            btnSubmitEdit.innerHTML = '⏳ Salvando Alterações...';
+            btnSubmitEdit.style.opacity = '0.75';
+            btnSubmitEdit.style.cursor = 'not-allowed';
         });
     }
     </script>
