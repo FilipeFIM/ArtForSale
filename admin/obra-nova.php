@@ -42,9 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = trim($_POST['code'] ?? '');
     $technique = trim($_POST['technique'] ?? '');
     $year = (int)($_POST['year'] ?? date('Y'));
-    $width = (float)($_POST['width'] ?? 0);
-    $height = (float)($_POST['height'] ?? 0);
-    $depth = !empty($_POST['depth']) ? (float)$_POST['depth'] : null;
+    $unit = in_array($_POST['dimension_unit'] ?? 'cm', ['cm', 'm'], true) ? $_POST['dimension_unit'] : 'cm';
+    $width = supabase_parse_dimensao($_POST['width'] ?? null) ?? 0.0;
+    $height = supabase_parse_dimensao($_POST['height'] ?? null) ?? 0.0;
+    $depth = supabase_parse_dimensao($_POST['depth'] ?? null);
     $conservation = trim($_POST['conservation_state'] ?? 'Excelente');
     $provenance = trim($_POST['provenance'] ?? 'Acervo Particular');
     $location = trim($_POST['location'] ?? 'Brasil');
@@ -61,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($nome)) {
         $msgErro = 'O Nome da obra é obrigatório.';
     } elseif ($width <= 0 || $height <= 0) {
-        $msgErro = 'Informe as dimensões válidas de Altura e Largura (em centímetros).';
+        $msgErro = 'Informe as dimensões válidas de Altura e Largura.';
     } else {
         // Processamento da imagem: via $_FILES ou via Base64 fallback (imune a limites rígidos de upload_max_filesize)
         $uploadFile = $_FILES['primary_image'] ?? null;
@@ -147,6 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'code'               => $code,
                 'technique'          => $technique,
                 'year'               => $year,
+                'dimension_unit'     => $unit,
                 'width'              => $width,
                 'height'             => $height,
                 'depth'              => $depth,
@@ -456,8 +458,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 1.5rem;
         }
 
+        .form-grid-4 {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid-4 { grid-template-columns: 1fr 1fr; }
+        }
+
         @media (max-width: 768px) {
-            .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+            .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr; }
         }
 
         .f-group {
@@ -777,44 +790,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <span>2. Especificações Físicas & Conservação</span>
                 </h2>
 
-                <div class="form-grid-3">
+                <?php $selectedUnit = in_array($_POST['dimension_unit'] ?? 'cm', ['cm', 'm'], true) ? $_POST['dimension_unit'] : 'cm'; ?>
+                <div class="form-grid-4">
                     <div class="f-group">
-                        <label for="height" class="f-label">Altura (cm) *</label>
+                        <label for="dimension_unit" class="f-label">Unidade de Medida *</label>
+                        <select name="dimension_unit" id="dimension_unit" class="f-input">
+                            <option value="cm" <?= ($selectedUnit === 'cm') ? 'selected' : '' ?>>Centímetros (cm)</option>
+                            <option value="m" <?= ($selectedUnit === 'm') ? 'selected' : '' ?>>Metros (m)</option>
+                        </select>
+                        <span class="f-hint" id="dimension_unit_hint" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                            <?= ($selectedUnit === 'm') ? 'Medidas em metros (ex: 2.30 × 1.70 m)' : 'Medidas em centímetros (ex: 100 × 80 cm)' ?>
+                        </span>
+                    </div>
+
+                    <div class="f-group">
+                        <label for="height" class="f-label" id="lblHeight">Altura (<?= htmlspecialchars($selectedUnit) ?>) *</label>
                         <input 
                             type="number" 
-                            step="0.1" 
+                            step="0.01" 
                             name="height" 
                             id="height" 
                             class="f-input" 
-                            placeholder="Ex: 100" 
+                            placeholder="<?= ($selectedUnit === 'm') ? 'Ex: 2.30' : 'Ex: 100' ?>" 
                             required
                             value="<?= htmlspecialchars($_POST['height'] ?? '') ?>"
                         >
                     </div>
 
                     <div class="f-group">
-                        <label for="width" class="f-label">Largura (cm) *</label>
+                        <label for="width" class="f-label" id="lblWidth">Largura (<?= htmlspecialchars($selectedUnit) ?>) *</label>
                         <input 
                             type="number" 
-                            step="0.1" 
+                            step="0.01" 
                             name="width" 
                             id="width" 
                             class="f-input" 
-                            placeholder="Ex: 80" 
+                            placeholder="<?= ($selectedUnit === 'm') ? 'Ex: 1.70' : 'Ex: 80' ?>" 
                             required
                             value="<?= htmlspecialchars($_POST['width'] ?? '') ?>"
                         >
                     </div>
 
                     <div class="f-group">
-                        <label for="depth" class="f-label">Profundidade (cm) <small>(esculturas/relevos)</small></label>
+                        <label for="depth" class="f-label" id="lblDepth">Profundidade (<?= htmlspecialchars($selectedUnit) ?>) <small>(opcional)</small></label>
                         <input 
                             type="number" 
-                            step="0.1" 
+                            step="0.01" 
                             name="depth" 
                             id="depth" 
                             class="f-input" 
-                            placeholder="Ex: 5"
+                            placeholder="<?= ($selectedUnit === 'm') ? 'Ex: 0.15' : 'Ex: 5' ?>"
                             value="<?= htmlspecialchars($_POST['depth'] ?? '') ?>"
                         >
                     </div>
@@ -1028,6 +1053,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             btnSubmit.innerHTML = '⏳ Cadastrando Obra no Acervo...';
             btnSubmit.style.opacity = '0.75';
             btnSubmit.style.cursor = 'not-allowed';
+        });
+    }
+
+    // Alternância dinâmica de Unidade de Medida (m / cm)
+    const unitSelect = document.getElementById('dimension_unit');
+    const lblHeight = document.getElementById('lblHeight');
+    const lblWidth = document.getElementById('lblWidth');
+    const lblDepth = document.getElementById('lblDepth');
+    const inputHeight = document.getElementById('height');
+    const inputWidth = document.getElementById('width');
+    const inputDepth = document.getElementById('depth');
+    const hintUnit = document.getElementById('dimension_unit_hint');
+
+    if (unitSelect) {
+        unitSelect.addEventListener('change', function() {
+            const u = this.value;
+            if (lblHeight) lblHeight.textContent = `Altura (${u}) *`;
+            if (lblWidth) lblWidth.textContent = `Largura (${u}) *`;
+            if (lblDepth) lblDepth.textContent = `Profundidade (${u}) <small>(opcional)</small>`;
+            if (u === 'm') {
+                if (inputHeight) inputHeight.placeholder = 'Ex: 2.30';
+                if (inputWidth) inputWidth.placeholder = 'Ex: 1.70';
+                if (inputDepth) inputDepth.placeholder = 'Ex: 0.15';
+                if (hintUnit) hintUnit.textContent = 'Medidas em metros (ex: 2.30 × 1.70 m)';
+            } else {
+                if (inputHeight) inputHeight.placeholder = 'Ex: 100';
+                if (inputWidth) inputWidth.placeholder = 'Ex: 80';
+                if (inputDepth) inputDepth.placeholder = 'Ex: 5';
+                if (hintUnit) hintUnit.textContent = 'Medidas em centímetros (ex: 100 × 80 cm)';
+            }
         });
     }
     </script>

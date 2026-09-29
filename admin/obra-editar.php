@@ -54,15 +54,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 1. Salvar Dados Cadastrais da Obra
     if ($action === 'update_details') {
+        $unit = in_array($_POST['dimension_unit'] ?? 'cm', ['cm', 'm'], true) ? $_POST['dimension_unit'] : 'cm';
+        $width = supabase_parse_dimensao($_POST['width'] ?? null) ?? 0.0;
+        $height = supabase_parse_dimensao($_POST['height'] ?? null) ?? 0.0;
+        $depth = supabase_parse_dimensao($_POST['depth'] ?? null);
+
         $dados = [
             'name'               => trim($_POST['name'] ?? ''),
             'slug'               => trim($_POST['slug'] ?? ''),
             'code'               => trim($_POST['code'] ?? ''),
             'technique'          => trim($_POST['technique'] ?? ''),
             'year'               => (int)($_POST['year'] ?? date('Y')),
-            'width'              => (float)($_POST['width'] ?? 0),
-            'height'             => (float)($_POST['height'] ?? 0),
-            'depth'              => !empty($_POST['depth']) ? (float)$_POST['depth'] : null,
+            'dimension_unit'     => $unit,
+            'width'              => $width,
+            'height'             => $height,
+            'depth'              => $depth,
             'conservation_state' => trim($_POST['conservation_state'] ?? 'Excelente'),
             'provenance'         => trim($_POST['provenance'] ?? 'Acervo Particular'),
             'location'           => trim($_POST['location'] ?? 'Brasil'),
@@ -496,8 +502,19 @@ $allArtists = supabase_buscar_artistas_list($adminToken);
             margin-bottom: 1.25rem;
         }
 
+        .form-grid-4 {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid-4 { grid-template-columns: 1fr 1fr; }
+        }
+
         @media (max-width: 600px) {
-            .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+            .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr; }
         }
 
         .f-group {
@@ -1100,41 +1117,54 @@ $allArtists = supabase_buscar_artistas_list($adminToken);
                         </div>
                     </div>
 
-                    <div class="form-grid-3">
+                    <?php $currentUnit = $obra['unidade_dimensao'] ?? ($obra['dimension_unit'] ?? 'cm'); ?>
+                    <div class="form-grid-4">
                         <div class="f-group">
-                            <label for="height" class="f-label">Altura (cm) *</label>
+                            <label for="dimension_unit" class="f-label">Unidade de Medida *</label>
+                            <select name="dimension_unit" id="dimension_unit" class="f-input">
+                                <option value="cm" <?= ($currentUnit === 'cm') ? 'selected' : '' ?>>Centímetros (cm)</option>
+                                <option value="m" <?= ($currentUnit === 'm') ? 'selected' : '' ?>>Metros (m)</option>
+                            </select>
+                            <span class="f-hint" id="dimension_unit_hint"><?= ($currentUnit === 'm') ? 'Medidas em metros (ex: 2.30 × 1.70 m)' : 'Medidas em centímetros (ex: 100 × 80 cm)' ?></span>
+                        </div>
+
+                        <div class="f-group">
+                            <label for="height" class="f-label" id="lblHeight">Altura (<?= htmlspecialchars($currentUnit) ?>) *</label>
                             <input 
                                 type="number" 
-                                step="0.1" 
+                                step="0.01" 
                                 name="height" 
                                 id="height" 
                                 class="f-input" 
                                 required
+                                placeholder="<?= ($currentUnit === 'm') ? 'Ex: 2.30' : 'Ex: 100' ?>"
                                 value="<?= htmlspecialchars($obra['altura'] ?? '') ?>"
                             >
                         </div>
 
                         <div class="f-group">
-                            <label for="width" class="f-label">Largura (cm) *</label>
+                            <label for="width" class="f-label" id="lblWidth">Largura (<?= htmlspecialchars($currentUnit) ?>) *</label>
                             <input 
                                 type="number" 
-                                step="0.1" 
+                                step="0.01" 
                                 name="width" 
                                 id="width" 
                                 class="f-input" 
                                 required
+                                placeholder="<?= ($currentUnit === 'm') ? 'Ex: 1.70' : 'Ex: 80' ?>"
                                 value="<?= htmlspecialchars($obra['largura'] ?? '') ?>"
                             >
                         </div>
 
                         <div class="f-group">
-                            <label for="depth" class="f-label">Profundidade (cm)</label>
+                            <label for="depth" class="f-label" id="lblDepth">Profundidade (<?= htmlspecialchars($currentUnit) ?>)</label>
                             <input 
                                 type="number" 
-                                step="0.1" 
+                                step="0.01" 
                                 name="depth" 
                                 id="depth" 
                                 class="f-input" 
+                                placeholder="<?= ($currentUnit === 'm') ? 'Ex: 0.15' : 'Ex: 5' ?>"
                                 value="<?= htmlspecialchars($obra['profundidade'] ?? '') ?>"
                             >
                         </div>
@@ -1542,6 +1572,36 @@ $allArtists = supabase_buscar_artistas_list($adminToken);
             btnSubmitEdit.innerHTML = '⏳ Salvando Alterações...';
             btnSubmitEdit.style.opacity = '0.75';
             btnSubmitEdit.style.cursor = 'not-allowed';
+        });
+    }
+
+    // Alternância dinâmica de Unidade de Medida (m / cm)
+    const unitSelect = document.getElementById('dimension_unit');
+    const lblHeight = document.getElementById('lblHeight');
+    const lblWidth = document.getElementById('lblWidth');
+    const lblDepth = document.getElementById('lblDepth');
+    const inputHeight = document.getElementById('height');
+    const inputWidth = document.getElementById('width');
+    const inputDepth = document.getElementById('depth');
+    const hintUnit = document.getElementById('dimension_unit_hint');
+
+    if (unitSelect) {
+        unitSelect.addEventListener('change', function() {
+            const u = this.value;
+            if (lblHeight) lblHeight.textContent = `Altura (${u}) *`;
+            if (lblWidth) lblWidth.textContent = `Largura (${u}) *`;
+            if (lblDepth) lblDepth.textContent = `Profundidade (${u})`;
+            if (u === 'm') {
+                if (inputHeight) inputHeight.placeholder = 'Ex: 2.30';
+                if (inputWidth) inputWidth.placeholder = 'Ex: 1.70';
+                if (inputDepth) inputDepth.placeholder = 'Ex: 0.15';
+                if (hintUnit) hintUnit.textContent = 'Medidas em metros (ex: 2.30 × 1.70 m)';
+            } else {
+                if (inputHeight) inputHeight.placeholder = 'Ex: 100';
+                if (inputWidth) inputWidth.placeholder = 'Ex: 80';
+                if (inputDepth) inputDepth.placeholder = 'Ex: 5';
+                if (hintUnit) hintUnit.textContent = 'Medidas em centímetros (ex: 100 × 80 cm)';
+            }
         });
     }
     </script>

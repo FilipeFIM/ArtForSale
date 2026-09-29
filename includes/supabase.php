@@ -445,6 +445,87 @@ function supabase_legenda_tipo_imagem(string $tipo): string {
 }
 
 /**
+ * Converte entradas de dimensão (que podem usar vírgula ou ponto) para float com segurança
+ */
+function supabase_parse_dimensao($val): ?float {
+    if ($val === null || $val === '') {
+        return null;
+    }
+    $clean = str_replace(',', '.', trim((string)$val));
+    return is_numeric($clean) ? (float)$clean : null;
+}
+
+/**
+ * Detecta a unidade de medida ('m' ou 'cm') de uma obra.
+ * Prioriza:
+ * 1. Campo explícito 'dimension_unit' ou 'unidade_dimensao'
+ * 2. Comentário semântico na descrição: <!--unit:m--> ou <!--unit:cm-->
+ * 3. Heurística inteligente: se altura e largura forem <= 10.0 (ex: tapetes 2.30 x 1.70), infere metros ('m')
+ */
+function supabase_obter_unidade_obra(array $raw): string {
+    // 1. Campo direto
+    if (!empty($raw['dimension_unit']) && in_array(strtolower($raw['dimension_unit']), ['m', 'cm'], true)) {
+        return strtolower($raw['dimension_unit']);
+    }
+    if (!empty($raw['unidade_dimensao']) && in_array(strtolower($raw['unidade_dimensao']), ['m', 'cm'], true)) {
+        return strtolower($raw['unidade_dimensao']);
+    }
+
+    // 2. Tag em description / descricao
+    $desc = $raw['description'] ?? ($raw['descricao'] ?? '');
+    if (is_string($desc) && preg_match('/<!--\s*unit:\s*(m|cm)\s*-->/i', $desc, $matches)) {
+        return strtolower($matches[1]);
+    }
+
+    // 3. Heurística: obras com dimensões <= 10.0 (ex: tapetes e murais 2.30 x 1.70 m)
+    $h = isset($raw['height']) ? (float)$raw['height'] : (isset($raw['altura']) ? (float)$raw['altura'] : 0.0);
+    $w = isset($raw['width']) ? (float)$raw['width'] : (isset($raw['largura']) ? (float)$raw['largura'] : 0.0);
+    if ($h > 0 && $h <= 10.0 && $w > 0 && $w <= 10.0) {
+        return 'm';
+    }
+
+    return 'cm';
+}
+
+/**
+ * Formata as dimensões de forma profissional e elegante para catálogo de arte
+ * Metros: "2,30 × 1,70 m" ou "2,30 × 1,70 × 0,40 m"
+ * Centímetros: "80 × 120 cm" ou "79,5 × 59,5 cm"
+ */
+function supabase_formatar_dimensoes($height, $width, $depth = null, string $unidade = 'cm'): string {
+    $h = supabase_parse_dimensao($height);
+    $w = supabase_parse_dimensao($width);
+    $d = supabase_parse_dimensao($depth);
+
+    if (empty($h) || empty($w)) {
+        return $unidade === 'm' ? '2,00 × 1,50 m' : '80 × 120 cm';
+    }
+
+    $u = strtolower($unidade) === 'm' ? 'm' : 'cm';
+
+    if ($u === 'm') {
+        $strH = number_format($h, 2, ',', '');
+        $strW = number_format($w, 2, ',', '');
+        $strD = ($d !== null && $d > 0) ? ' × ' . number_format($d, 2, ',', '') : '';
+        return "{$strH} × {$strW}{$strD} m";
+    }
+
+    // Centímetros
+    $formatCm = function(float $val): string {
+        if (floor($val) == $val) {
+            return (string)(int)$val;
+        }
+        $formatted = number_format($val, 2, ',', '');
+        return rtrim(rtrim($formatted, '0'), ',');
+    };
+
+    $strH = $formatCm($h);
+    $strW = $formatCm($w);
+    $strD = ($d !== null && $d > 0) ? ' × ' . $formatCm($d) : '';
+    return "{$strH} × {$strW}{$strD} cm";
+}
+
+/**
  * Normaliza uma obra vinda do Supabase para a estrutura usada nas views
  * Prioriza a imagem marcada com is_primary=true para os cards
  * e monta a galeria completa para a página da obra.
@@ -491,13 +572,13 @@ function supabase_normalizar_obra(array $raw): array {
         $primaryStoragePath = $imagens[0]['storage_path'] ?? '';
     }
 
-    $dimensoes = '80 × 120 cm';
-    if (!empty($raw['height']) && !empty($raw['width'])) {
-        $h = (float)$raw['height'];
-        $w = (float)$raw['width'];
-        $d = !empty($raw['depth']) ? ' × ' . (float)$raw['depth'] : '';
-        $dimensoes = "{$h} × {$w}{$d} cm";
-    }
+    // Resolve unidade e formato das dimensões
+    $unidade = supabase_obter_unidade_obra($raw);
+    $dimensoes = supabase_formatar_dimensoes($raw['height'] ?? null, $raw['width'] ?? null, $raw['depth'] ?? null, $unidade);
+
+    // Limpa marcador semântico <!--unit:...--> da descrição para exibição pública limpa
+    $rawDesc = $raw['description'] ?? '';
+    $cleanDesc = trim(preg_replace('/<!--\s*unit:\s*(m|cm)\s*-->/i', '', $rawDesc));
 
     // Monta a galeria completa
     $galeria = [];
@@ -523,6 +604,8 @@ function supabase_normalizar_obra(array $raw): array {
         'artista_slug'        => $artista['slug'] ?? '',
         'biografia_artista'   => $artista['biography'] ?? '',
         'dimensoes'           => $dimensoes,
+        'unidade_dimensao'    => $unidade,
+        'dimension_unit'      => $unidade,
         'largura'             => (float)($raw['width'] ?? 0),
         'altura'              => (float)($raw['height'] ?? 0),
         'profundidade'        => !empty($raw['depth']) ? (float)$raw['depth'] : null,
@@ -538,7 +621,7 @@ function supabase_normalizar_obra(array $raw): array {
         'estado_conservacao'  => $raw['conservation_state'] ?? 'Excelente',
         'procedencia'         => $raw['provenance'] ?? 'Acervo Particular',
         'localizacao'         => $raw['location'] ?? 'Brasil',
-        'descricao'           => $raw['description'] ?? '',
+        'descricao'           => $cleanDesc,
         'disponibilidade'     => $raw['availability'] ?? 'available',
         'destaque'            => !empty($raw['featured']),
         'ativo'               => !empty($raw['active']),
@@ -580,7 +663,7 @@ function supabase_buscar_obras(?string $categoria = null, ?string $termo = null,
     // Filtro: se somenteAtivas for true, exclui apenas as obras explicitamente marcadas com active = false
     // (não oculta obras cujo active seja true ou nulo)
     $activeClause = $somenteAtivas ? '&active=neq.false' : '';
-    $endpoint = 'artworks?select=id,name,slug,technique,year,width,height,depth,code,availability,featured,active,artist_id,category_id,created_at,artists(id,name,slug),categories(id,name,slug),artwork_images(id,image_url,storage_path,image_type,sort_order,is_primary)' . $activeClause . '&order=created_at.desc';
+    $endpoint = 'artworks?select=id,name,slug,description,technique,year,width,height,depth,code,availability,featured,active,artist_id,category_id,created_at,artists(id,name,slug),categories(id,name,slug),artwork_images(id,image_url,storage_path,image_type,sort_order,is_primary)' . $activeClause . '&order=created_at.desc';
 
     if ($categoria && $categoria !== 'all' && $categoria !== 'todas') {
         $endpoint .= '&categories.slug=eq.' . urlencode($categoria) . '&categories=not.is.null';
@@ -1155,13 +1238,35 @@ function supabase_atualizar_dados_obra(string $artworkId, array $dados, ?string 
     if (isset($dados['slug'])) $payload['slug'] = trim($dados['slug']);
     if (isset($dados['technique'])) $payload['technique'] = trim($dados['technique']);
     if (isset($dados['year'])) $payload['year'] = (int)$dados['year'];
-    if (isset($dados['width'])) $payload['width'] = (float)$dados['width'];
-    if (isset($dados['height'])) $payload['height'] = (float)$dados['height'];
-    if (array_key_exists('depth', $dados)) $payload['depth'] = !empty($dados['depth']) ? (float)$dados['depth'] : null;
+    if (isset($dados['width'])) $payload['width'] = supabase_parse_dimensao($dados['width']) ?? 0.0;
+    if (isset($dados['height'])) $payload['height'] = supabase_parse_dimensao($dados['height']) ?? 0.0;
+    if (array_key_exists('depth', $dados)) $payload['depth'] = supabase_parse_dimensao($dados['depth']);
     if (isset($dados['conservation_state'])) $payload['conservation_state'] = trim($dados['conservation_state']);
     if (isset($dados['provenance'])) $payload['provenance'] = trim($dados['provenance']);
     if (isset($dados['location'])) $payload['location'] = trim($dados['location']);
-    if (isset($dados['description'])) $payload['description'] = trim($dados['description']);
+
+    // Processamento da unidade de medida ('m' ou 'cm')
+    $unit = null;
+    if (!empty($dados['dimension_unit'])) {
+        $unit = strtolower(trim($dados['dimension_unit'])) === 'm' ? 'm' : 'cm';
+    } elseif (!empty($dados['unidade_dimensao'])) {
+        $unit = strtolower(trim($dados['unidade_dimensao'])) === 'm' ? 'm' : 'cm';
+    }
+
+    if (isset($dados['description'])) {
+        $cleanDesc = trim(preg_replace('/<!--\s*unit:\s*(m|cm)\s*-->/i', '', (string)$dados['description']));
+        if ($unit) {
+            $payload['description'] = ($cleanDesc !== '' ? $cleanDesc . "\n" : '') . "<!--unit:{$unit}-->";
+        } else {
+            $payload['description'] = $cleanDesc;
+        }
+    } elseif ($unit) {
+        $curr = supabase_buscar_obra($artworkId, $token);
+        if ($curr) {
+            $cleanDesc = trim(preg_replace('/<!--\s*unit:\s*(m|cm)\s*-->/i', '', (string)($curr['descricao'] ?? '')));
+            $payload['description'] = ($cleanDesc !== '' ? $cleanDesc . "\n" : '') . "<!--unit:{$unit}-->";
+        }
+    }
     if (isset($dados['code'])) {
         $cleanCode = trim($dados['code']);
         if ($cleanCode !== '' && supabase_is_code_in_use($cleanCode, $artworkId, $token)) {
@@ -1228,7 +1333,15 @@ function supabase_atualizar_dados_obra(string $artworkId, array $dados, ?string 
                 if (isset($payload['conservation_state'])) $loc['estado_conservacao'] = $payload['conservation_state'];
                 if (isset($payload['provenance'])) $loc['procedencia'] = $payload['provenance'];
                 if (isset($payload['location'])) $loc['localizacao'] = $payload['location'];
-                if (isset($payload['description'])) $loc['descricao'] = $payload['description'];
+                if (isset($payload['description'])) {
+                    $loc['descricao'] = trim(preg_replace('/<!--\s*unit:\s*(m|cm)\s*-->/i', '', (string)$payload['description']));
+                }
+                if ($unit) {
+                    $loc['dimension_unit'] = $unit;
+                    $loc['unidade_dimensao'] = $unit;
+                }
+                $uLoc = $loc['dimension_unit'] ?? ($unit ?: 'cm');
+                $loc['dimensoes'] = supabase_formatar_dimensoes($loc['altura'], $loc['largura'], $loc['profundidade'] ?? null, $uLoc);
                 if (isset($payload['code'])) $loc['codigo'] = $payload['code'];
                 if (isset($payload['availability'])) $loc['disponibilidade'] = $payload['availability'];
                 if (isset($payload['featured'])) $loc['destaque'] = $payload['featured'];
@@ -1459,19 +1572,31 @@ function supabase_criar_obra(array $dados, ?string $authToken = null): array {
     $rawCode = trim($dados['code'] ?? '');
     $code = supabase_gerar_codigo_obra_unico($rawCode, null, $token);
 
+    // Unidade de medida ('m' ou 'cm') e parsing seguro de dimensões
+    $unit = isset($dados['dimension_unit']) ? (strtolower(trim($dados['dimension_unit'])) === 'm' ? 'm' : 'cm') : (isset($dados['unidade_dimensao']) ? (strtolower(trim($dados['unidade_dimensao'])) === 'm' ? 'm' : 'cm') : 'cm');
+    $defaultH = $unit === 'm' ? 2.0 : 100.0;
+    $defaultW = $unit === 'm' ? 1.5 : 80.0;
+    $w = supabase_parse_dimensao($dados['width'] ?? $defaultW) ?? $defaultW;
+    $h = supabase_parse_dimensao($dados['height'] ?? $defaultH) ?? $defaultH;
+    $d = supabase_parse_dimensao($dados['depth'] ?? null);
+
+    $rawDesc = trim($dados['description'] ?? '');
+    $cleanDesc = trim(preg_replace('/<!--\s*unit:\s*(m|cm)\s*-->/i', '', $rawDesc));
+    $descWithUnit = ($cleanDesc !== '' ? $cleanDesc . "\n" : '') . "<!--unit:{$unit}-->";
+
     $payload = [
         'name'               => $name,
         'slug'               => $slug,
         'code'               => $code,
         'technique'          => trim($dados['technique'] ?? 'Óleo sobre tela'),
         'year'               => (int)($dados['year'] ?? (int)date('Y')),
-        'width'              => (float)($dados['width'] ?? 80),
-        'height'             => (float)($dados['height'] ?? 100),
-        'depth'              => !empty($dados['depth']) ? (float)$dados['depth'] : null,
+        'width'              => $w,
+        'height'             => $h,
+        'depth'              => $d,
         'conservation_state' => trim($dados['conservation_state'] ?? 'Excelente'),
         'provenance'         => trim($dados['provenance'] ?? 'Acervo Particular'),
         'location'           => trim($dados['location'] ?? 'Brasil'),
-        'description'        => trim($dados['description'] ?? ''),
+        'description'        => $descWithUnit,
         'availability'       => trim($dados['availability'] ?? 'available'),
         'featured'           => !empty($dados['featured']),
         'active'             => isset($dados['active']) ? (bool)$dados['active'] : true
@@ -1528,6 +1653,9 @@ function supabase_criar_obra(array $dados, ?string $authToken = null): array {
         $created = is_array($res['data']) ? ($res['data'][0] ?? $res['data']) : $res['data'];
         if (function_exists('artsale_save_local_artwork') && !empty($created['id'])) {
             $norm = supabase_normalizar_obra($created);
+            $norm['dimension_unit'] = $unit;
+            $norm['unidade_dimensao'] = $unit;
+            $norm['dimensoes'] = supabase_formatar_dimensoes($norm['altura'], $norm['largura'], $norm['profundidade'] ?? null, $unit);
             if (!empty($dados['artist_name'])) $norm['artista'] = $dados['artist_name'];
             if (!empty($dados['category_name'])) $norm['categoria'] = $dados['category_name'];
             artsale_save_local_artwork($norm);

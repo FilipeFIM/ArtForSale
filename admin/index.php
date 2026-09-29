@@ -186,14 +186,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 7. Cadastrar Nova Obra
     elseif ($action === 'create_artwork') {
+        $unit = in_array($_POST['dimension_unit'] ?? 'cm', ['cm', 'm'], true) ? $_POST['dimension_unit'] : 'cm';
+        $width = supabase_parse_dimensao($_POST['width'] ?? null) ?? 0.0;
+        $height = supabase_parse_dimensao($_POST['height'] ?? null) ?? 0.0;
+        $depth = supabase_parse_dimensao($_POST['depth'] ?? null);
+
         $dados = [
             'name'               => trim($_POST['name'] ?? ''),
             'code'               => trim($_POST['code'] ?? ''),
             'technique'          => trim($_POST['technique'] ?? ''),
             'year'               => (int)($_POST['year'] ?? date('Y')),
-            'width'              => (float)($_POST['width'] ?? 0),
-            'height'             => (float)($_POST['height'] ?? 0),
-            'depth'              => !empty($_POST['depth']) ? (float)$_POST['depth'] : null,
+            'dimension_unit'     => $unit,
+            'width'              => $width,
+            'height'             => $height,
+            'depth'              => $depth,
             'conservation_state' => trim($_POST['conservation_state'] ?? 'Excelente'),
             'provenance'         => trim($_POST['provenance'] ?? 'Acervo Art For Sale'),
             'location'           => trim($_POST['location'] ?? 'Brasil'),
@@ -2305,21 +2311,30 @@ $statusFilter = $_GET['status'] ?? 'all';
 
                 <div class="form-grid-2">
                     <div class="f-group">
-                        <label class="f-label">Altura (cm) *</label>
-                        <input type="number" step="0.1" name="height" class="f-input" placeholder="Ex: 100" required>
+                        <label class="f-label">Unidade de Medida *</label>
+                        <select name="dimension_unit" id="modal_dimension_unit" class="f-input">
+                            <option value="cm">Centímetros (cm)</option>
+                            <option value="m">Metros (m)</option>
+                        </select>
                     </div>
 
                     <div class="f-group">
-                        <label class="f-label">Largura (cm) *</label>
-                        <input type="number" step="0.1" name="width" class="f-input" placeholder="Ex: 80" required>
+                        <label class="f-label" id="lblModalDepth">Profundidade (cm)</label>
+                        <input type="number" step="0.01" name="depth" id="modal_depth" class="f-input" placeholder="Ex: 5 (opcional)">
                     </div>
                 </div>
 
                 <div class="form-grid-2">
                     <div class="f-group">
-                        <label class="f-label">Profundidade (cm)</label>
-                        <input type="number" step="0.1" name="depth" class="f-input" placeholder="Ex: 4 (opcional)">
+                        <label class="f-label" id="lblModalHeight">Altura (cm) *</label>
+                        <input type="number" step="0.01" name="height" id="modal_height" class="f-input" placeholder="Ex: 100" required>
                     </div>
+
+                    <div class="f-group">
+                        <label class="f-label" id="lblModalWidth">Largura (cm) *</label>
+                        <input type="number" step="0.01" name="width" id="modal_width" class="f-input" placeholder="Ex: 80" required>
+                    </div>
+                </div>
 
                     <div class="f-group">
                         <label class="f-label">Disponibilidade</label>
@@ -2613,6 +2628,33 @@ $statusFilter = $_GET['status'] ?? 'all';
                     e.preventDefault();
                     alert(val.error);
                 }
+            }
+        });
+    }
+
+    // Alternância dinâmica de Unidade de Medida no modal de nova obra
+    const modalUnitSelect = document.getElementById('modal_dimension_unit');
+    const lblModalHeight = document.getElementById('lblModalHeight');
+    const lblModalWidth = document.getElementById('lblModalWidth');
+    const lblModalDepth = document.getElementById('lblModalDepth');
+    const inputModalHeight = document.getElementById('modal_height');
+    const inputModalWidth = document.getElementById('modal_width');
+    const inputModalDepth = document.getElementById('modal_depth');
+
+    if (modalUnitSelect) {
+        modalUnitSelect.addEventListener('change', function() {
+            const u = this.value;
+            if (lblModalHeight) lblModalHeight.textContent = `Altura (${u}) *`;
+            if (lblModalWidth) lblModalWidth.textContent = `Largura (${u}) *`;
+            if (lblModalDepth) lblModalDepth.textContent = `Profundidade (${u})`;
+            if (u === 'm') {
+                if (inputModalHeight) inputModalHeight.placeholder = 'Ex: 2.30';
+                if (inputModalWidth) inputModalWidth.placeholder = 'Ex: 1.70';
+                if (inputModalDepth) inputModalDepth.placeholder = 'Ex: 0.15 (opcional)';
+            } else {
+                if (inputModalHeight) inputModalHeight.placeholder = 'Ex: 100';
+                if (inputModalWidth) inputModalWidth.placeholder = 'Ex: 80';
+                if (inputModalDepth) inputModalDepth.placeholder = 'Ex: 5 (opcional)';
             }
         });
     }
