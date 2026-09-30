@@ -216,12 +216,20 @@
 
     /* Detalhe da Obra (992px) */
     .obra-layout-grid {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
         gap: 2.5rem;
     }
 
     .obra-gallery-col {
         position: static;
+        order: 1 !important;
+        width: 100%;
+    }
+
+    .obra-info-col {
+        order: 2 !important;
+        width: 100%;
     }
 
     .obra-page-title {
@@ -711,6 +719,7 @@
         flex-direction: column;
         width: 100%;
         position: static;
+        order: 1 !important;
     }
 
     /* 1. Imagem principal */
@@ -773,22 +782,12 @@
         overflow: hidden;
     }
 
-    .obra-assurance-box {
-        order: 3;
-        margin-top: 1rem;
-        padding: 0.85rem 1rem;
-        gap: 0.5rem;
-    }
-
-    .assurance-item {
-        font-size: 0.75rem;
-    }
-
     /* Coluna de Informações */
     .obra-info-col {
         display: flex;
         flex-direction: column;
         width: 100%;
+        order: 2 !important;
     }
 
     /* 3. Informações (Header, Sobre, Ficha Técnica) */

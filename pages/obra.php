@@ -230,6 +230,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                                     <span class="thumb-label"><?= htmlspecialchars($item['titulo']) ?></span>
                                 </button>
                             <?php endforeach; ?>
+                        </div>
                     </div>
 
                 </div>

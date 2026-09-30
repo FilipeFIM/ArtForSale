@@ -2947,31 +2947,6 @@ ul, ol {
     font-weight: 700;
 }
 
-/* Selo de Garantia e Procedência */
-.obra-assurance-box {
-    margin-top: 1.75rem;
-    padding: 1.25rem 1.5rem;
-    background-color: var(--color-gold-subtle);
-    border: 1px solid var(--color-gold-border);
-    border-radius: var(--radius-sm);
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.assurance-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.8125rem;
-    color: var(--color-text-secondary);
-}
-
-.assurance-item svg {
-    color: var(--color-gold);
-    flex-shrink: 0;
-}
-
 /* Coluna de Informações (Direita) */
 .obra-info-col {
     display: flex;
