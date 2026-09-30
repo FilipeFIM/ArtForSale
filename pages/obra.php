@@ -230,24 +230,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
                                     <span class="thumb-label"><?= htmlspecialchars($item['titulo']) ?></span>
                                 </button>
                             <?php endforeach; ?>
-                        </div>
-                    </div>
-
-                    <!-- Garantia de Procedência e Embalagem Especializada -->
-                    <div class="obra-assurance-box">
-                        <div class="assurance-item">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                            </svg>
-                            <span>Certificado de autenticidade assinado e registrado</span>
-                        </div>
-                        <div class="assurance-item">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                            </svg>
-                            <span>Embalagem museológica climatizada para transporte seguro</span>
-                        </div>
                     </div>
 
                 </div>

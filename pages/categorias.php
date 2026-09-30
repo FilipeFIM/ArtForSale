@@ -217,7 +217,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
             <div class="categoria-section-header">
                 <div>
                     <h2 class="section-title">Obras em <?= htmlspecialchars($catNome) ?></h2>
-                    <p class="section-subtitle">Peças selecionadas com rigor técnico, procedência certificada e certificado de autenticidade.</p>
+                    <p class="section-subtitle">Peças selecionadas com rigor técnico e procedência certificada.</p>
                 </div>
             </div>
 
