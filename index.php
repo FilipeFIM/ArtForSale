@@ -306,25 +306,6 @@ require_once __DIR__ . '/includes/header.php';
                         Conheça nossa história <span class="arrow">→</span>
                     </a>
                 </div>
-
-                <!-- Pilares Curatoriais da Galeria (Editorial Contemporâneo) -->
-                <div class="curatorial-pillars-grid">
-                    <div class="pillar-item">
-                        <span class="pillar-number">01</span>
-                        <h4 class="pillar-title">Curadoria Autoral</h4>
-                        <p class="pillar-desc">Obras singulares selecionadas por artistas visuais contemporâneos, unindo sensibilidade estética à inteligência visual.</p>
-                    </div>
-                    <div class="pillar-item">
-                        <span class="pillar-number">02</span>
-                        <h4 class="pillar-title">Consultoria Dedicada</h4>
-                        <p class="pillar-desc">Atendimento particular conduzido diretamente por nossos curadores para arquitetos, colecionadores e ambientes residenciais.</p>
-                    </div>
-                    <div class="pillar-item">
-                        <span class="pillar-number">03</span>
-                        <h4 class="pillar-title">Procedência & Autenticidade</h4>
-                        <p class="pillar-desc">Cada peça conta com registro autoral, especificações técnicas detalhadas e tiragem rigorosamente controlada.</p>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
