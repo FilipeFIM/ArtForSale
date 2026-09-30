@@ -143,8 +143,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 'quote' => 'Mais que quadros, histórias que ganham vida no seu espaço.',
                 'cta_primary_text' => 'Explorar obras',
                 'cta_primary_url' => 'pages/obras.php',
-                'cta_secondary_text' => 'Ver categorias',
-                'cta_secondary_url' => '#categorias'
+                'cta_secondary_text' => 'Conhecer a Galeria',
+                'cta_secondary_url' => '#sobre'
             ],
             [
                 'id' => 2,
@@ -155,8 +155,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 'quote' => 'A beleza clássica e contemporânea em perfeita harmonia.',
                 'cta_primary_text' => 'Explorar obras',
                 'cta_primary_url' => 'pages/obras.php',
-                'cta_secondary_text' => 'Ver categorias',
-                'cta_secondary_url' => '#categorias'
+                'cta_secondary_text' => 'Conhecer a Galeria',
+                'cta_secondary_url' => '#sobre'
             ],
             [
                 'id' => 3,
@@ -167,8 +167,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 'quote' => 'Cada pincelada carrega uma emoção eterna e autêntica.',
                 'cta_primary_text' => 'Explorar obras',
                 'cta_primary_url' => 'pages/obras.php',
-                'cta_secondary_text' => 'Ver categorias',
-                'cta_secondary_url' => '#categorias'
+                'cta_secondary_text' => 'Conhecer a Galeria',
+                'cta_secondary_url' => '#sobre'
             ]
         ];
 
@@ -214,6 +214,15 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 $finalImage = $oldSlide['image'] ?? 'assets/images/site/hero-bg.jpg';
             }
 
+            $secText = trim($_POST["cta_secondary_text_{$slideNum}"] ?? ($oldSlide['cta_secondary_text'] ?? 'Conhecer a Galeria'));
+            $secUrl = trim($_POST["cta_secondary_url_{$slideNum}"] ?? ($oldSlide['cta_secondary_url'] ?? '#sobre'));
+            if (stripos($secText, 'categoria') !== false) {
+                $secText = 'Conhecer a Galeria';
+            }
+            if (stripos($secUrl, 'categoria') !== false) {
+                $secUrl = '#sobre';
+            }
+
             $updatedSlides[] = [
                 'id' => $slideNum,
                 'image' => $finalImage,
@@ -223,8 +232,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 'quote' => trim($_POST["quote_{$slideNum}"] ?? ($oldSlide['quote'] ?? '')),
                 'cta_primary_text' => trim($_POST["cta_primary_text_{$slideNum}"] ?? ($oldSlide['cta_primary_text'] ?? 'Explorar obras')),
                 'cta_primary_url' => trim($_POST["cta_primary_url_{$slideNum}"] ?? ($oldSlide['cta_primary_url'] ?? 'pages/obras.php')),
-                'cta_secondary_text' => trim($_POST["cta_secondary_text_{$slideNum}"] ?? ($oldSlide['cta_secondary_text'] ?? 'Ver categorias')),
-                'cta_secondary_url' => trim($_POST["cta_secondary_url_{$slideNum}"] ?? ($oldSlide['cta_secondary_url'] ?? '#categorias')),
+                'cta_secondary_text' => $secText,
+                'cta_secondary_url' => $secUrl,
             ];
         }
 
@@ -1087,8 +1096,8 @@ foreach ($artworksList as $item) {
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label>Botão Secundário (Borda):</label>
-                                <input type="text" name="cta_secondary_text_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['cta_secondary_text'] ?? 'Ver categorias') ?>" placeholder="Texto do botão" style="margin-bottom: 0.35rem;">
-                                <input type="text" name="cta_secondary_url_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['cta_secondary_url'] ?? '#categorias') ?>" placeholder="Link (ex: #categorias)">
+                                <input type="text" name="cta_secondary_text_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['cta_secondary_text'] ?? 'Conhecer a Galeria') ?>" placeholder="Texto do botão" style="margin-bottom: 0.35rem;">
+                                <input type="text" name="cta_secondary_url_<?= $slideNum ?>" class="form-control" value="<?= htmlspecialchars($slide['cta_secondary_url'] ?? '#sobre') ?>" placeholder="Link (ex: #sobre)">
                             </div>
                         </div>
                     </details>
@@ -1132,7 +1141,7 @@ foreach ($artworksList as $item) {
                 <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); background: var(--bg-card-alt);">
                     <div style="position: relative;">
                         <span style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); font-size: 0.95rem; opacity: 0.6;">🔍</span>
-                        <input type="text" id="artworkSearchInput" class="form-control" style="padding-left: 2.3rem;" placeholder="Buscar obra por título, artista ou categoria..." oninput="filterModalArtworks(this.value)">
+                        <input type="text" id="artworkSearchInput" class="form-control" style="padding-left: 2.3rem;" placeholder="Buscar obra por título ou artista..." oninput="filterModalArtworks(this.value)">
                     </div>
                 </div>
 

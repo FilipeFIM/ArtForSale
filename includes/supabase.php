@@ -526,6 +526,41 @@ function supabase_formatar_dimensoes($height, $width, $depth = null, string $uni
 }
 
 /**
+ * Converte de forma inteligente representações de ano (numéricas ou textuais)
+ * em um número inteiro para ordenação e compatibilidade com o PostgreSQL.
+ * Exemplos:
+ * "1950" -> 1950
+ * "Século XX" -> 1950
+ * "Meio do século XX" -> 1950
+ * "Século XVIII" -> 1750
+ * "c. 1920" -> 1920
+ * "entre o Século X e Y" -> 950
+ */
+function supabase_parse_ano_int(?string $ano): ?int {
+    if ($ano === null) return null;
+    $ano = trim($ano);
+    if ($ano === '') return null;
+    if (ctype_digit($ano)) {
+        return (int)$ano;
+    }
+    // Extrai ano de 4 dígitos se houver (ex: "c. 1920", "cerca de 1880", "1940-1950")
+    if (preg_match('/\b(1[0-9]{3}|20[0-9]{2})\b/', $ano, $m)) {
+        return (int)$m[1];
+    }
+    // Extrai séculos comuns com suporte a caracteres acentuados UTF-8 e abreviações (ex: "séc. XIX", "século XX")
+    if (preg_match('/(?:s[eé]culo|s[eé]c\.?)\s+([ivxlcdm]+)\b/iu', $ano, $m)) {
+        $romanos = ['i'=>1,'ii'=>2,'iii'=>3,'iv'=>4,'v'=>5,'vi'=>6,'vii'=>7,'viii'=>8,'ix'=>9,'x'=>10,
+                    'xi'=>11,'xii'=>12,'xiii'=>13,'xiv'=>14,'xv'=>15,'xvi'=>16,'xvii'=>17,'xviii'=>18,
+                    'xix'=>19,'xx'=>20,'xxi'=>21];
+        $num = $romanos[strtolower($m[1])] ?? null;
+        if ($num) {
+            return ($num * 100) - 50;
+        }
+    }
+    return null;
+}
+
+/**
  * Normaliza uma obra vinda do Supabase para a estrutura usada nas views
  * Prioriza a imagem marcada com is_primary=true para os cards
  * e monta a galeria completa para a página da obra.
@@ -576,9 +611,25 @@ function supabase_normalizar_obra(array $raw): array {
     $unidade = supabase_obter_unidade_obra($raw);
     $dimensoes = supabase_formatar_dimensoes($raw['height'] ?? null, $raw['width'] ?? null, $raw['depth'] ?? null, $unidade);
 
-    // Limpa marcador semântico <!--unit:...--> da descrição para exibição pública limpa
-    $rawDesc = $raw['description'] ?? '';
-    $cleanDesc = trim(preg_replace('/<!--\s*unit:\s*(m|cm)\s*-->/i', '', $rawDesc));
+    // Obtém o ano/período histórico formatado (suporta número ou texto livre como "Entre o Século X e Y", "Meio do século XX")
+    $rawDesc = $raw['description'] ?? ($raw['descricao'] ?? '');
+    $anoFinal = '';
+    if (is_string($rawDesc) && preg_match('/<!--\s*year_text:\s*(.*?)\s*-->/isu', $rawDesc, $ymatches)) {
+        $anoFinal = trim($ymatches[1]);
+    } elseif (!empty($raw['year_text'])) {
+        $anoFinal = trim((string)$raw['year_text']);
+    } elseif (!empty($raw['ano']) && !is_numeric($raw['ano'])) {
+        $anoFinal = trim((string)$raw['ano']);
+    } elseif (isset($raw['ano']) && $raw['ano'] !== '' && $raw['ano'] !== null) {
+        $anoFinal = (string)$raw['ano'];
+    } elseif (isset($raw['year']) && $raw['year'] !== '' && $raw['year'] !== null) {
+        $anoFinal = (string)$raw['year'];
+    } else {
+        $anoFinal = '2024';
+    }
+
+    // Limpa marcadores semânticos <!--unit:...--> e <!--year_text:...--> da descrição para exibição pública limpa
+    $cleanDesc = trim(preg_replace('/<!--\s*(unit|year_text):\s*.*?-->/isu', '', (string)$rawDesc));
 
     // Monta a galeria completa
     $galeria = [];
@@ -616,7 +667,9 @@ function supabase_normalizar_obra(array $raw): array {
         'imagem'              => $imagemPrincipal,
         'imagem_storage_path' => $primaryStoragePath,
         'tecnica'             => $raw['technique'] ?? 'Óleo sobre tela',
-        'ano'                 => $raw['year'] ?? 2024,
+        'ano'                 => $anoFinal,
+        'year_text'           => $anoFinal,
+        'ano_numerico'        => supabase_parse_ano_int($anoFinal),
         'codigo'              => $raw['code'] ?? 'ASF-0000',
         'estado_conservacao'  => $raw['conservation_state'] ?? 'Excelente',
         'procedencia'         => $raw['provenance'] ?? 'Acervo Particular',
@@ -1236,8 +1289,27 @@ function supabase_atualizar_dados_obra(string $artworkId, array $dados, ?string 
 
     if (isset($dados['name'])) $payload['name'] = trim($dados['name']);
     if (isset($dados['slug'])) $payload['slug'] = trim($dados['slug']);
-    if (isset($dados['technique'])) $payload['technique'] = trim($dados['technique']);
-    if (isset($dados['year'])) $payload['year'] = (int)$dados['year'];
+    // Processamento do campo Ano (numérico ou textual como "Entre o Século X e Y", "Meio do século XX")
+    $yearRaw = null;
+    $yearText = null;
+    $yearInt = null;
+    if (isset($dados['year'])) {
+        $yearRaw = trim((string)$dados['year']);
+    } elseif (isset($dados['ano'])) {
+        $yearRaw = trim((string)$dados['ano']);
+    }
+
+    if ($yearRaw !== null && $yearRaw !== '') {
+        if (ctype_digit($yearRaw)) {
+            $yearInt = (int)$yearRaw;
+            $yearText = (string)$yearInt;
+        } else {
+            $yearText = $yearRaw;
+            $yearInt = supabase_parse_ano_int($yearRaw);
+        }
+        $payload['year'] = $yearInt;
+    }
+
     if (isset($dados['width'])) $payload['width'] = supabase_parse_dimensao($dados['width']) ?? 0.0;
     if (isset($dados['height'])) $payload['height'] = supabase_parse_dimensao($dados['height']) ?? 0.0;
     if (array_key_exists('depth', $dados)) $payload['depth'] = supabase_parse_dimensao($dados['depth']);
@@ -1253,19 +1325,33 @@ function supabase_atualizar_dados_obra(string $artworkId, array $dados, ?string 
         $unit = strtolower(trim($dados['unidade_dimensao'])) === 'm' ? 'm' : 'cm';
     }
 
-    if (isset($dados['description'])) {
-        $cleanDesc = trim(preg_replace('/<!--\s*unit:\s*(m|cm)\s*-->/i', '', (string)$dados['description']));
-        if ($unit) {
-            $payload['description'] = ($cleanDesc !== '' ? $cleanDesc . "\n" : '') . "<!--unit:{$unit}-->";
-        } else {
-            $payload['description'] = $cleanDesc;
-        }
-    } elseif ($unit) {
+    // Obtenção da descrição base limpa e sincronização de metatags <!--unit:...--> e <!--year_text:...-->
+    $hasNewDesc = isset($dados['description']);
+    $baseDesc = null;
+    if ($hasNewDesc) {
+        $baseDesc = trim(preg_replace('/<!--\s*(unit|year_text):\s*.*?-->/isu', '', (string)$dados['description']));
+    } elseif ($unit !== null || ($yearText !== null && !ctype_digit($yearText))) {
         $curr = supabase_buscar_obra($artworkId, $token);
         if ($curr) {
-            $cleanDesc = trim(preg_replace('/<!--\s*unit:\s*(m|cm)\s*-->/i', '', (string)($curr['descricao'] ?? '')));
-            $payload['description'] = ($cleanDesc !== '' ? $cleanDesc . "\n" : '') . "<!--unit:{$unit}-->";
+            $baseDesc = trim(preg_replace('/<!--\s*(unit|year_text):\s*.*?-->/isu', '', (string)($curr['descricao'] ?? '')));
+            if ($unit === null) {
+                $unit = $curr['unidade_dimensao'] ?? 'cm';
+            }
+            if ($yearText === null && !empty($curr['year_text']) && !ctype_digit((string)$curr['year_text'])) {
+                $yearText = (string)$curr['year_text'];
+            }
         }
+    }
+
+    if ($baseDesc !== null) {
+        $metaComments = [];
+        if ($unit) {
+            $metaComments[] = "<!--unit:{$unit}-->";
+        }
+        if ($yearText !== null && !ctype_digit($yearText)) {
+            $metaComments[] = "<!--year_text:{$yearText}-->";
+        }
+        $payload['description'] = $baseDesc . (!empty($metaComments) ? "\n" . implode("\n", $metaComments) : '');
     }
     if (isset($dados['code'])) {
         $cleanCode = trim($dados['code']);
@@ -1325,8 +1411,15 @@ function supabase_atualizar_dados_obra(string $artworkId, array $dados, ?string 
             if ((string)($loc['id'] ?? '') === (string)$artworkId) {
                 if (isset($payload['name'])) $loc['titulo'] = $payload['name'];
                 if (isset($payload['slug'])) $loc['slug'] = $payload['slug'];
-                if (isset($payload['technique'])) $loc['tecnica'] = $payload['technique'];
-                if (isset($payload['year'])) $loc['ano'] = $payload['year'];
+                if ($yearText !== null) {
+                    $loc['ano'] = $yearText;
+                    $loc['year_text'] = $yearText;
+                    $loc['ano_numerico'] = $yearInt;
+                } elseif (isset($payload['year'])) {
+                    $loc['ano'] = $payload['year'];
+                    $loc['year_text'] = (string)$payload['year'];
+                    $loc['ano_numerico'] = $payload['year'];
+                }
                 if (isset($payload['width'])) $loc['largura'] = $payload['width'];
                 if (isset($payload['height'])) $loc['altura'] = $payload['height'];
                 if (array_key_exists('depth', $payload)) $loc['profundidade'] = $payload['depth'];
@@ -1334,7 +1427,7 @@ function supabase_atualizar_dados_obra(string $artworkId, array $dados, ?string 
                 if (isset($payload['provenance'])) $loc['procedencia'] = $payload['provenance'];
                 if (isset($payload['location'])) $loc['localizacao'] = $payload['location'];
                 if (isset($payload['description'])) {
-                    $loc['descricao'] = trim(preg_replace('/<!--\s*unit:\s*(m|cm)\s*-->/i', '', (string)$payload['description']));
+                    $loc['descricao'] = trim(preg_replace('/<!--\s*(unit|year_text):\s*.*?-->/isu', '', (string)$payload['description']));
                 }
                 if ($unit) {
                     $loc['dimension_unit'] = $unit;
@@ -1580,23 +1673,46 @@ function supabase_criar_obra(array $dados, ?string $authToken = null): array {
     $h = supabase_parse_dimensao($dados['height'] ?? $defaultH) ?? $defaultH;
     $d = supabase_parse_dimensao($dados['depth'] ?? null);
 
+    // Processamento do campo Ano (numérico ou textual como "Entre o Século X e Y", "Meio do século XX")
+    $yearRaw = null;
+    if (isset($dados['year'])) {
+        $yearRaw = trim((string)$dados['year']);
+    } elseif (isset($dados['ano'])) {
+        $yearRaw = trim((string)$dados['ano']);
+    }
+    if ($yearRaw === null || $yearRaw === '') {
+        $yearRaw = (string)date('Y');
+    }
+
+    if (ctype_digit($yearRaw)) {
+        $yearInt = (int)$yearRaw;
+        $yearText = (string)$yearInt;
+    } else {
+        $yearText = $yearRaw;
+        $yearInt = supabase_parse_ano_int($yearRaw);
+    }
+
     $rawDesc = trim($dados['description'] ?? '');
-    $cleanDesc = trim(preg_replace('/<!--\s*unit:\s*(m|cm)\s*-->/i', '', $rawDesc));
-    $descWithUnit = ($cleanDesc !== '' ? $cleanDesc . "\n" : '') . "<!--unit:{$unit}-->";
+    $cleanDesc = trim(preg_replace('/<!--\s*(unit|year_text):\s*.*?-->/isu', '', $rawDesc));
+    $metaComments = ["<!--unit:{$unit}-->"];
+    if ($yearText !== null && !ctype_digit($yearText)) {
+        $metaComments[] = "<!--year_text:{$yearText}-->";
+    }
+    $descWithMeta = ($cleanDesc !== '' ? $cleanDesc . "\n" : '') . implode("\n", $metaComments);
 
     $payload = [
         'name'               => $name,
         'slug'               => $slug,
         'code'               => $code,
         'technique'          => trim($dados['technique'] ?? 'Óleo sobre tela'),
-        'year'               => (int)($dados['year'] ?? (int)date('Y')),
+        'year'               => $yearInt,
         'width'              => $w,
         'height'             => $h,
         'depth'              => $d,
         'conservation_state' => trim($dados['conservation_state'] ?? 'Excelente'),
         'provenance'         => trim($dados['provenance'] ?? 'Acervo Particular'),
         'location'           => trim($dados['location'] ?? 'Brasil'),
-        'description'        => $descWithUnit,
+        'description'        => $descWithMeta,
         'availability'       => trim($dados['availability'] ?? 'available'),
         'featured'           => !empty($dados['featured']),
         'active'             => isset($dados['active']) ? (bool)$dados['active'] : true
@@ -1656,6 +1772,11 @@ function supabase_criar_obra(array $dados, ?string $authToken = null): array {
             $norm['dimension_unit'] = $unit;
             $norm['unidade_dimensao'] = $unit;
             $norm['dimensoes'] = supabase_formatar_dimensoes($norm['altura'], $norm['largura'], $norm['profundidade'] ?? null, $unit);
+            if ($yearText !== null) {
+                $norm['ano'] = $yearText;
+                $norm['year_text'] = $yearText;
+                $norm['ano_numerico'] = $yearInt;
+            }
             if (!empty($dados['artist_name'])) $norm['artista'] = $dados['artist_name'];
             if (!empty($dados['category_name'])) $norm['categoria'] = $dados['category_name'];
             artsale_save_local_artwork($norm);

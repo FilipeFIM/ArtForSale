@@ -210,7 +210,7 @@ require_once dirname(__DIR__) . '/includes/header.php';
                         data-category="<?= htmlspecialchars($obra['categoria_slug'] ?? 'pinturas') ?>"
                         data-category-name="<?= htmlspecialchars($obra['categoria']) ?>"
                         data-image="<?= htmlspecialchars($obra['imagem']) ?>"
-                        data-year="<?= (int)($obra['ano'] ?? 2024) ?>"
+                        data-year="<?= htmlspecialchars((string)($obra['ano_numerico'] ?? $obra['ano'] ?? '')) ?>"
                         data-order="<?= (int)($obra['ordem'] ?? 0) ?>"
                     >
                         <div class="artwork-image-container">

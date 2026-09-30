@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $slug = trim($_POST['slug'] ?? '');
     $code = trim($_POST['code'] ?? '');
     $technique = trim($_POST['technique'] ?? '');
-    $year = (int)($_POST['year'] ?? date('Y'));
+    $year = trim((string)($_POST['year'] ?? date('Y')));
     $unit = in_array($_POST['dimension_unit'] ?? 'cm', ['cm', 'm'], true) ? $_POST['dimension_unit'] : 'cm';
     $width = supabase_parse_dimensao($_POST['width'] ?? null) ?? 0.0;
     $height = supabase_parse_dimensao($_POST['height'] ?? null) ?? 0.0;
@@ -847,14 +847,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="form-grid-3">
                     <div class="f-group">
-                        <label for="year" class="f-label">Ano de Criação *</label>
+                        <label for="year" class="f-label">Ano / Período de Criação *</label>
                         <input 
-                            type="number" 
+                            type="text" 
                             name="year" 
                             id="year" 
                             class="f-input" 
-                            min="1700" 
-                            max="2100" 
+                            placeholder="Ex: 1985, Século XX, Meio do século XX..." 
                             required
                             value="<?= htmlspecialchars($_POST['year'] ?? date('Y')) ?>"
                         >

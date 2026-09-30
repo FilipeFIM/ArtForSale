@@ -437,7 +437,7 @@ $currentImg = artsale_resolve_image_url($categoria['image_url'] ?? '', '../');
                 <span id="themeToggleIcon">🌙</span>
                 <span id="themeToggleLabel">Escuro</span>
             </button>
-            <a href="../pages/categorias.php?slug=<?= urlencode($categoria['slug']) ?>" target="_blank" class="btn-link-site">Ver no Site ↗</a>
+            <a href="../pages/obras.php" target="_blank" class="btn-link-site">Ver Catálogo no Site ↗</a>
             <a href="logout.php" class="btn-logout-link">Sair</a>
         </nav>
     </header>

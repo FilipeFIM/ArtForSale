@@ -379,8 +379,8 @@ function artsale_get_hero_slides(bool $forceRefresh = false): array {
             'quote' => 'Mais que quadros, histórias que ganham vida no seu espaço.',
             'cta_primary_text' => 'Explorar obras',
             'cta_primary_url' => 'pages/obras.php',
-            'cta_secondary_text' => 'Ver categorias',
-            'cta_secondary_url' => '#categorias'
+            'cta_secondary_text' => 'Conhecer a Galeria',
+            'cta_secondary_url' => '#sobre'
         ],
         [
             'id' => 2,
@@ -391,8 +391,8 @@ function artsale_get_hero_slides(bool $forceRefresh = false): array {
             'quote' => 'A beleza clássica e contemporânea em perfeita harmonia.',
             'cta_primary_text' => 'Explorar obras',
             'cta_primary_url' => 'pages/obras.php',
-            'cta_secondary_text' => 'Ver categorias',
-            'cta_secondary_url' => '#categorias'
+            'cta_secondary_text' => 'Conhecer a Galeria',
+            'cta_secondary_url' => '#sobre'
         ],
         [
             'id' => 3,
@@ -403,8 +403,8 @@ function artsale_get_hero_slides(bool $forceRefresh = false): array {
             'quote' => 'Cada pincelada carrega uma emoção eterna e autêntica.',
             'cta_primary_text' => 'Explorar obras',
             'cta_primary_url' => 'pages/obras.php',
-            'cta_secondary_text' => 'Ver categorias',
-            'cta_secondary_url' => '#categorias'
+            'cta_secondary_text' => 'Conhecer a Galeria',
+            'cta_secondary_url' => '#sobre'
         ]
     ];
 
@@ -494,6 +494,15 @@ function artsale_get_hero_slides(bool $forceRefresh = false): array {
     for ($i = 0; $i < 3; $i++) {
         $def = $defaultSlides[$i];
         $curr = $loaded[$i] ?? [];
+        $secText = !empty($curr['cta_secondary_text']) ? $curr['cta_secondary_text'] : $def['cta_secondary_text'];
+        $secUrl = !empty($curr['cta_secondary_url']) ? $curr['cta_secondary_url'] : $def['cta_secondary_url'];
+        if (stripos($secText, 'categoria') !== false) {
+            $secText = 'Conhecer a Galeria';
+        }
+        if (stripos($secUrl, 'categoria') !== false) {
+            $secUrl = '#sobre';
+        }
+
         $result[] = [
             'id' => $i + 1,
             'image' => !empty($curr['image']) ? $curr['image'] : $def['image'],
@@ -503,8 +512,8 @@ function artsale_get_hero_slides(bool $forceRefresh = false): array {
             'quote' => !empty($curr['quote']) ? $curr['quote'] : $def['quote'],
             'cta_primary_text' => !empty($curr['cta_primary_text']) ? $curr['cta_primary_text'] : $def['cta_primary_text'],
             'cta_primary_url' => !empty($curr['cta_primary_url']) ? $curr['cta_primary_url'] : $def['cta_primary_url'],
-            'cta_secondary_text' => !empty($curr['cta_secondary_text']) ? $curr['cta_secondary_text'] : $def['cta_secondary_text'],
-            'cta_secondary_url' => !empty($curr['cta_secondary_url']) ? $curr['cta_secondary_url'] : $def['cta_secondary_url'],
+            'cta_secondary_text' => $secText,
+            'cta_secondary_url' => $secUrl,
             'updated_at' => $curr['updated_at'] ?? 0
         ];
     }

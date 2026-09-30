@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'slug'               => trim($_POST['slug'] ?? ''),
             'code'               => trim($_POST['code'] ?? ''),
             'technique'          => trim($_POST['technique'] ?? ''),
-            'year'               => (int)($_POST['year'] ?? date('Y')),
+            'year'               => trim((string)($_POST['year'] ?? date('Y'))),
             'dimension_unit'     => $unit,
             'width'              => $width,
             'height'             => $height,
@@ -1172,13 +1172,14 @@ $allArtists = supabase_buscar_artistas_list($adminToken);
 
                     <div class="form-grid-3">
                         <div class="f-group">
-                            <label for="year" class="f-label">Ano de Criação</label>
+                            <label for="year" class="f-label">Ano / Período de Criação</label>
                             <input 
-                                type="number" 
+                                type="text" 
                                 name="year" 
                                 id="year" 
                                 class="f-input" 
-                                value="<?= htmlspecialchars($obra['ano'] ?? 2024) ?>"
+                                placeholder="Ex: 1985, Século XX, Meio do século XX..."
+                                value="<?= htmlspecialchars((string)($obra['year_text'] ?? $obra['ano'] ?? '')) ?>"
                             >
                         </div>
 

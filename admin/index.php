@@ -157,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dados = [
                 'name'               => $_POST['name'] ?? '',
                 'technique'          => $_POST['technique'] ?? '',
-                'year'               => $_POST['year'] ?? 2024,
+                'year'               => trim((string)($_POST['year'] ?? 2024)),
                 'width'              => $_POST['width'] ?? 0,
                 'height'             => $_POST['height'] ?? 0,
                 'depth'              => $_POST['depth'] ?? null,
@@ -195,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'name'               => trim($_POST['name'] ?? ''),
             'code'               => trim($_POST['code'] ?? ''),
             'technique'          => trim($_POST['technique'] ?? ''),
-            'year'               => (int)($_POST['year'] ?? date('Y')),
+            'year'               => trim((string)($_POST['year'] ?? date('Y'))),
             'dimension_unit'     => $unit,
             'width'              => $width,
             'height'             => $height,
@@ -2304,8 +2304,8 @@ $statusFilter = $_GET['status'] ?? 'all';
                     </div>
 
                     <div class="f-group">
-                        <label class="f-label">Ano de Criação</label>
-                        <input type="number" name="year" class="f-input" value="<?= date('Y') ?>" min="1800" max="2100">
+                        <label class="f-label">Ano / Período de Criação</label>
+                        <input type="text" name="year" class="f-input" placeholder="Ex: 1985, Século XX, Meio do século XX..." value="<?= date('Y') ?>">
                     </div>
                 </div>
 
@@ -2404,8 +2404,8 @@ $statusFilter = $_GET['status'] ?? 'all';
                     </div>
 
                     <div class="f-group">
-                        <label class="f-label">Ano de Criação</label>
-                        <input type="number" name="year" class="f-input" value="<?= htmlspecialchars($selectedArtwork['ano'] ?? 2024) ?>">
+                        <label class="f-label">Ano / Período de Criação</label>
+                        <input type="text" name="year" class="f-input" placeholder="Ex: 1985, Século XX, Meio do século XX..." value="<?= htmlspecialchars((string)($selectedArtwork['year_text'] ?? $selectedArtwork['ano'] ?? '')) ?>">
                     </div>
                 </div>
 

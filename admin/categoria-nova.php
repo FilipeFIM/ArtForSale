@@ -438,7 +438,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span id="themeToggleIcon">🌙</span>
                 <span id="themeToggleLabel">Escuro</span>
             </button>
-            <a href="../pages/categorias.php" target="_blank" class="btn-link-site">Ver Categorias no Site ↗</a>
+            <a href="../pages/obras.php" target="_blank" class="btn-link-site">Ver Catálogo no Site ↗</a>
             <a href="logout.php" class="btn-logout-link">Sair</a>
         </nav>
     </header>

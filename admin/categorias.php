@@ -567,7 +567,7 @@ $counts = [
                 <span id="themeToggleIcon">🌙</span>
                 <span id="themeToggleLabel">Escuro</span>
             </button>
-            <a href="../pages/categorias.php" target="_blank" class="btn-link-site">Ver Categorias no Site ↗</a>
+            <a href="../pages/obras.php" target="_blank" class="btn-link-site">Ver Catálogo no Site ↗</a>
             <a href="logout.php" class="btn-logout-link">Sair</a>
         </nav>
     </header>
@@ -736,7 +736,7 @@ $counts = [
                                     <a href="categoria-editar.php?id=<?= urlencode((string)$catId) ?>" class="btn-action-edit" title="Editar dados e imagem">
                                         ✎ Editar
                                     </a>
-                                    <a href="../pages/categorias.php?slug=<?= urlencode($slug) ?>" target="_blank" class="btn-action-site" title="Ver no site público">
+                                    <a href="../pages/obras.php" target="_blank" class="btn-action-site" title="Ver catálogo no site público">
                                         ↗
                                     </a>
                                 </div>
