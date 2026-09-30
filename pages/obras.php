@@ -96,43 +96,19 @@ require_once dirname(__DIR__) . '/includes/header.php';
                             type="text" 
                             id="catalogoSearch" 
                             class="catalogo-search-input" 
-                            placeholder="Pesquisar obras, artistas ou categorias..." 
+                            placeholder="Pesquisar obras ou artistas..." 
                             autocomplete="off"
-                            aria-label="Pesquisar obras, artistas ou categorias"
+                            aria-label="Pesquisar obras ou artistas"
                         >
                         <button type="button" id="catalogoSearchClear" class="catalogo-search-clear" aria-label="Limpar pesquisa" title="Limpar pesquisa">✕</button>
                     </div>
                 </div>
 
-                <!-- Filtros de Categorias (Pills / Abas) -->
-                <div class="catalogo-filters-bar">
+                <!-- Filtros de Categorias (Ocultado a pedido do cliente) -->
+                <div class="catalogo-filters-bar" style="display: none !important;">
                     <div class="catalogo-filters-scroll" id="catalogoFilters" role="tablist" aria-label="Filtro de Categorias">
                         <button type="button" class="filter-pill active" data-category="all" role="tab" aria-selected="true">
                             Todas
-                        </button>
-                        <button type="button" class="filter-pill" data-category="arte-classica" role="tab" aria-selected="false">
-                            Arte Clássica
-                        </button>
-                        <button type="button" class="filter-pill" data-category="arte-moderna" role="tab" aria-selected="false">
-                            Arte Moderna
-                        </button>
-                        <button type="button" class="filter-pill" data-category="arte-contemporanea" role="tab" aria-selected="false">
-                            Arte Contemporânea
-                        </button>
-                        <button type="button" class="filter-pill" data-category="paisagens" role="tab" aria-selected="false">
-                            Paisagens
-                        </button>
-                        <button type="button" class="filter-pill" data-category="retratos" role="tab" aria-selected="false">
-                            Retratos
-                        </button>
-                        <button type="button" class="filter-pill" data-category="abstrato" role="tab" aria-selected="false">
-                            Abstrato
-                        </button>
-                        <button type="button" class="filter-pill" data-category="gravuras" role="tab" aria-selected="false">
-                            Gravuras
-                        </button>
-                        <button type="button" class="filter-pill" data-category="esculturas" role="tab" aria-selected="false">
-                            Esculturas
                         </button>
                     </div>
                 </div>
@@ -205,13 +181,13 @@ require_once dirname(__DIR__) . '/includes/header.php';
                         <polyline points="21 15 16 10 5 21"></polyline>
                     </svg>
                 </div>
-                <h3 class="state-title">Nenhuma obra nesta categoria</h3>
+                <h3 class="state-title">Nenhuma obra encontrada</h3>
                 <p class="state-description">
-                    No momento, todas as peças desta categoria encontram-se reservadas ou em acervo particular. Fale com nossos curadores para encomendas e consultas de procedência.
+                    No momento, todas as peças correspondentes encontram-se reservadas ou em acervo particular. Fale com nossos curadores para encomendas e consultas de procedência.
                 </p>
                 <div class="state-buttons-row">
                     <button type="button" class="btn-state-reset" id="btnResetFilter">
-                        Ver todas as categorias
+                        Ver todo o acervo
                     </button>
                     <a href="#contato" class="btn-state-outline" data-modal="consultar">
                         Consultar curadoria
@@ -248,7 +224,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
                                 decoding="async"
                                 onerror="this.onerror=null; this.src='../assets/images/obras/placeholder-obra.svg';"
                             >
-                            <span class="artwork-category-tag"><?= htmlspecialchars($obra['categoria']) ?></span>
                             
                             <!-- Botão de Favoritar (Coração) -->
                             <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar <?= htmlspecialchars($obra['titulo']) ?>" data-id="<?= htmlspecialchars((string)$obra['id']) ?>">

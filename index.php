@@ -106,8 +106,8 @@ require_once __DIR__ . '/includes/header.php';
         'quote' => 'Mais que quadros, histórias que ganham vida no seu espaço.',
         'cta_primary_text' => 'Explorar obras',
         'cta_primary_url' => 'pages/obras.php',
-        'cta_secondary_text' => 'Ver categorias',
-        'cta_secondary_url' => '#categorias'
+        'cta_secondary_text' => 'Conhecer a Galeria',
+        'cta_secondary_url' => '#sobre'
     ];
     ?>
     <section class="hero-section" id="hero">
@@ -140,8 +140,14 @@ require_once __DIR__ . '/includes/header.php';
                     <a href="<?= htmlspecialchars($activeHeroSlide['cta_primary_url'] ?? 'pages/obras.php') ?>" class="btn-primary" id="heroCtaPrimary">
                         <?= htmlspecialchars($activeHeroSlide['cta_primary_text'] ?? 'Explorar obras') ?> <span class="arrow">→</span>
                     </a>
-                    <a href="<?= htmlspecialchars($activeHeroSlide['cta_secondary_url'] ?? '#categorias') ?>" class="btn-outline-light" id="heroCtaSecondary">
-                        <?= htmlspecialchars($activeHeroSlide['cta_secondary_text'] ?? 'Ver categorias') ?>
+                    <?php
+                    $heroSecUrl = $activeHeroSlide['cta_secondary_url'] ?? '#sobre';
+                    if ($heroSecUrl === '#categorias' || str_contains($heroSecUrl, 'categoria')) $heroSecUrl = '#sobre';
+                    $heroSecText = $activeHeroSlide['cta_secondary_text'] ?? 'Conhecer a Galeria';
+                    if ($heroSecText === 'Ver categorias' || str_contains(mb_strtolower($heroSecText), 'categoria')) $heroSecText = 'Conhecer a Galeria';
+                    ?>
+                    <a href="<?= htmlspecialchars($heroSecUrl) ?>" class="btn-outline-light" id="heroCtaSecondary">
+                        <?= htmlspecialchars($heroSecText) ?>
                     </a>
                 </div>
 
@@ -176,54 +182,6 @@ require_once __DIR__ . '/includes/header.php';
                         </svg>
                     </button>
                 </div>
-            </div>
-        </div>
-    </section>
-
-
-
-    <!-- ========================================================
-         SEÇÃO EXPLORE POR CATEGORIA
-         ======================================================== -->
-    <section class="section-categories" id="categorias">
-        <div class="section-container">
-            <!-- Cabeçalho da Seção -->
-            <div class="section-header">
-                <div class="header-titles">
-                    <span class="section-eyebrow">CATEGORIAS</span>
-                    <h2 class="section-title">Explore por Categoria</h2>
-                </div>
-                <a href="pages/categorias.php" class="section-link-all">
-                    Ver todas as categorias <span class="arrow">→</span>
-                </a>
-            </div>
-
-            <!-- Grade com as 8 Categorias Oficiais do Mockup -->
-            <div class="categories-grid">
-                <?php 
-                $categoriasHomeExibidas = array_slice($categoriasHome, 0, 8);
-                foreach ($categoriasHomeExibidas as $cat): 
-                    $catSlug = $cat['slug'] ?? '';
-                    $catNome = $cat['name'] ?? ($cat['nome'] ?? '');
-                    $catImg = artsale_resolve_image_url($cat['image_url'] ?? ($cat['imagem'] ?? ''), '');
-                ?>
-                    <a href="pages/categorias.php?slug=<?= urlencode($catSlug) ?>" class="category-card" data-category="<?= htmlspecialchars($catSlug) ?>">
-                        <div class="category-thumb-wrapper">
-                            <img 
-                                src="<?= htmlspecialchars(artsale_get_thumbnail_url($catImg, 240, 160)) ?>" 
-                                alt="<?= htmlspecialchars($catNome) ?>" 
-                                class="category-thumb"
-                                width="240"
-                                height="160"
-                                loading="lazy"
-                                decoding="async"
-                                onerror="this.onerror=null; this.src='assets/images/obras/placeholder-obra.svg';"
-                            >
-                            <div class="category-hover-overlay"></div>
-                        </div>
-                        <span class="category-name"><?= htmlspecialchars($catNome) ?></span>
-                    </a>
-                <?php endforeach; ?>
             </div>
         </div>
     </section>

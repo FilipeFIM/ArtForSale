@@ -109,12 +109,6 @@
                         </a>
                     </li>
                     <li>
-                        <a href="<?= ($currentPage ?? '') === 'inicio' ? '#categorias' : ($pathPrefix ?? '') . 'index.php#categorias' ?>">
-                            <span class="nav-chevron" aria-hidden="true">›</span>
-                            <span>Categorias</span>
-                        </a>
-                    </li>
-                    <li>
                         <a href="<?= ($currentPage ?? '') === 'inicio' ? '#sobre' : ($pathPrefix ?? '') . 'index.php#sobre' ?>">
                             <span class="nav-chevron" aria-hidden="true">›</span>
                             <span>Sobre</span>
@@ -129,129 +123,7 @@
                 </ul>
             </div>
 
-            <!-- 3. Coluna CATEGORIAS (2 subcolunas com ícones lineares dourados) -->
-            <div class="footer-col footer-col-cats">
-                <h4 class="footer-heading">CATEGORIAS</h4>
-                <div class="footer-gold-rule"></div>
-                <div class="footer-cats-columns">
-                    <!-- Subcoluna 1 -->
-                    <ul class="footer-link-list footer-cats-sublist">
-                        <li>
-                            <a href="<?= $pathPrefix ?? '' ?>pages/obras.php">
-                                <span class="cat-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path>
-                                        <path d="m14 7 3 3"></path>
-                                    </svg>
-                                </span>
-                                <span>Pinturas</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="<?= $pathPrefix ?? '' ?>pages/obras.php?categoria=arte-classica">
-                                <span class="cat-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                        <polyline points="21 15 16 10 5 21"></polyline>
-                                    </svg>
-                                </span>
-                                <span>Arte Clássica</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="<?= $pathPrefix ?? '' ?>pages/obras.php?categoria=arte-moderna">
-                                <span class="cat-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="9"></circle>
-                                        <path d="M3.6 9h16.8M3.6 15h16.8"></path>
-                                        <path d="M11.5 3a17 17 0 0 0 0 18M12.5 3a17 17 0 0 1 0 18"></path>
-                                    </svg>
-                                </span>
-                                <span>Arte Moderna</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="<?= $pathPrefix ?? '' ?>pages/obras.php?categoria=arte-contemporanea">
-                                <span class="cat-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                                        <polyline points="2 17 12 22 22 17"></polyline>
-                                        <polyline points="2 12 12 17 22 12"></polyline>
-                                    </svg>
-                                </span>
-                                <span>Arte Contemporânea</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="<?= $pathPrefix ?? '' ?>pages/obras.php?categoria=paisagens">
-                                <span class="cat-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
-                                        <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
-                                    </svg>
-                                </span>
-                                <span>Paisagens</span>
-                            </a>
-                        </li>
-                    </ul>
-
-                    <!-- Subcoluna 2 -->
-                    <ul class="footer-link-list footer-cats-sublist">
-                        <li>
-                            <a href="<?= $pathPrefix ?? '' ?>pages/obras.php?categoria=retratos">
-                                <span class="cat-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="8" r="4"></circle>
-                                        <path d="M6 21v-2a6 6 0 0 1 12 0v2"></path>
-                                    </svg>
-                                </span>
-                                <span>Retratos</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="<?= $pathPrefix ?? '' ?>pages/obras.php?categoria=abstrato">
-                                <span class="cat-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                                    </svg>
-                                </span>
-                                <span>Abstrato</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="<?= $pathPrefix ?? '' ?>pages/obras.php?categoria=gravuras">
-                                <span class="cat-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-                                        <line x1="8" y1="16" x2="16" y2="8"></line>
-                                        <polyline points="12 8 16 8 16 12"></polyline>
-                                    </svg>
-                                </span>
-                                <span>Gravuras</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="<?= $pathPrefix ?? '' ?>pages/obras.php?categoria=esculturas">
-                                <span class="cat-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                        <line x1="3" y1="21" x2="21" y2="21"></line>
-                                        <line x1="4" y1="3" x2="20" y2="3"></line>
-                                        <line x1="7" y1="7" x2="7" y2="17"></line>
-                                        <line x1="12" y1="7" x2="12" y2="17"></line>
-                                        <line x1="17" y1="7" x2="17" y2="17"></line>
-                                        <rect x="5" y="3" width="14" height="4" rx="1"></rect>
-                                        <rect x="5" y="17" width="14" height="4" rx="1"></rect>
-                                    </svg>
-                                </span>
-                                <span>Esculturas</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- 4. Coluna ATENDIMENTO -->
+            <!-- 3. Coluna ATENDIMENTO -->
             <div class="footer-col footer-col-contact">
                 <h4 class="footer-heading">ATENDIMENTO</h4>
                 <div class="footer-gold-rule"></div>

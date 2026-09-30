@@ -1542,7 +1542,8 @@ ul, ol {
     margin: 0 auto;
     padding: 70px 40px 60px;
     display: grid;
-    grid-template-columns: 1.45fr 0.85fr 1.6fr 1.2fr;
+    grid-template-columns: 1.6fr 1fr 1.4fr;
+    gap: 3rem;
     align-items: start;
 }
 
@@ -3608,5 +3609,14 @@ ul, ol {
     justify-content: center;
 }
 
-
-
+/* ==========================================================================
+   OCULTAÇÃO GLOBAL DE CATEGORIAS (Solicitação do Cliente)
+   ========================================================================== */
+.section-categories,
+#categorias,
+.catalogo-filters-bar,
+.footer-col-cats,
+.spec-item-category,
+.artwork-category-tag {
+    display: none !important;
+}

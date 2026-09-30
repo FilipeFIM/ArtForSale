@@ -17,6 +17,10 @@
 $pathPrefix = '../';
 $currentPage = 'categorias';
 
+// Redireciona para o catálogo de obras (categorias desativadas na interface)
+header('Location: ' . ($pathPrefix ?? '') . 'pages/obras.php', true, 302);
+exit;
+
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/supabase.php';
 

@@ -532,8 +532,8 @@ function artsale_save_hero_slides(array $slides): bool {
             'quote' => trim($s['quote'] ?? ''),
             'cta_primary_text' => trim($s['cta_primary_text'] ?? 'Explorar obras'),
             'cta_primary_url' => trim($s['cta_primary_url'] ?? 'pages/obras.php'),
-            'cta_secondary_text' => trim($s['cta_secondary_text'] ?? 'Ver categorias'),
-            'cta_secondary_url' => trim($s['cta_secondary_url'] ?? '#categorias'),
+            'cta_secondary_text' => trim($s['cta_secondary_text'] ?? 'Conhecer a Galeria'),
+            'cta_secondary_url' => trim($s['cta_secondary_url'] ?? '#sobre'),
             'updated_at' => $now
         ];
     }

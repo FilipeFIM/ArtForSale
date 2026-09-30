@@ -320,10 +320,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
 
                             <!-- Coluna 2 -->
                             <div class="spec-item">
-                                <span class="spec-label">Categoria:</span>
-                                <span class="spec-value"><?= htmlspecialchars($obra['categoria']) ?></span>
-                            </div>
-                            <div class="spec-item">
                                 <span class="spec-label">Disponibilidade:</span>
                                 <span class="spec-value spec-avail"><?= htmlspecialchars($obra['disponibilidade']) ?></span>
                             </div>
@@ -428,7 +424,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
                                 decoding="async"
                                 onerror="if(!this.src.endsWith('.svg')) this.src=this.src.replace(/\.(jpg|jpeg|png)$/i, '.svg');"
                             >
-                            <span class="artwork-category-tag"><?= htmlspecialchars($rel['categoria']) ?></span>
                             <button type="button" class="btn-favorite" title="Adicionar aos favoritos" aria-label="Favoritar <?= htmlspecialchars($rel['titulo']) ?>" data-id="<?= $rel['id'] ?>">
                                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>

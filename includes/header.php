@@ -77,9 +77,6 @@ if (isset($seoMeta) && is_array($seoMeta) && function_exists('artsale_render_seo
                         <a href="<?= $pathPrefix ?? '' ?>pages/obras.php" class="nav-link <?= ($currentPage ?? '') === 'obras' ? 'active' : '' ?>">Obras</a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= ($currentPage ?? '') === 'inicio' ? '#categorias' : ($pathPrefix ?? '') . 'pages/categorias.php' ?>" class="nav-link <?= ($currentPage ?? '') === 'categorias' ? 'active' : '' ?>">Categorias</a>
-                    </li>
-                    <li class="nav-item">
                         <a href="<?= ($currentPage ?? '') === 'inicio' ? '#sobre' : ($pathPrefix ?? '') . 'index.php#sobre' ?>" class="nav-link">Sobre</a>
                     </li>
                     <li class="nav-item">
@@ -130,7 +127,6 @@ if (isset($seoMeta) && is_array($seoMeta) && function_exists('artsale_render_seo
         <nav class="mobile-nav">
             <a href="<?= $pathPrefix ?? '' ?>index.php" class="mobile-nav-link <?= ($currentPage ?? '') === 'inicio' ? 'active' : '' ?>">Início</a>
             <a href="<?= $pathPrefix ?? '' ?>pages/obras.php" class="mobile-nav-link <?= ($currentPage ?? '') === 'obras' ? 'active' : '' ?>">Obras</a>
-            <a href="<?= ($currentPage ?? '') === 'inicio' ? '#categorias' : ($pathPrefix ?? '') . 'pages/categorias.php' ?>" class="mobile-nav-link <?= ($currentPage ?? '') === 'categorias' ? 'active' : '' ?>">Categorias</a>
             <a href="<?= ($currentPage ?? '') === 'inicio' ? '#sobre' : ($pathPrefix ?? '') . 'index.php#sobre' ?>" class="mobile-nav-link">Sobre</a>
             <a href="<?= ($currentPage ?? '') === 'inicio' ? '#contato' : ($pathPrefix ?? '') . 'index.php#contato' ?>" class="mobile-nav-link">Contato</a>
         </nav>

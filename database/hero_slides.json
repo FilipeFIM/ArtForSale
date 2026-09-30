@@ -8,8 +8,8 @@
         "quote": "Mais que quadros, histórias que ganham vida no seu espaço.",
         "cta_primary_text": "Explorar obras",
         "cta_primary_url": "pages/obras.php",
-        "cta_secondary_text": "Ver categorias",
-        "cta_secondary_url": "#categorias",
+        "cta_secondary_text": "Conhecer a Galeria",
+        "cta_secondary_url": "#sobre",
         "updated_at": 1790438537
     },
     {
@@ -21,8 +21,8 @@
         "quote": "A beleza clássica e contemporânea em perfeita harmonia.",
         "cta_primary_text": "Explorar obras",
         "cta_primary_url": "pages/obras.php",
-        "cta_secondary_text": "Ver categorias",
-        "cta_secondary_url": "#categorias",
+        "cta_secondary_text": "Conhecer a Galeria",
+        "cta_secondary_url": "#sobre",
         "updated_at": 1790438537
     },
     {
@@ -34,8 +34,8 @@
         "quote": "Cada pincelada carrega uma emoção eterna e autêntica.",
         "cta_primary_text": "Explorar obras",
         "cta_primary_url": "pages/obras.php",
-        "cta_secondary_text": "Ver categorias",
-        "cta_secondary_url": "#categorias",
+        "cta_secondary_text": "Conhecer a Galeria",
+        "cta_secondary_url": "#sobre",
         "updated_at": 1790438537
     }
 ]
