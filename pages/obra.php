@@ -321,13 +321,6 @@ require_once dirname(__DIR__) . '/includes/header.php';
                         </div>
                     </div>
 
-                    <?php if (!empty($obra['biografia_artista'])): ?>
-                    <div class="obra-artist-card-block" style="margin-bottom: 2rem; padding: 1.25rem 1.5rem; background: rgba(179,138,84,0.05); border: 1px solid rgba(179,138,84,0.25); border-radius: 6px;">
-                        <h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.35rem; color: #b38a54; margin-bottom: 0.5rem;">Sobre o Artista: <?= htmlspecialchars($obra['artista']) ?></h3>
-                        <p style="font-size: 0.875rem; color: #d4cfc5; line-height: 1.65; margin: 0;"><?= nl2br(htmlspecialchars($obra['biografia_artista'])) ?></p>
-                    </div>
-                    <?php endif; ?>
-
                     <!-- ================================================
                          BLOCO DE PREÇO SOB CONSULTA E BOTÃO DE INTERESSE
                          (Regra: Somente UM botão principal, sem WhatsApp)

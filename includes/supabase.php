@@ -1494,7 +1494,7 @@ function supabase_obter_ou_criar_artista(?string $artistIdOrName, ?string $authT
     $novo = supabase_request('artists', 'POST', [
         'name'      => $nomeArtista,
         'slug'      => $cleanSlug,
-        'biography' => 'Mestre em exibição na galeria Art For Sale.',
+        'biography' => '',
         'active'    => true
     ], $token);
 
