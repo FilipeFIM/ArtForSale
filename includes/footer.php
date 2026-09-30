@@ -205,8 +205,8 @@
                         <span class="divider">|</span>
                         <a href="<?= $pathPrefix ?? '' ?>admin/login.php" class="legal-link" title="Painel Administrativo da Curadoria">Site por Art For Sale</a>
                         <span class="divider">|</span>
-                        <a href="https://wa.me/5551989186263?text=Ol%C3%A1%2C%20gostaria%20de%20fazer%20um%20or%C3%A7amento" target="_blank" rel="noopener noreferrer" class="legal-link dev-credit-link" title="Falar com Filipe no WhatsApp para orçamentos">
-                            Desenvolvido por: <strong class="dev-author-name">Filipe</strong>
+                        <a href="https://wa.me/5551989186263?text=Ol%C3%A1%2C%20gostaria%20de%20fazer%20um%20or%C3%A7amento" target="_blank" rel="noopener noreferrer" class="legal-link dev-credit-link" title="Falar com Filipe Ilha Machado no WhatsApp para orçamentos">
+                            Desenvolvido por: <strong class="dev-author-name">Filipe Ilha Machado</strong>
                         </a>
                     </div>
                 </div>
