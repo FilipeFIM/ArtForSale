@@ -5,6 +5,12 @@
       "runtime": "vercel-php@0.7.3"
     }
   },
+  "crons": [
+    {
+      "path": "/api/keepalive.php",
+      "schedule": "0 10 * * *"
+    }
+  ],
   "routes": [
     {
       "src": "/assets/(.*)",

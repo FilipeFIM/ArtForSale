@@ -1,0 +1,82 @@
+name: Supabase Keepalive (Anti-Pause 24/7)
+
+on:
+  schedule:
+    # Executa 2 vezes por dia (às 06:00 e às 18:00 UTC)
+    # O Supabase pausa projetos gratuitos após 7 dias sem requisições.
+    # Esta rotina garante atividade contínua no banco sem necessidade de visitas humanas.
+    - cron: '0 6,18 * * *'
+  workflow_dispatch:
+    # Permite executar manualmente a qualquer momento pela aba Actions no GitHub
+
+jobs:
+  keepalive:
+    name: Ping Supabase Database
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping Supabase REST API (Artworks)
+        run: |
+          echo "=========================================================="
+          echo "ART FOR SALE - Supabase Keepalive Heartbeat"
+          echo "Data/Hora UTC: $(date -u)"
+          echo "=========================================================="
+          
+          SUPABASE_URL="${{ secrets.SUPABASE_URL }}"
+          if [ -z "$SUPABASE_URL" ]; then
+            SUPABASE_URL="https://recmxyfocskxvzbbkoui.supabase.co"
+          fi
+          
+          SUPABASE_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+          if [ -z "$SUPABASE_KEY" ]; then
+            SUPABASE_KEY="sb_publishable_TvGU0LOBDvDdLyfGXNWbig_BFU6EIKR"
+          fi
+          
+          echo "1. Consultando tabela de obras (artworks)..."
+          HTTP_STATUS=$(curl -s -o /tmp/artworks.json -w "%{http_code}" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            "$SUPABASE_URL/rest/v1/artworks?select=id,name&limit=1")
+          
+          echo "Resposta HTTP Artworks: $HTTP_STATUS"
+          cat /tmp/artworks.json
+          echo ""
+          
+          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+            echo "Sucesso: Consulta de obras executada!"
+          else
+            echo "Aviso: Codigo HTTP $HTTP_STATUS em artworks"
+          fi
+
+      - name: Ping Supabase REST API (Categories & Artists)
+        run: |
+          SUPABASE_URL="${{ secrets.SUPABASE_URL }}"
+          if [ -z "$SUPABASE_URL" ]; then
+            SUPABASE_URL="https://recmxyfocskxvzbbkoui.supabase.co"
+          fi
+          
+          SUPABASE_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+          if [ -z "$SUPABASE_KEY" ]; then
+            SUPABASE_KEY="sb_publishable_TvGU0LOBDvDdLyfGXNWbig_BFU6EIKR"
+          fi
+          
+          echo "2. Consultando categorias e artistas..."
+          HTTP_STATUS_CAT=$(curl -s -o /tmp/cats.json -w "%{http_code}" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            "$SUPABASE_URL/rest/v1/categories?select=id,name&limit=1")
+          
+          echo "Resposta HTTP Categories: $HTTP_STATUS_CAT"
+          cat /tmp/cats.json
+          echo ""
+          
+          if [ "$HTTP_STATUS_CAT" -ge 200 ] && [ "$HTTP_STATUS_CAT" -lt 300 ]; then
+            echo "Sucesso: Consulta de categorias executada!"
+          else
+            echo "Aviso: Codigo HTTP $HTTP_STATUS_CAT em categories"
+          fi
+          
+          echo "=========================================================="
+          echo "Heartbeat finalizado com sucesso! O Supabase permanece ativo."
+          echo "=========================================================="
