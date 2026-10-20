@@ -469,7 +469,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
                         placeholder="artforsale1944@gmail.com" 
                         required 
                         autocomplete="email"
-                        value="<?= htmlspecialchars($_POST['email'] ?? 'filipefim93@gmail.com') ?>"
+                        value="<?= htmlspecialchars($_POST['email'] ?? 'artforsale1944@gmail.com') ?>"
                     >
                 </div>
 
@@ -498,7 +498,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
                 <div style="margin-top: 0.65rem; line-height: 1.5; color: var(--text-muted);">
                     1. No <a href="https://supabase.com/dashboard" target="_blank" rel="noopener" style="color: var(--color-gold); text-decoration: underline;">Supabase Dashboard</a>, confirme seu usuário em <strong>Authentication &gt; Users</strong>.<br>
                     2. No <strong>SQL Editor</strong>, execute para conceder a role de administrador:<br>
-                    <code style="display:block; margin: 0.45rem 0; padding: 0.55rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.7rem; color: var(--color-gold); overflow-x: auto; font-family: monospace;">INSERT INTO public.profiles (id, name, role) SELECT id, 'Administrador Art For Sale', 'admin' FROM auth.users WHERE email = 'filipefim93@gmail.com' ON CONFLICT (id) DO UPDATE SET role = 'admin';</code>
+                    <code style="display:block; margin: 0.45rem 0; padding: 0.55rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.7rem; color: var(--color-gold); overflow-x: auto; font-family: monospace;">INSERT INTO public.profiles (id, name, role) SELECT id, 'Administrador Art For Sale', 'admin' FROM auth.users WHERE email = 'artforsale1944@gmail.com' ON CONFLICT (id) DO UPDATE SET role = 'admin';</code>
                 </div>
             </details>
 
@@ -558,7 +558,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
                 if (msg.includes('Invalid login credentials')) {
                     msg = 'E-mail ou senha incorretos no Supabase Auth. Verifique se digitou a senha correta cadastrada no Supabase.';
                 } else if (msg.includes('Email not confirmed')) {
-                    msg = 'O e-mail ainda não foi confirmado no Supabase. Acesse o painel do Supabase > Authentication > Users e confirme o usuário.';
+                    msg = '<strong>E-mail aguardando confirmação:</strong><br>O usuário <code>' + email + '</code> foi cadastrado no Supabase, mas seu e-mail ainda precisa ser confirmado.<br><br>• Abra a caixa de entrada no Gmail (<strong>' + email + '</strong>) e clique no link de confirmação do Supabase.<br>• <em>Ou no painel Supabase:</em> acesse <strong>Authentication &gt; Users</strong>, clique nos 3 pontinhos ao lado de <strong>' + email + '</strong> e selecione <strong>Confirm user</strong>.';
                 }
                 showAlert(msg);
                 btnSubmit.disabled = false;
@@ -585,6 +585,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
                 const profData = await profResp.json();
                 if (Array.isArray(profData) && profData.length > 0) {
                     profile = profData[0];
+                }
+            }
+
+            if (!profile || profile.role !== 'admin') {
+                const metaRole = (user.user_metadata && user.user_metadata.role) || (user.app_metadata && user.app_metadata.role);
+                const userName = (user.user_metadata && user.user_metadata.name) || email.split('@')[0];
+
+                if (metaRole === 'admin') {
+                    try {
+                        await fetch(`${cleanBase}/rest/v1/profiles`, {
+                            method: 'POST',
+                            headers: {
+                                'apikey': cfg.supabaseAnonKey,
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'resolution=merge-duplicates'
+                            },
+                            body: JSON.stringify({
+                                id: userId,
+                                name: userName,
+                                role: 'admin'
+                            })
+                        });
+                        profile = { id: userId, name: userName, role: 'admin' };
+                    } catch (e) {
+                        profile = { id: userId, name: userName, role: 'admin' };
+                    }
                 }
             }
 

@@ -2539,6 +2539,11 @@ function supabase_auth_login(string $email, string $password): array {
 
     if ($res['status'] >= 400 || empty($data['access_token'])) {
         $msg = $data['error_description'] ?? $data['msg'] ?? $data['message'] ?? 'Credenciais inválidas. Verifique seu e-mail e senha.';
+        if (stripos($msg, 'Email not confirmed') !== false) {
+            $msg = 'O e-mail informado ainda não foi confirmado no Supabase. Acesse o painel do Supabase > Authentication > Users e confirme o usuário, ou clique no link recebido na sua caixa de entrada.';
+        } elseif (stripos($msg, 'Invalid login credentials') !== false) {
+            $msg = 'E-mail ou senha incorretos no Supabase Auth. Verifique os dados digitados.';
+        }
         return ['sucesso' => false, 'erro' => $msg];
     }
 
@@ -2654,11 +2659,13 @@ function supabase_get_user_profile(string $userId, string $jwtToken): ?array {
     if ($payload && ($payload['sub'] ?? '') === $userId) {
         $metaRole = $payload['app_metadata']['role'] ?? $payload['user_metadata']['role'] ?? null;
         if ($metaRole === 'admin') {
-            return [
+            $adminProfile = [
                 'id'   => $userId,
                 'name' => $payload['user_metadata']['name'] ?? 'Administrador',
                 'role' => 'admin'
             ];
+            @supabase_request('profiles', 'POST', $adminProfile, $jwtToken);
+            return $adminProfile;
         }
     }
 
