@@ -359,6 +359,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
             background-color: var(--bg-card);
         }
 
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper .form-input {
+            padding-right: 2.85rem;
+        }
+
+        .btn-toggle-password {
+            position: absolute;
+            right: 0.65rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.45rem;
+            color: var(--text-muted);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s, background-color 0.2s;
+            line-height: 1;
+        }
+
+        .btn-toggle-password:hover {
+            color: var(--color-gold);
+            background-color: var(--color-gold-subtle);
+        }
+
+        .btn-toggle-password:focus-visible {
+            outline: 2px solid var(--color-gold);
+            outline-offset: 1px;
+        }
+
+        .btn-toggle-password svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
         .btn-submit {
             width: 100%;
             background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-hover) 100%);
@@ -475,15 +524,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
 
                 <div class="form-group">
                     <label for="senha" class="form-label">Senha</label>
-                    <input 
-                        type="password" 
-                        id="senha" 
-                        name="senha" 
-                        class="form-input" 
-                        placeholder="••••••••••••" 
-                        required 
-                        autocomplete="current-password"
-                    >
+                    <div class="password-wrapper">
+                        <input 
+                            type="password" 
+                            id="senha" 
+                            name="senha" 
+                            class="form-input" 
+                            placeholder="••••••••••••" 
+                            required 
+                            autocomplete="current-password"
+                        >
+                        <button type="button" class="btn-toggle-password" id="togglePasswordBtn" title="Mostrar senha" aria-label="Mostrar ou ocultar senha">
+                            <svg class="icon-eye-open" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg class="icon-eye-closed" viewBox="0 0 24 24" aria-hidden="true" style="display: none;">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-submit" id="btnSubmit">Entrar com Supabase Auth</button>
@@ -519,6 +580,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'clien
         if (phpAlert) phpAlert.style.display = 'none';
         alertBox.innerHTML = html;
         alertBox.style.display = 'block';
+    }
+
+    // Alternar visibilidade da senha
+    const senhaInput = document.getElementById('senha');
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    if (toggleBtn && senhaInput) {
+        const eyeOpen = toggleBtn.querySelector('.icon-eye-open');
+        const eyeClosed = toggleBtn.querySelector('.icon-eye-closed');
+        toggleBtn.addEventListener('click', function() {
+            const isPassword = senhaInput.getAttribute('type') === 'password';
+            if (isPassword) {
+                senhaInput.setAttribute('type', 'text');
+                if (eyeOpen) eyeOpen.style.display = 'none';
+                if (eyeClosed) eyeClosed.style.display = 'block';
+                toggleBtn.setAttribute('title', 'Ocultar senha');
+                toggleBtn.setAttribute('aria-label', 'Ocultar senha');
+            } else {
+                senhaInput.setAttribute('type', 'password');
+                if (eyeOpen) eyeOpen.style.display = 'block';
+                if (eyeClosed) eyeClosed.style.display = 'none';
+                toggleBtn.setAttribute('title', 'Mostrar senha');
+                toggleBtn.setAttribute('aria-label', 'Mostrar senha');
+            }
+            senhaInput.focus();
+        });
     }
 
     form.addEventListener('submit', async (e) => {
